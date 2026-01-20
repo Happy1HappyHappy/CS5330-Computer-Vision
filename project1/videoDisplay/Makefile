@@ -10,7 +10,11 @@ CXX = $(CC)
 #CFLAGS = -I/opt/local/include -I../include
 
 # OSX include paths (for homebrew, probably)
-CFLAGS = -Wc++11-extensions -std=c++11 -I/opt/homebrew/include/opencv4 -DENABLE_PRECOMPILED_HEADERS=OFF
+CFLAGS = -Wc++11-extensions \
+         -std=c++11 \
+		 -I/opt/homebrew/include/opencv4 \
+		 -I./include \
+		 -DENABLE_PRECOMPILED_HEADERS=OFF
 
 # Dwarf include paths
 #CFLAGS = -I../include # opencv includes are in /usr/include
@@ -40,12 +44,20 @@ LDLIBS = \
 BINDIR = ./bin
 SRCDIR = ./src/core
 OBJDIR = ./obj/core
+UTILSDIR = ./src/utils
+UTILOBJDIR = ./obj/utils
 
+# Prerequisites / Dependencies
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
-# 	mkdir -p $(dir $@)
+	mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-imgdisplay: $(OBJDIR)/imgDisplay.o
+$(UTILOBJDIR)/%.o: $(UTILSDIR)/%.cpp
+	mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Targets
+vidDisplay: $(OBJDIR)/vidDisplay.o	$(UTILOBJDIR)/TimeUtil.o
 	$(CC) $^ -o $(BINDIR)/$@ $(LDFLAGS) $(LDLIBS)
 
 vid: vidDisplay.o filters.o
