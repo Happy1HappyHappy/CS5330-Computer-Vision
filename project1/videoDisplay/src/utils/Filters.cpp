@@ -43,7 +43,7 @@ int Filters::greyscale(cv::Mat &src, cv::Mat &dst)
     return 0; // Success
 }
 
-int Filters::sepia(cv::Mat &src, cv::Mat &dst)
+int Filters::sepia(cv::Mat &src, cv::Mat &dst, bool vignetteFlag)
 {
     // check for empty source image
     if (src.empty())
@@ -78,14 +78,42 @@ int Filters::sepia(cv::Mat &src, cv::Mat &dst)
             newGreen = std::min(255, std::max(0, newGreen));
             newRed = std::min(255, std::max(0, newRed));
 
-            // set the sepia values in dst
+            // apply vignette effect if flag is set
+            float centerX = src.cols / 2.0f;
+            float centerY = src.rows / 2.0f;
+            float radius = std::max(src.cols, src.rows) / 2.0f;
+            if (vignetteFlag)
+            {
+                // Call the vignette function to get the factor
+                float vignetteFactor = Filters::vignette(static_cast<float>(j), static_cast<float>(i), centerX, centerY, radius);
+                // Update the new color values
+                newBlue = static_cast<int>(newBlue * vignetteFactor);
+                newGreen = static_cast<int>(newGreen * vignetteFactor);
+                newRed = static_cast<int>(newRed * vignetteFactor);
+            }
+
+            // set the new BGR values to dst
             dstRow[j][0] = newBlue;
             dstRow[j][1] = newGreen;
             dstRow[j][2] = newRed;
         }
     }
-
     return 0; // Success
+}
+
+float Filters::vignette(float x, float y, float centerX, float centerY, float radius)
+{
+    float dx = x - centerX;
+    float dy = y - centerY;
+    float distance = sqrt(dx * dx + dy * dy);
+    if (distance >= radius)
+    {
+        return 0.0f; // Outside the vignette radius
+    }
+    else
+    {
+        return 1.0f - (distance / radius); // Linear falloff
+    }
 }
 
 int blur5x5_1( cv::Mat &src, cv::Mat &dst )
@@ -103,6 +131,7 @@ int blur5x5_1( cv::Mat &src, cv::Mat &dst )
     
     return 0;
 }
+
 int blur5x5_2( cv::Mat &src, cv::Mat &dst )
 {   
     // set up the timing for version 2
