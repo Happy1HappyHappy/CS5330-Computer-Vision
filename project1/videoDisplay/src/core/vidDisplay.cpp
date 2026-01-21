@@ -1,59 +1,111 @@
-# include "project1/utils/TimeUtil.hpp"
-# include <iostream>
-# include <cstdio>
-# include <string>
-# include <chrono>
-# include <opencv2/opencv.hpp>
+#include "project1/utils/TimeUtil.hpp"
+#include <iostream>
+#include <cstdio>
+#include <string>
+#include <chrono>
+#include <opencv2/opencv.hpp>
 
 using namespace std;
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
+        // open the default video camera
         cv::VideoCapture capdev(0);
-        // cv::VideoCapture *capdev;
-
-        // open the video device
-        // capdev = new cv::VideoCapture(0);
-        if( !capdev.isOpened() ) {
+        // if not success, exit program
+        if (!capdev.isOpened())
+        {
                 printf("Unable to open video device\n");
-                return(-1);
+                return (-1);
         }
 
         // get some properties of the image
-        cv::Size refS( (int) capdev.get(cv::CAP_PROP_FRAME_WIDTH ),
-                       (int) capdev.get(cv::CAP_PROP_FRAME_HEIGHT));
+        cv::Size refS((int)capdev.get(cv::CAP_PROP_FRAME_WIDTH),
+                      (int)capdev.get(cv::CAP_PROP_FRAME_HEIGHT));
         printf("Expected size: %d %d\n", refS.width, refS.height);
 
         cv::namedWindow("Video", 1); // identifies a window
-        cv::Mat frame;
+        cv::Mat frame;               // current frame
+        cv::Mat grey;                // greyed current frame
+        bool toGrey = false;         // greyscale mode flag
 
-        for(;;) {
+        for (;;)
+        {
                 capdev >> frame; // get a new frame from the camera, treat as a stream
-                
-                if( frame.empty() ) {
-                  printf("frame is empty\n");
-                  break;
-                }                
 
-                cv::imshow("Video", frame);
+                // empty frame indicates end of video
+                if (frame.empty())
+                {
+                        printf("frame is empty\n");
+                        break;
+                }
+
+                // display the image
+                if (toGrey)
+                {
+                        cv::cvtColor(frame, grey, cv::COLOR_BGR2GRAY);
+                        cv::imshow("Video", grey);
+                }
+                else
+                {
+                        cv::imshow("Video", frame);
+                }
 
                 // see if there is a waiting keystroke
                 char key = cv::waitKey(1);
 
-                if( key == 'q' || key == 'Q') {
-                    break;
-                }  else if ( key == 's' || key == 'S') {
-                        
-                        string filename = "results/screenshot_" + TimeUtil::getTimestamp() + ".png";
+                // keypress 'q' to quit
+                if (key == 'q' || key == 'Q')
+                {
+                        break;
+                }
+                // keypress 'g' to toggle grayscale mode
+                else if (key == 'g' || key == 'G')
+                {
+                        if (toGrey)
+                        {
+                                toGrey = false;
+                                cout << "Switched to Color Mode" << endl;
+                        }
+                        else
+                        {
+                                toGrey = true;
+                                cout << "Switched to Grayscale Mode" << endl;
+                        }
+                }
+                // keypress 's' to save screenshot
+                else if (key == 's' || key == 'S')
+                {
+                        string time = TimeUtil::getTimestamp();
+                        string filenameColor = "results/screenshot_" + time + ".png";
+                        string filenameGrey = "results/screenshot_" + time + "_grey.png";
 
-                        bool ok = cv::imwrite(filename, frame);
-                        if(!ok) {
-                        cerr << "Failed to save image to " << filename << endl;
-                        } else {
-                        cout << "Saved Captured Frame: " << filename << endl;
+                        bool ok;
+                        bool greyOk;
+
+                        // write the image
+                        ok = cv::imwrite(filenameColor, frame);
+
+                        if (toGrey)
+                        {
+                                // write the grey image
+                                greyOk = cv::imwrite(filenameGrey, grey);
+                        }
+
+                        // cout the result
+                        if (ok)
+                        {
+                                cout << "Saved Captured Frame: " << filenameColor << endl;
+                        }
+                        if (greyOk)
+                        {
+                                cout << "Saved Captured Frame: " << filenameGrey << endl;
+                        }
+                        if (!ok && !toGrey)
+                        {
+                                cout << "ERROR: Could not save image." << endl;
                         }
                 }
         }
 
-        // delete capdev;
-        return(0);
+        return (0);
 }
