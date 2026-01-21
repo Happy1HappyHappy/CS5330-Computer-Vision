@@ -4,12 +4,27 @@
 #include <cstdio>
 #include <string>
 #include <chrono>
+#include <filesystem>
 #include <opencv2/opencv.hpp>
 
 using namespace std;
 
 int main(int argc, char *argv[])
-{
+{       
+        // create results directory if it doesn't exist
+        std::error_code ec;
+
+        std::filesystem::path fsPath = "./results/";
+
+        if (std::filesystem::create_directory(fsPath, ec)) {
+                std::cout << "Folder created\n";
+        } else if (ec){
+                std::cout << "Error creating folder: " << ec.message() << "\n";
+                return -1;
+        } else {        
+                std::cout << "Folder already exists\n";
+        }
+
         // open the default video camera
         cv::VideoCapture capdev(0);
         // if not success, exit program
@@ -100,7 +115,7 @@ int main(int argc, char *argv[])
                 else if (key == 's' || key == 'S')
                 {
                         // generate filename with timestamp and color mode
-                        string filename = "results/screenshot_" + TimeUtil::getTimestamp() + colorMode + ".png";
+                        std::string filename = fsPath.string() + "screenshot_" + TimeUtil::getTimestamp() + colorMode + ".png";
 
                         // flags to indicate if save was successful
                         bool ok = false;
