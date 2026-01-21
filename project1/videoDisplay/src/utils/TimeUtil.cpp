@@ -34,8 +34,3 @@ double TimeUtil::getTime() {
   gettimeofday( &cur, NULL );
   return( cur.tv_sec + cur.tv_usec / 1000000.0 );
 }
-
-int TimeUtil::getNTime() {
-    const int Ntimes = 10;
-    return Ntimes;
-}

@@ -8,7 +8,6 @@ class TimeUtil
 public:
     static std::string getTimestamp();
     static double getTime();
-    static int getNTime();
 };
 
 #endif

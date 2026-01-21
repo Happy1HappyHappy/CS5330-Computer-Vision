@@ -113,32 +113,72 @@ float Filters::vignette(float x, float y, float centerX, float centerY, float ra
     }
 }
 
-int Filters::blur5x5_1( cv::Mat &src, cv::Mat &dst )
+int Filters::blur5x5_1( cv::Mat &src, cv::Mat &dst, int times)
 {
+    cv::Mat kernel = (cv::Mat_<int>(5, 5) <<
+    1, 2, 4, 2, 1,
+    2, 4, 8, 4, 2,
+    4, 8, 16, 8, 4,
+    2, 4, 8, 4, 2,
+    1, 2, 4, 2, 1
+    );
+
     // set up the timing for version 1
     double startTime = TimeUtil::getTime();
+
+     for (int t = 0; t < times; t++) {
+        for (int i = 2; i < src.rows - 2; i++)
+    {
+        for (int j = 2; j < src.cols - 2; j++)
+        {
+            int sumB = 0, sumG = 0, sumR = 0;
+
+            for (int ki = -2; ki <= 2; ki++)
+            {
+                for (int kj = -2; kj <= 2; kj++)
+                {
+                    cv::Vec3b pixel = src.at<cv::Vec3b>(i + ki, j + kj);
+                    int weight = kernel.at<int>(ki + 2, kj + 2);
+
+                    sumB += pixel[0] * weight;
+                    sumG += pixel[1] * weight;
+                    sumR += pixel[2] * weight;
+                }
+            }
+
+            dst.at<cv::Vec3b>(i, j)[0] = sumB / 100;
+            dst.at<cv::Vec3b>(i, j)[1] = sumG / 100;
+            dst.at<cv::Vec3b>(i, j)[2] = sumR / 100;
+        }
+    }
+
+    }
     
     // end the timing
     double endTime = TimeUtil::getTime();
 
     // compute the time per image
-    double difference = (endTime - startTime) / TimeUtil::getNTime();
-      // print the results
-    printf("Time per image (1): %.4lf seconds\n", difference );
+    double difference = (endTime - startTime) / times;
+    // print the results
+    printf("Time per image (1): %.4lf seconds\n", difference);
     
     return 0;
 }
 
-int Filters::blur5x5_2( cv::Mat &src, cv::Mat &dst )
+int Filters::blur5x5_2( cv::Mat &src, cv::Mat &dst, int times)
 {   
     // set up the timing for version 2
     double startTime = TimeUtil::getTime();
+
+    // for (i = 0; i < times; i++) {
+    //     // execute the file on the original image
+    // }
 
     // end the timing
     double endTime = TimeUtil::getTime();
 
     // compute the time per image
-    double difference = (endTime - startTime) / TimeUtil::getNTime();
+    double difference = (endTime - startTime) / times;
       // print the results
     printf("Time per image (2): %.4lf seconds\n", difference );
     return 0;
