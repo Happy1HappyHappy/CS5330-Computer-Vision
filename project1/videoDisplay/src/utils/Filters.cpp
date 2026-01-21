@@ -3,6 +3,7 @@
 
 int Filters::greyscale(cv::Mat &src, cv::Mat &dst)
 {
+    // check for empty source image
     if (src.empty())
     {
         return -1; // Error: empty source image
@@ -10,7 +11,7 @@ int Filters::greyscale(cv::Mat &src, cv::Mat &dst)
     // copy the src to the dst to allocate the dst
     src.copyTo(dst);
 
-    // iterate each pixel color channels from src
+    // iterate each row
     for (int i = 1; i < src.rows - 1; i++)
     {
         // get pointer to the current row

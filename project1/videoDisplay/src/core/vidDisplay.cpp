@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
         cv::Mat frame;               // current frame
         cv::Mat grey;                // greyed current frame
 
-        char colorMode = 'c'; // greyscale mode flag
+        char colorMode = 'c'; // greyscale mode flag, default to color mode
 
         for (;;)
         {
@@ -51,6 +51,7 @@ int main(int argc, char *argv[])
                 else if (colorMode == 'h' || colorMode == 'H')
                 {
                         // use our greyscale filter
+                        Filters::greyscale(frame, grey);
                         cv::imshow("Video", grey);
                 }
                 else
@@ -70,7 +71,7 @@ int main(int argc, char *argv[])
                 // keypress 'c' for color mode
                 else if (key == 'c' || key == 'C')
                 {
-                        colorMode = 'c';
+                        colorMode = key;
                         cout << "Switched to Color Mode" << endl;
                 }
                 // keypress 'g' to toggle grayscale mode
@@ -88,37 +89,36 @@ int main(int argc, char *argv[])
                 // keypress 's' to save screenshot
                 else if (key == 's' || key == 'S')
                 {
-                        string time = TimeUtil::getTimestamp();
-                        string filenameColor = "results/screenshot_" + time + ".png";
-                        string filenameGrey = "results/screenshot_" + time + "_grey.png";
+                        // generate filename with timestamp and color mode
+                        string filename = "results/screenshot_" + TimeUtil::getTimestamp() + colorMode + ".png";
 
-                        bool ok;
-                        bool greyOk;
+                        // flags to indicate if save was successful
+                        bool ok = false;
 
-                        // write the image
-                        ok = cv::imwrite(filenameColor, frame);
-
+                        // save the greyed image based on mode
                         if (colorMode == 'g' || colorMode == 'G' || colorMode == 'h' || colorMode == 'H')
                         {
                                 // write the grey image
-                                greyOk = cv::imwrite(filenameGrey, grey);
+                                ok = cv::imwrite(filename, grey);
+                        }
+                        // save the color image
+                        else if (colorMode == 'c' || colorMode == 'C')
+                        {
+                                // write the image
+                                ok = cv::imwrite(filename, frame);
                         }
 
                         // cout the result
                         if (ok)
                         {
-                                cout << "Saved Captured Frame: " << filenameColor << endl;
+                                cout << "Saved Captured Frame: " << filename << endl;
                         }
-                        if (greyOk)
-                        {
-                                cout << "Saved Captured Frame: " << filenameGrey << endl;
-                        }
-                        if (!ok && !greyOk)
+                        else
                         {
                                 cout << "ERROR: Could not save image." << endl;
                         }
                 }
         }
 
-        return (0);
+        return 0;
 }
