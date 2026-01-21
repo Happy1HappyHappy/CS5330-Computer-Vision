@@ -7,8 +7,18 @@ and
 $$R \leftarrow Y, G \leftarrow Y, B \leftarrow Y, A \leftarrow \max(ChannelRange)$$
 
 The original and `cvtColor::COLOR_RGB2GRAY` version images are listed below:
+**Color:**
 ![Color](Assets/images/screenshot_20260120_165022459.png)
+**Grey:**
 ![Grey](Assets/images/screenshot_20260120_165022459_grey.png)
 
 ## Alternative grayscale filter (Task4)
-We use weighted RGB mean for every pixel in the picture. 
+We use weighted RGB mean for the filter. The weight is designed to mimic the true tonal perception of the human visual system. The coverison is listed below:
+$$Y \leftarrow  0.32  \cdot R + 0.64 \cdot G + 0.04 \cdot B$$
+
+**Color:**
+![Color](videoDisplay/results/screenshot_20260120_212559895.png)
+**Our gray filter:**
+![OurGray](videoDisplay/results/screenshot_20260120_212559895_OurGrey.png)
+**CV's gray filter:**
+![CVGray](videoDisplay/results/screenshot_20260120_212559895_grey.png)
