@@ -10,8 +10,8 @@ CXX = $(CC)
 #CFLAGS = -I/opt/local/include -I../include
 
 # OSX include paths (for homebrew, probably)
-CFLAGS = -Wc++11-extensions \
-         -std=c++11 \
+CFLAGS = -Wc++17-extensions \
+         -std=c++17 \
 		 -I/opt/homebrew/include/opencv4 \
 		 -I./include \
 		 -DENABLE_PRECOMPILED_HEADERS=OFF
