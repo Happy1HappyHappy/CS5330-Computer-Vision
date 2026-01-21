@@ -63,7 +63,17 @@ int main(int argc, char *argv[])
                 }
 
                 // display the image
-                if (colorMode == 'e' || colorMode == 'E')
+                if (colorMode == 'b' || colorMode == 'B')
+                {
+                        // apply blur filter
+                        Filters::blur5x5_2(frame, currentFrame);
+                }
+                else if (colorMode == 'c' || colorMode == 'C')
+                {
+                        // default color mode
+                        currentFrame = frame;
+                }
+                else if (colorMode == 'e' || colorMode == 'E')
                 {
                         Filters::sepia(frame, currentFrame, isVignette);
                 }
@@ -93,6 +103,11 @@ int main(int argc, char *argv[])
                 if (key == 'q' || key == 'Q')
                 {
                         break;
+                }
+                else if (key == 'b' || key == 'B')
+                {
+                        colorMode = key;
+                        cout << "Applied Blur Filter" << endl;
                 }
                 // keypress 'c' for color mode
                 else if (key == 'c' || key == 'C')
