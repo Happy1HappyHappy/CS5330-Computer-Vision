@@ -1,3 +1,8 @@
+// Authors: Claire Liu, Yu-Jing Wei
+// File: vidDisplay.cpp
+// Path: project1/videoDisplay/src/core/vidDisplay.cpp
+// Description: Loads and displays a video using OpenCV.
+
 #include "project1/utils/TimeUtil.hpp"
 #include "project1/utils/Filters.hpp"
 #include <iostream>
@@ -14,6 +19,12 @@ int main(int argc, char *argv[])
 
         std::filesystem::path fsPath = "./results/";
         std::error_code ec;
+        cv::namedWindow("Video", 1); // identifies a window
+        cv::Mat frame;               // original frame
+        cv::Mat currentFrame;        // current frame
+        bool isVignette = false;     // vignette flag
+        const int blurTimes = 2;     // number of times to apply blur
+        char colorMode = 'c';        // greyscale mode flag, default to color mode
 
         // create results directory if it doesn't exist
         if (std::filesystem::create_directory(fsPath, ec))
@@ -44,14 +55,6 @@ int main(int argc, char *argv[])
                       (int)capdev.get(cv::CAP_PROP_FRAME_HEIGHT));
         printf("Expected size: %d %d\n", refS.width, refS.height);
 
-        cv::namedWindow("Video", 1); // identifies a window
-        cv::Mat frame;               // original frame
-        cv::Mat currentFrame;        // current frame
-        bool isVignette = false;     // vignette flag
-        const int blurTimes = 10;          // number of times to apply blur
-
-        char colorMode = 'c'; // greyscale mode flag, default to color mode
-
         for (;;)
         {
                 capdev >> frame; // get a new frame from the camera, treat as a stream
@@ -66,8 +69,11 @@ int main(int argc, char *argv[])
                 // display the image
                 if (colorMode == 'b' || colorMode == 'B')
                 {
-                        // apply blur filter
-                        Filters::blur5x5_1(frame, currentFrame, blurTimes);
+                        // apply blur filter verison 1
+                        // Filters::blur5x5_1(frame, currentFrame, blurTimes);
+
+                        // apply blur filter verison 2
+                        Filters::blur5x5_2(frame, currentFrame, blurTimes);
                 }
                 else if (colorMode == 'c' || colorMode == 'C')
                 {

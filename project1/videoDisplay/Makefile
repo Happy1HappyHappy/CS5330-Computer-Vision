@@ -63,6 +63,9 @@ vidDisplay: $(OBJDIR)/vidDisplay.o	$(UTILOBJDIR)/TimeUtil.o $(UTILOBJDIR)/Filter
 vid: $(OBJDIR)/vidDisplay.o	$(UTILOBJDIR)/TimeUtil.o $(UTILOBJDIR)/Filters.o
 	$(CC) $^ -o $(BINDIR)/$@ $(LDFLAGS) $(LDLIBS)
 
+imgDisplay: $(OBJDIR)/imgDisplay.o	$(UTILOBJDIR)/TimeUtil.o $(UTILOBJDIR)/Filters.o
+	$(CC) $^ -o $(BINDIR)/$@ $(LDFLAGS) $(LDLIBS)
+
 face: faceDetect.o filters.o
 	$(CC) $^ -o $(BINDIR)/$@ $(LDFLAGS) $(LDLIBS)
 
