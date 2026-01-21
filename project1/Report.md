@@ -22,3 +22,12 @@ $$Y \leftarrow  0.32  \cdot R + 0.64 \cdot G + 0.04 \cdot B$$
 ![OurGray](Assets/images/screenshot_20260120_212559895_OurGrey.png)
 **CV's gray filter:**
 ![CVGray](Assets/images/screenshot_20260120_212559895_grey.png)
+
+## Sepia filter (Task5)
+We declare two diffrent variable to store RGB information. One set of variable store orginal RGB information and the other store the RGB information after coversion.
+
+**Original:**
+![Color](Assets/images/screenshot_20260120_220456250c.png)
+
+**Apply Sepia filter:**
+![Sepia](Assets/images/screenshot_20260120_220500992e.png)
