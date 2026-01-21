@@ -10,18 +10,23 @@
 using namespace std;
 
 int main(int argc, char *argv[])
-{       
-        // create results directory if it doesn't exist
-        std::error_code ec;
+{
 
         std::filesystem::path fsPath = "./results/";
+        std::error_code ec;
 
-        if (std::filesystem::create_directory(fsPath, ec)) {
+        // create results directory if it doesn't exist
+        if (std::filesystem::create_directory(fsPath, ec))
+        {
                 std::cout << "Folder created\n";
-        } else if (ec){
+        }
+        else if (ec)
+        {
                 std::cout << "Error creating folder: " << ec.message() << "\n";
                 return -1;
-        } else {        
+        }
+        else
+        {
                 std::cout << "Folder already exists\n";
         }
 
@@ -42,6 +47,7 @@ int main(int argc, char *argv[])
         cv::namedWindow("Video", 1); // identifies a window
         cv::Mat frame;               // original frame
         cv::Mat currentFrame;        // current frame
+        bool isVignette = false;     // vignette flag
 
         char colorMode = 'c'; // greyscale mode flag, default to color mode
 
@@ -59,7 +65,7 @@ int main(int argc, char *argv[])
                 // display the image
                 if (colorMode == 'e' || colorMode == 'E')
                 {
-                        Filters::sepia(frame, currentFrame);
+                        Filters::sepia(frame, currentFrame, isVignette);
                 }
                 else if (colorMode == 'g' || colorMode == 'G')
                 {
@@ -76,6 +82,7 @@ int main(int argc, char *argv[])
                         // default color mode
                         currentFrame = frame;
                 }
+
                 // show the current frame
                 cv::imshow("Video", currentFrame);
 
@@ -110,6 +117,12 @@ int main(int argc, char *argv[])
                 {
                         colorMode = key;
                         cout << "Switched to Our Greyscale Mode" << endl;
+                }
+                // keypress 'v' to toggle vignette filter
+                else if (key == 'v' || key == 'V')
+                {
+                        isVignette = !isVignette;
+                        cout << "Toggled Vignette Filter to " << (isVignette ? "ON" : "OFF") << endl;
                 }
                 // keypress 's' to save screenshot
                 else if (key == 's' || key == 'S')
