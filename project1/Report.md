@@ -17,8 +17,8 @@ We use weighted RGB mean for the filter. The weight is designed to mimic the tru
 $$Y \leftarrow  0.32  \cdot R + 0.64 \cdot G + 0.04 \cdot B$$
 
 **Color:**
-![Color](videoDisplay/results/screenshot_20260120_212559895.png)
+![Color](Assets/images/screenshot_20260120_212559895.png)
 **Our gray filter:**
-![OurGray](videoDisplay/results/screenshot_20260120_212559895_OurGrey.png)
+![OurGray](Assets/images/screenshot_20260120_212559895_OurGrey.png)
 **CV's gray filter:**
-![CVGray](videoDisplay/results/screenshot_20260120_212559895_grey.png)
+![CVGray](Assets/images/screenshot_20260120_212559895_grey.png)
