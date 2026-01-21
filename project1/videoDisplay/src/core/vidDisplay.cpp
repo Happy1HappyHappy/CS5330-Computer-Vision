@@ -48,6 +48,7 @@ int main(int argc, char *argv[])
         cv::Mat frame;               // original frame
         cv::Mat currentFrame;        // current frame
         bool isVignette = false;     // vignette flag
+        const int blurTimes = 10;          // number of times to apply blur
 
         char colorMode = 'c'; // greyscale mode flag, default to color mode
 
@@ -66,7 +67,7 @@ int main(int argc, char *argv[])
                 if (colorMode == 'b' || colorMode == 'B')
                 {
                         // apply blur filter
-                        Filters::blur5x5_2(frame, currentFrame);
+                        Filters::blur5x5_1(frame, currentFrame, blurTimes);
                 }
                 else if (colorMode == 'c' || colorMode == 'C')
                 {

@@ -17,6 +17,7 @@ int main(int argc, char** argv) {
     strcpy(filename, argv[1]);
 
     src = cv::imread(filename);
+    
     if (src.empty()) {
         printf("Unable to read image %s\n", filename);
         exit -1;
