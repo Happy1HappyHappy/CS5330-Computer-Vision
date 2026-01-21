@@ -1,3 +1,8 @@
+// Authors: Claire Liu, Yu-Jing Wei
+// File: Filters.cpp
+// Path: project1/videoDisplay/src/utils/Filters.cpp
+// Description: Filters implementation file defining image filtering functions.
+
 #include "project1/utils/Filters.hpp"
 #include "project1/utils/TimeUtil.hpp"
 #include <opencv2/opencv.hpp>
@@ -113,47 +118,89 @@ float Filters::vignette(float x, float y, float centerX, float centerY, float ra
     }
 }
 
-int Filters::blur5x5_1( cv::Mat &src, cv::Mat &dst, int times)
+int Filters::blur5x5_1(cv::Mat &src, cv::Mat &dst, int times)
 {
-    cv::Mat kernel = (cv::Mat_<int>(5, 5) <<
-    1, 2, 4, 2, 1,
-    2, 4, 8, 4, 2,
-    4, 8, 16, 8, 4,
-    2, 4, 8, 4, 2,
-    1, 2, 4, 2, 1
-    );
+    // check for empty source images
+    if (src.empty())
+        return -1;
 
+    // define the 5x5 Gaussian kernel
+    const int kernel[5][5] = {
+        {1, 2, 4, 2, 1},
+        {2, 4, 8, 4, 2},
+        {4, 8, 16, 8, 4},
+        {2, 4, 8, 4, 2},
+        {1, 2, 4, 2, 1}};
+
+    const int kSize = 5;         // kernel size
+    const int kHalf = kSize / 2; // 2
+    const int kSum = 100;        // sum of kernel weights
     // set up the timing for version 1
     double startTime = TimeUtil::getTime();
+    // intermediate image for processing
+    cv::Mat tmp;
+    src.copyTo(tmp);
+    src.copyTo(dst);
 
-     for (int t = 0; t < times; t++) {
-        for (int i = 2; i < src.rows - 2; i++)
+    // apply the blur 'times' times
+    for (int t = 0; t < times; t++)
     {
-        for (int j = 2; j < src.cols - 2; j++)
+        // iterate each pixel in the source image starts from (2,2) to (rows-2, cols-2)
+        for (int i = 0; i < tmp.rows; i++)
         {
-            int sumB = 0, sumG = 0, sumR = 0;
+            // pointer to the destination row
+            cv::Vec3b *dptr = dst.ptr<cv::Vec3b>(i);
 
-            for (int ki = -2; ki <= 2; ki++)
+            // iterate each column
+            for (int j = 0; j < src.cols; j++)
             {
-                for (int kj = -2; kj <= 2; kj++)
+                // initialize sums for each channel
+                int sumB = 0, sumG = 0, sumR = 0;
+
+                // apply the kernel
+                for (int ki = -kHalf; ki <= kHalf; ki++)
                 {
-                    cv::Vec3b pixel = src.at<cv::Vec3b>(i + ki, j + kj);
-                    int weight = kernel.at<int>(ki + 2, kj + 2);
+                    // handle border pixels by
+                    int row = i + ki;
+                    if (row < 0)
+                        row = 0;
+                    if (row >= tmp.rows)
+                        row = tmp.rows - 1;
 
-                    sumB += pixel[0] * weight;
-                    sumG += pixel[1] * weight;
-                    sumR += pixel[2] * weight;
+                    // get pointer to the current row
+                    cv::Vec3b *sptr = tmp.ptr<cv::Vec3b>(row);
+
+                    // iterate each column of the kernel
+                    for (int kj = -kHalf; kj <= kHalf; kj++)
+                    {
+                        // handle border pixels
+                        int col = j + kj;
+                        if (col < 0)
+                            col = 0;
+                        if (col >= tmp.cols)
+                            col = tmp.cols - 1;
+                        // get the kernel weight
+                        int weight = kernel[ki + kHalf][kj + kHalf];
+
+                        sumB += sptr[col][0] * weight;
+                        sumG += sptr[col][1] * weight;
+                        sumR += sptr[col][2] * weight;
+                    }
                 }
+                // set the blurred pixel value in dst (normalize by sum of kernel weights = 100)
+                dptr[j][0] = sumB / kSum;
+                dptr[j][1] = sumG / kSum;
+                dptr[j][2] = sumR / kSum;
             }
-
-            dst.at<cv::Vec3b>(i, j)[0] = sumB / 100;
-            dst.at<cv::Vec3b>(i, j)[1] = sumG / 100;
-            dst.at<cv::Vec3b>(i, j)[2] = sumR / 100;
+        }
+        // prepare for next iteration
+        if (t < times - 1)
+        {
+            // copy dst to tmp for next iteration
+            dst.copyTo(tmp);
         }
     }
 
-    }
-    
     // end the timing
     double endTime = TimeUtil::getTime();
 
@@ -161,25 +208,111 @@ int Filters::blur5x5_1( cv::Mat &src, cv::Mat &dst, int times)
     double difference = (endTime - startTime) / times;
     // print the results
     printf("Time per image (1): %.4lf seconds\n", difference);
-    
+
     return 0;
 }
 
-int Filters::blur5x5_2( cv::Mat &src, cv::Mat &dst, int times)
-{   
+int Filters::blur5x5_2(cv::Mat &src, cv::Mat &dst, int times)
+{
+    // check for empty source images
+    if (src.empty())
+        return -1;
+
+    // define the 1x5 Gaussian kernel
+    const int kernel[5] = {1, 2, 4, 2, 1};
+    const int kSize = 5;         // kernel size
+    const int kHalf = kSize / 2; // 2
+    const int kSum = 10;         // sum of kernel weights
     // set up the timing for version 2
     double startTime = TimeUtil::getTime();
 
-    // for (i = 0; i < times; i++) {
-    //     // execute the file on the original image
-    // }
+    // intermediate image for processing
+    cv::Mat tmp1, tmp2;
+    src.copyTo(tmp1);
+    src.copyTo(tmp2);
+    // prev for last input, curr for horizontal output
+    cv::Mat *prev = &tmp1;
+    cv::Mat *curr = &tmp2;
+
+    // apply the blur 'times' times
+    for (int t = 0; t < times; t++)
+    {
+        // horizontal pass: curr -> tmp
+        for (int i = 0; i < src.rows; i++)
+        {
+            // get pointer to the current row in src and tmp
+            cv::Vec3b *prevRow = prev->ptr<cv::Vec3b>(i);
+            cv::Vec3b *currRow = curr->ptr<cv::Vec3b>(i);
+            // iterate each column
+            for (int j = 0; j < src.cols; j++)
+            {
+                // initialize sums for each channel
+                int sumB = 0, sumG = 0, sumR = 0;
+
+                // apply the kernel
+                for (int k = -kHalf; k <= kHalf; k++)
+                {
+                    // Check for border pixels
+                    int col = j + k;
+                    if (col < 0)
+                        col = 0;
+                    if (col >= src.cols)
+                        col = src.cols - 1;
+                    // get the kernel weight
+                    int weight = kernel[k + kHalf];
+                    sumB += prevRow[col][0] * weight;
+                    sumG += prevRow[col][1] * weight;
+                    sumR += prevRow[col][2] * weight;
+                }
+
+                currRow[j][0] = sumB / kSum;
+                currRow[j][1] = sumG / kSum;
+                currRow[j][2] = sumR / kSum;
+            }
+        }
+        // vertical pass: tmp -> dst
+        for (int i = 0; i < src.rows; i++)
+        {
+            // use prev to save the vertical output
+            cv::Vec3b *dptr = prev->ptr<cv::Vec3b>(i);
+
+            for (int j = 0; j < src.cols; j++)
+            {
+                // initialize sums for each channel
+                int sumB = 0, sumG = 0, sumR = 0;
+                // apply the kernel
+                for (int k = -kHalf; k <= kHalf; k++)
+                {
+                    // Check for border pixels
+                    int row = i + k;
+                    if (row < 0)
+                        row = 0;
+                    if (row >= src.rows)
+                        row = src.rows - 1;
+
+                    cv::Vec3b *currRow = curr->ptr<cv::Vec3b>(row);
+                    int weight = kernel[k + kHalf];
+                    sumB += currRow[j][0] * weight;
+                    sumG += currRow[j][1] * weight;
+                    sumR += currRow[j][2] * weight;
+                }
+
+                dptr[j][0] = sumB / kSum;
+                dptr[j][1] = sumG / kSum;
+                dptr[j][2] = sumR / kSum;
+            }
+        }
+    }
+    // copy the final result to dst
+    prev->copyTo(dst);
 
     // end the timing
     double endTime = TimeUtil::getTime();
 
     // compute the time per image
     double difference = (endTime - startTime) / times;
-      // print the results
-    printf("Time per image (2): %.4lf seconds\n", difference );
+    // print the results
+    printf("Time per image (2): %.4lf seconds\n", difference);
+
     return 0;
 }

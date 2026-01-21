@@ -1,3 +1,8 @@
+// Authors: Claire Liu, Yu-Jing Wei
+// File: Filters.hpp
+// Path: project1/include/utils/Filters.hpp
+// Description: Declares image filtering functions (e.g., greyscale, blur, etc.).
+
 #ifndef FILTERS_HPP
 #define FILTERS_HPP
 #include <opencv2/opencv.hpp>

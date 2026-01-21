@@ -1,8 +1,13 @@
+// Authors: Claire Liu, Yu-Jing Wei
+// File: TimeUtil.cpp
+// Path: project1/videoDisplay/src/utils/TimeUtil.cpp
+// Description: Time utility implementation file defining time-related functions.
+
 #include "project1/utils/TimeUtil.hpp"
 #include <chrono>
 #include <ctime>
 #include <iomanip>
-#include <cstdio> // a bunch of standard C/C++ functions like printf, scanf
+#include <cstdio>  // a bunch of standard C/C++ functions like printf, scanf
 #include <cstring> // C/C++ functions for working with strings
 #include <cmath>
 #include <sys/time.h>
@@ -28,9 +33,10 @@ std::string TimeUtil::getTimestamp()
     return ss.str();
 }
 
-double TimeUtil::getTime() {
-  struct timeval cur;
+double TimeUtil::getTime()
+{
+    struct timeval cur;
 
-  gettimeofday( &cur, NULL );
-  return( cur.tv_sec + cur.tv_usec / 1000000.0 );
+    gettimeofday(&cur, NULL);
+    return (cur.tv_sec + cur.tv_usec / 1000000.0);
 }
