@@ -1,4 +1,5 @@
 #include "project1/utils/TimeUtil.hpp"
+#include "project1/utils/Filters.hpp"
 #include <iostream>
 #include <cstdio>
 #include <string>
@@ -26,7 +27,8 @@ int main(int argc, char *argv[])
         cv::namedWindow("Video", 1); // identifies a window
         cv::Mat frame;               // current frame
         cv::Mat grey;                // greyed current frame
-        bool toGrey = false;         // greyscale mode flag
+
+        char colorMode = 'c'; // greyscale mode flag
 
         for (;;)
         {
@@ -40,13 +42,20 @@ int main(int argc, char *argv[])
                 }
 
                 // display the image
-                if (toGrey)
+                if (colorMode == 'g' || colorMode == 'G')
                 {
+                        // use OpenCV's built-in grayscale conversion
                         cv::cvtColor(frame, grey, cv::COLOR_BGR2GRAY);
+                        cv::imshow("Video", grey);
+                }
+                else if (colorMode == 'h' || colorMode == 'H')
+                {
+                        // use our greyscale filter
                         cv::imshow("Video", grey);
                 }
                 else
                 {
+                        // color mode
                         cv::imshow("Video", frame);
                 }
 
@@ -58,19 +67,23 @@ int main(int argc, char *argv[])
                 {
                         break;
                 }
+                // keypress 'c' for color mode
+                else if (key == 'c' || key == 'C')
+                {
+                        colorMode = 'c';
+                        cout << "Switched to Color Mode" << endl;
+                }
                 // keypress 'g' to toggle grayscale mode
                 else if (key == 'g' || key == 'G')
                 {
-                        if (toGrey)
-                        {
-                                toGrey = false;
-                                cout << "Switched to Color Mode" << endl;
-                        }
-                        else
-                        {
-                                toGrey = true;
-                                cout << "Switched to Grayscale Mode" << endl;
-                        }
+                        colorMode = key;
+                        cout << "Switched to CV Grayscale Mode" << endl;
+                }
+                // keypress 'h' for alternative greyscale mode
+                else if (key == 'h' || key == 'H')
+                {
+                        colorMode = key;
+                        cout << "Switched to Our Greyscale Mode" << endl;
                 }
                 // keypress 's' to save screenshot
                 else if (key == 's' || key == 'S')
@@ -85,7 +98,7 @@ int main(int argc, char *argv[])
                         // write the image
                         ok = cv::imwrite(filenameColor, frame);
 
-                        if (toGrey)
+                        if (colorMode == 'g' || colorMode == 'G' || colorMode == 'h' || colorMode == 'H')
                         {
                                 // write the grey image
                                 greyOk = cv::imwrite(filenameGrey, grey);
@@ -100,7 +113,7 @@ int main(int argc, char *argv[])
                         {
                                 cout << "Saved Captured Frame: " << filenameGrey << endl;
                         }
-                        if (!ok && !toGrey)
+                        if (!ok && !greyOk)
                         {
                                 cout << "ERROR: Could not save image." << endl;
                         }

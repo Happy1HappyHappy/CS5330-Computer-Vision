@@ -1,12 +1,12 @@
-// Header guard
-# ifndef TIME_UTIL_HPP
-# define TIME_UTIL_HPP
-# include <string>
+#ifndef TIME_UTIL_HPP
+#define TIME_UTIL_HPP
+#include <string>
 
 // TimeUtil class Encapsulation
-class TimeUtil {
+class TimeUtil
+{
 public:
     static std::string getTimestamp();
 };
 
-# endif
+#endif
