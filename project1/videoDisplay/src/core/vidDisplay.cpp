@@ -25,8 +25,8 @@ int main(int argc, char *argv[])
         printf("Expected size: %d %d\n", refS.width, refS.height);
 
         cv::namedWindow("Video", 1); // identifies a window
-        cv::Mat frame;               // current frame
-        cv::Mat grey;                // greyed current frame
+        cv::Mat frame;               // original frame
+        cv::Mat currentFrame;        // current frame
 
         char colorMode = 'c'; // greyscale mode flag, default to color mode
 
@@ -42,23 +42,27 @@ int main(int argc, char *argv[])
                 }
 
                 // display the image
-                if (colorMode == 'g' || colorMode == 'G')
+                if (colorMode == 'e' || colorMode == 'E')
+                {
+                        Filters::sepia(frame, currentFrame);
+                }
+                else if (colorMode == 'g' || colorMode == 'G')
                 {
                         // use OpenCV's built-in grayscale conversion
-                        cv::cvtColor(frame, grey, cv::COLOR_BGR2GRAY);
-                        cv::imshow("Video", grey);
+                        cv::cvtColor(frame, currentFrame, cv::COLOR_BGR2GRAY);
                 }
                 else if (colorMode == 'h' || colorMode == 'H')
                 {
                         // use our greyscale filter
-                        Filters::greyscale(frame, grey);
-                        cv::imshow("Video", grey);
+                        Filters::greyscale(frame, currentFrame);
                 }
                 else
                 {
-                        // color mode
-                        cv::imshow("Video", frame);
+                        // default color mode
+                        currentFrame = frame;
                 }
+                // show the current frame
+                cv::imshow("Video", currentFrame);
 
                 // see if there is a waiting keystroke
                 char key = cv::waitKey(1);
@@ -73,6 +77,12 @@ int main(int argc, char *argv[])
                 {
                         colorMode = key;
                         cout << "Switched to Color Mode" << endl;
+                }
+                // keypress 'e' for sepia tone mode
+                else if (key == 'e' || key == 'E')
+                {
+                        colorMode = key;
+                        cout << "Switched to Sepia tone Mode" << endl;
                 }
                 // keypress 'g' to toggle grayscale mode
                 else if (key == 'g' || key == 'G')
@@ -95,18 +105,8 @@ int main(int argc, char *argv[])
                         // flags to indicate if save was successful
                         bool ok = false;
 
-                        // save the greyed image based on mode
-                        if (colorMode == 'g' || colorMode == 'G' || colorMode == 'h' || colorMode == 'H')
-                        {
-                                // write the grey image
-                                ok = cv::imwrite(filename, grey);
-                        }
-                        // save the color image
-                        else if (colorMode == 'c' || colorMode == 'C')
-                        {
-                                // write the image
-                                ok = cv::imwrite(filename, frame);
-                        }
+                        // save the image based on mode
+                        ok = cv::imwrite(filename, currentFrame);
 
                         // cout the result
                         if (ok)
