@@ -9,3 +9,6 @@ $$R \leftarrow Y, G \leftarrow Y, B \leftarrow Y, A \leftarrow \max(ChannelRange
 The original and `cvtColor::COLOR_RGB2GRAY` version images are listed below:
 ![Color](Assets/images/screenshot_20260120_165022459.png)
 ![Grey](Assets/images/screenshot_20260120_165022459_grey.png)
+
+## Alternative grayscale filter (Task4)
+We use weighted RGB mean for every pixel in the picture. 
