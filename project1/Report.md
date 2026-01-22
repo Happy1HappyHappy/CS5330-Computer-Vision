@@ -37,7 +37,7 @@ We declare two diffrent variable to store RGB information. One set of variable s
 ![original](Assets/images/original.png)
 
 **Apply 5x5 blur:**
-[5x5](Assets/images/blurred1.png)!
+![5x5](Assets/images/blurred1.png)
 
-**timing information:**
-[time](<Assets/images/Screenshot 2026-01-22 at 10.16.34.png>)
+**Timing information:**
+![time](<Assets/images/Screenshot 2026-01-22 at 10.16.34.png>)
