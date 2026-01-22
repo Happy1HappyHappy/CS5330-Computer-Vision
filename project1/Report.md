@@ -31,3 +31,13 @@ We declare two diffrent variable to store RGB information. One set of variable s
 
 **Apply Sepia filter:**
 ![Sepia](Assets/images/screenshot_20260120_220500992e.png)
+
+## 5x5 blur filter (Task6)
+**Original:**
+![original](Assets/images/original.png)
+
+**Apply 5x5 blur:**
+[5x5](Assets/images/blurred1.png)!
+
+**timing information:**
+[time](<Assets/images/Screenshot 2026-01-22 at 10.16.34.png>)
