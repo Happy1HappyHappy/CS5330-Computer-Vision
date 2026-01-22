@@ -94,6 +94,16 @@ int main(int argc, char *argv[])
                         // use our greyscale filter
                         Filters::greyscale(frame, currentFrame);
                 }
+                else if (colorMode == 'x' || colorMode == 'X')
+                {
+                        // apply Sobel X filter
+                        Filters::sobelX3x3(frame, currentFrame);
+                }
+                else if (colorMode == 'y' || colorMode == 'Y')
+                {
+                        // apply Sobel Y filter
+                        Filters::sobelY3x3(frame, currentFrame);
+                }
                 else
                 {
                         // default color mode
@@ -145,6 +155,18 @@ int main(int argc, char *argv[])
                 {
                         isVignette = !isVignette;
                         cout << "Toggled Vignette Filter to " << (isVignette ? "ON" : "OFF") << endl;
+                }
+                // keypress 'x' for Sobel X mode
+                else if (key == 'x' || key == 'X')
+                {
+                        colorMode = key;
+                        cout << "Switched to Sobel X Mode" << endl;
+                }
+                // keypress 'y' for Sobel Y mode
+                else if (key == 'y' || key == 'Y')
+                {
+                        colorMode = key;
+                        cout << "Switched to Sobel Y Mode" << endl;
                 }
                 // keypress 's' to save screenshot
                 else if (key == 's' || key == 'S')

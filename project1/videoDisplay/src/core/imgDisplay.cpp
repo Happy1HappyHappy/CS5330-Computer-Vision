@@ -9,7 +9,7 @@
 #include <opencv2/opencv.hpp>
 
 using namespace std;
-const int blurTimes = 10;
+const int blurTimes = 5;
 
 int main(int argc, char **argv)
 {

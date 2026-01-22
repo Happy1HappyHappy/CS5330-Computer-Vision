@@ -219,92 +219,17 @@ int Filters::blur5x5_2(cv::Mat &src, cv::Mat &dst, int times)
         return -1;
 
     // define the 1x5 Gaussian kernel
-    const int kernel[5] = {1, 2, 4, 2, 1};
-    const int kSize = 5;         // kernel size
-    const int kHalf = kSize / 2; // 2
-    const int kSum = 10;         // sum of kernel weights
+    int kernel[5] = {1, 2, 4, 2, 1};
+    int kSize = 5; // kernel size
+
     // set up the timing for version 2
     double startTime = TimeUtil::getTime();
 
-    // intermediate image for processing
-    cv::Mat tmp1, tmp2;
-    src.copyTo(tmp1);
-    src.copyTo(tmp2);
-    // prev for last input, curr for horizontal output
-    cv::Mat *prev = &tmp1;
-    cv::Mat *curr = &tmp2;
-
-    // apply the blur 'times' times
+    // Convoleve
     for (int t = 0; t < times; t++)
     {
-        // horizontal pass: curr -> tmp
-        for (int i = 0; i < src.rows; i++)
-        {
-            // get pointer to the current row in src and tmp
-            cv::Vec3b *prevRow = prev->ptr<cv::Vec3b>(i);
-            cv::Vec3b *currRow = curr->ptr<cv::Vec3b>(i);
-            // iterate each column
-            for (int j = 0; j < src.cols; j++)
-            {
-                // initialize sums for each channel
-                int sumB = 0, sumG = 0, sumR = 0;
-
-                // apply the kernel
-                for (int k = -kHalf; k <= kHalf; k++)
-                {
-                    // Check for border pixels
-                    int col = j + k;
-                    if (col < 0)
-                        col = 0;
-                    if (col >= src.cols)
-                        col = src.cols - 1;
-                    // get the kernel weight
-                    int weight = kernel[k + kHalf];
-                    sumB += prevRow[col][0] * weight;
-                    sumG += prevRow[col][1] * weight;
-                    sumR += prevRow[col][2] * weight;
-                }
-
-                currRow[j][0] = sumB / kSum;
-                currRow[j][1] = sumG / kSum;
-                currRow[j][2] = sumR / kSum;
-            }
-        }
-        // vertical pass: tmp -> dst
-        for (int i = 0; i < src.rows; i++)
-        {
-            // use prev to save the vertical output
-            cv::Vec3b *dptr = prev->ptr<cv::Vec3b>(i);
-
-            for (int j = 0; j < src.cols; j++)
-            {
-                // initialize sums for each channel
-                int sumB = 0, sumG = 0, sumR = 0;
-                // apply the kernel
-                for (int k = -kHalf; k <= kHalf; k++)
-                {
-                    // Check for border pixels
-                    int row = i + k;
-                    if (row < 0)
-                        row = 0;
-                    if (row >= src.rows)
-                        row = src.rows - 1;
-
-                    cv::Vec3b *currRow = curr->ptr<cv::Vec3b>(row);
-                    int weight = kernel[k + kHalf];
-                    sumB += currRow[j][0] * weight;
-                    sumG += currRow[j][1] * weight;
-                    sumR += currRow[j][2] * weight;
-                }
-
-                dptr[j][0] = sumB / kSum;
-                dptr[j][1] = sumG / kSum;
-                dptr[j][2] = sumR / kSum;
-            }
-        }
+        Filters::convolve(src, dst, kernel, kernel, kSize, 10);
     }
-    // copy the final result to dst
-    prev->copyTo(dst);
 
     // end the timing
     double endTime = TimeUtil::getTime();
@@ -313,6 +238,131 @@ int Filters::blur5x5_2(cv::Mat &src, cv::Mat &dst, int times)
     double difference = (endTime - startTime) / times;
     // print the results
     printf("Time per image (2): %.4lf seconds\n", difference);
+
+    return 0;
+}
+
+int Filters::sobelX3x3(cv::Mat &src, cv::Mat &dst)
+{
+    // check for empty source images
+    if (src.empty())
+        return -1;
+    // define the 1x3 Sobel separable kernels
+    int kernelXH[3] = {1, 2, 1};  // Horizontal kernel
+    int kernelXV[3] = {-1, 0, 1}; // Vertical kernel
+
+    // Convolve
+    int kSize = 3;
+    Filters::convolve(src, dst, kernelXH, kernelXV, kSize, 0);
+
+    return 0;
+}
+
+int Filters::sobelY3x3(cv::Mat &src, cv::Mat &dst)
+{
+    // check for empty source images
+    if (src.empty())
+        return -1;
+    // define the 1x3 Sobel separable kernels
+    int kernelYH[3] = {1, 0, -1}; // Horizontal kernel
+    int kernelYV[3] = {1, 2, 1};  // Vertical kernel
+
+    // Convolve
+    int kSize = 3;
+    Filters::convolve(src, dst, kernelYH, kernelYV, kSize, 0);
+
+    return 0;
+}
+
+int Filters::convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, int kSize, int kSum)
+{
+    // This is a function only for convolving an image with separable kernel
+    // kernel1: horizontal 1D kernel
+    // kernel2: vertical 1D kernel
+
+    // check for empty source images
+    if (src.empty() || kernel1 == nullptr || kernel2 == nullptr)
+        return -1;
+    // allocate dst if empty
+    if (dst.empty())
+        dst.create(src.size(), src.type());
+
+    // padding size
+    const int kHalf = kSize / 2;
+
+    // intermediate image for processing
+    cv::Mat tmp;
+    src.copyTo(tmp);
+    // prev for last input, curr for horizontal output
+    cv::Mat *prev = &src;
+    cv::Mat *curr = &tmp;
+
+    // horizontal pass: curr -> tmp
+    for (int i = 0; i < src.rows; i++)
+    {
+        // get pointer to the current row in src and tmp
+        cv::Vec3b *prevRow = prev->ptr<cv::Vec3b>(i);
+        cv::Vec3b *currRow = curr->ptr<cv::Vec3b>(i);
+        // iterate each column
+        for (int j = 0; j < src.cols; j++)
+        {
+            // initialize sums for each channel
+            int sumB = 0, sumG = 0, sumR = 0;
+
+            // apply the kernel
+            for (int k = -kHalf; k <= kHalf; k++)
+            {
+                // Check for border pixels
+                int col = j + k;
+                if (col < 0)
+                    col = 0;
+                if (col >= src.cols)
+                    col = src.cols - 1;
+                // get the kernel weight
+                int weight = kernel1[k + kHalf];
+                sumB += prevRow[col][0] * weight;
+                sumG += prevRow[col][1] * weight;
+                sumR += prevRow[col][2] * weight;
+            }
+
+            currRow[j][0] = (kSum == 0) ? sumB : (sumB / kSum);
+            currRow[j][1] = (kSum == 0) ? sumG : (sumG / kSum);
+            currRow[j][2] = (kSum == 0) ? sumR : (sumR / kSum);
+        }
+    }
+
+    // vertical pass: tmp -> dst
+    for (int i = 0; i < src.rows; i++)
+    {
+        // use prev to save the vertical output
+        cv::Vec3b *dptr = dst.ptr<cv::Vec3b>(i);
+
+        for (int j = 0; j < src.cols; j++)
+        {
+            // initialize sums for each channel
+            int sumB = 0, sumG = 0, sumR = 0;
+            // apply the kernel
+            for (int k = -kHalf; k <= kHalf; k++)
+            {
+                // Check for border pixels
+                int row = i + k;
+                if (row < 0)
+                    row = 0;
+                if (row >= src.rows)
+                    row = src.rows - 1;
+
+                cv::Vec3b *currRow = curr->ptr<cv::Vec3b>(row);
+                int weight = kernel2[k + kHalf];
+                sumB += currRow[j][0] * weight;
+                sumG += currRow[j][1] * weight;
+                sumR += currRow[j][2] * weight;
+            }
+
+            dptr[j][0] = (kSum == 0) ? sumB : (sumB / kSum);
+            dptr[j][1] = (kSum == 0) ? sumG : (sumG / kSum);
+            dptr[j][2] = (kSum == 0) ? sumR : (sumR / kSum);
+        }
+    }
 
     return 0;
 }
