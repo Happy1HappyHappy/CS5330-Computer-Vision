@@ -41,3 +41,6 @@ We declare two diffrent variable to store RGB information. One set of variable s
 
 **Timing information:**
 ![time](<Assets/images/Screenshot 2026-01-22 at 10.16.34.png>)
+
+## 3x3 Sobel X and 3x3 Sobel Y (Task6)
+We implment an abstract convolution function `int Filters::convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, int kSize, int kSum)` to process convolution with NxN seprable kernel. 
