@@ -17,6 +17,9 @@
 // Returns a timestamp string in the format "YYYYMMDD_HHMMSSmmm"
 std::string TimeUtil::getTimestamp()
 {
+    // This function generates a timestamp string in the format "YYYYMMDD_HHMMSSmmm"
+    // where mmm represents milliseconds.
+
     using namespace std::chrono;
 
     auto now = system_clock::now();
@@ -35,6 +38,8 @@ std::string TimeUtil::getTimestamp()
 
 double TimeUtil::getTime()
 {
+    // This function returns the current time in seconds as a double value.
+
     struct timeval cur;
 
     gettimeofday(&cur, NULL);

@@ -17,6 +17,7 @@ public:
     static int blur5x5_2(cv::Mat &src, cv::Mat &dst, int times = 1);
     static int sobelX3x3(cv::Mat &src, cv::Mat &dst);
     static int sobelY3x3(cv::Mat &src, cv::Mat &dst);
+    static int magnitude(cv::Mat &sx, cv::Mat &sy, cv::Mat &dst);
     static int convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, int kSize, int kSum);
 
 private:

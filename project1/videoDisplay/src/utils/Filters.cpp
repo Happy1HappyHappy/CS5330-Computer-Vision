@@ -9,6 +9,10 @@
 
 int Filters::greyscale(cv::Mat &src, cv::Mat &dst)
 {
+    // This function applies a greyscale filter to the source image
+    // src: source image
+    // dst: destination image
+
     // check for empty source image
     if (src.empty())
     {
@@ -47,6 +51,11 @@ int Filters::greyscale(cv::Mat &src, cv::Mat &dst)
 
 int Filters::sepia(cv::Mat &src, cv::Mat &dst, bool vignetteFlag)
 {
+    // Apply sepia filter to the source image and store in destination image
+    // src: source image
+    // dst: destination image
+    // vignetteFlag: whether to apply vignette effect
+
     // check for empty source image
     if (src.empty())
     {
@@ -105,6 +114,11 @@ int Filters::sepia(cv::Mat &src, cv::Mat &dst, bool vignetteFlag)
 
 float Filters::vignette(float x, float y, float centerX, float centerY, float radius)
 {
+    // This function computes the vignette factor based on distance from center
+    // x, y: pixel coordinates
+    // centerX, centerY: center of the vignette
+    // radius: radius of the vignette effect
+
     float dx = x - centerX;
     float dy = y - centerY;
     float distance = sqrt(dx * dx + dy * dy);
@@ -120,6 +134,11 @@ float Filters::vignette(float x, float y, float centerX, float centerY, float ra
 
 int Filters::blur5x5_1(cv::Mat &src, cv::Mat &dst, int times)
 {
+    // This function applies a 5x5 Gaussian blur using direct convolution (version 1)
+    // src: source image
+    // dst: destination image
+    // times: number of times to apply the blur
+
     // check for empty source images
     if (src.empty())
         return -1;
@@ -214,6 +233,11 @@ int Filters::blur5x5_1(cv::Mat &src, cv::Mat &dst, int times)
 
 int Filters::blur5x5_2(cv::Mat &src, cv::Mat &dst, int times)
 {
+    // This function applies a 5x5 Gaussian blur using separable kernels (version 2)
+    // src: source image
+    // dst: destination image
+    // times: number of times to apply the blur
+
     // check for empty source images
     if (src.empty())
         return -1;
@@ -244,6 +268,11 @@ int Filters::blur5x5_2(cv::Mat &src, cv::Mat &dst, int times)
 
 int Filters::sobelX3x3(cv::Mat &src, cv::Mat &dst)
 {
+    // This function applies the Sobel X filter to the source image
+    // and stores the result in the destination image.
+    // src: source image
+    // dst: destination image
+
     // check for empty source images
     if (src.empty())
         return -1;
@@ -260,6 +289,11 @@ int Filters::sobelX3x3(cv::Mat &src, cv::Mat &dst)
 
 int Filters::sobelY3x3(cv::Mat &src, cv::Mat &dst)
 {
+    // This function applies the Sobel Y filter to the source image
+    // and stores the result in the destination image.
+    // src: source image
+    // dst: destination image
+
     // check for empty source images
     if (src.empty())
         return -1;
@@ -274,11 +308,60 @@ int Filters::sobelY3x3(cv::Mat &src, cv::Mat &dst)
     return 0;
 }
 
+int Filters::magnitude(cv::Mat &sx, cv::Mat &sy, cv::Mat &dst)
+{
+    // This function computes the magnitude of two images sx and sy
+    // and stores the result in dst.
+    // sx: Sobel X image
+    // sy: Sobel Y image
+    // dst: output magnitude image
+
+    // check for empty source images
+    if (sx.empty() || sy.empty())
+        return -1;
+    // allocate dst if empty
+    if (dst.empty())
+        dst.create(sx.size(), sx.type());
+
+    // compute the magnitude of the two images
+    for (int i = 0; i < sx.rows; i++)
+    {
+        // Use pointers for faster access
+        // Vec3s for possible negative values from Sobel
+        cv::Vec3s *sxRow = sx.ptr<cv::Vec3s>(i);
+        cv::Vec3s *syRow = sy.ptr<cv::Vec3s>(i);
+        cv::Vec3s *dstRow = dst.ptr<cv::Vec3s>(i);
+
+        // iterate each column
+        for (int j = 0; j < sx.cols; j++)
+        {
+            // iterate each colorchannel
+            for (int c = 0; c < 3; c++)
+            {
+                int sx_val = sxRow[j][c];
+                int sy_val = syRow[j][c];
+
+                // compute magnitude
+                int magnitude = (int)sqrt(sx_val * sx_val + sy_val * sy_val);
+
+                // clamp to [0,255] and assign to dst
+                dstRow[j][c] = cv::saturate_cast<uchar>(magnitude);
+            }
+        }
+    }
+
+    return 0;
+}
+
 int Filters::convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, int kSize, int kSum)
 {
     // This is a function only for convolving an image with separable kernel
+    // src: source image
+    // dst: destination image
     // kernel1: horizontal 1D kernel
     // kernel2: vertical 1D kernel
+    // kSize: size of the kernels (assumed to be odd)
+    // kSum: sum of the kernel weights for normalization (0 if no normalization)
 
     // check for empty source images
     if (src.empty() || kernel1 == nullptr || kernel2 == nullptr)
