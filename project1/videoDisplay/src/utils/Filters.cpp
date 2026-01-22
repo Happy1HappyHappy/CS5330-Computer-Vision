@@ -264,7 +264,7 @@ int Filters::sobelY3x3(cv::Mat &src, cv::Mat &dst)
     if (src.empty())
         return -1;
     // define the 1x3 Sobel separable kernels
-    int kernelYH[3] = {1, 0, -1}; // Horizontal kernel
+    int kernelYH[3] = {-1, 0, 1}; // Horizontal kernel
     int kernelYV[3] = {1, 2, 1};  // Vertical kernel
 
     // Convolve
