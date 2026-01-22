@@ -94,6 +94,14 @@ int main(int argc, char *argv[])
                         // use our greyscale filter
                         Filters::greyscale(frame, currentFrame);
                 }
+                else if (colorMode == 'm' || colorMode == 'M')
+                {
+                        // apply magnitude of Sobel X and Y
+                        cv::Mat sx, sy;
+                        Filters::sobelX3x3(frame, sx);
+                        Filters::sobelY3x3(frame, sy);
+                        Filters::magnitude(sx, sy, currentFrame);
+                }
                 else if (colorMode == 'x' || colorMode == 'X')
                 {
                         // apply Sobel X filter
@@ -149,6 +157,12 @@ int main(int argc, char *argv[])
                 {
                         colorMode = key;
                         cout << "Switched to Our Greyscale Mode" << endl;
+                }
+                // keypress 'm' for magnitude of Sobel X and Y mode
+                else if (key == 'm' || key == 'M')
+                {
+                        colorMode = key;
+                        cout << "Switched to Magnitude of Sobel X and Y Mode" << endl;
                 }
                 // keypress 'v' to toggle vignette filter
                 else if (key == 'v' || key == 'V')
