@@ -94,6 +94,11 @@ int main(int argc, char *argv[])
                         // use our greyscale filter
                         Filters::greyscale(frame, currentFrame);
                 }
+                else if (colorMode == 'i' || colorMode == 'I')
+                {
+                        // apply blur and quantization filter
+                        Filters::blurQuantize(frame, currentFrame, 10);
+                }
                 else if (colorMode == 'm' || colorMode == 'M')
                 {
                         // apply magnitude of Sobel X and Y
@@ -157,6 +162,12 @@ int main(int argc, char *argv[])
                 {
                         colorMode = key;
                         cout << "Switched to Our Greyscale Mode" << endl;
+                }
+                // keypress 'i' for blur and quantization mode
+                else if (key == 'i' || key == 'I')
+                {
+                        colorMode = key;
+                        cout << "Switched to Blur and Quantization Mode" << endl;
                 }
                 // keypress 'm' for magnitude of Sobel X and Y mode
                 else if (key == 'm' || key == 'M')

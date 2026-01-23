@@ -353,6 +353,54 @@ int Filters::magnitude(cv::Mat &sx, cv::Mat &sy, cv::Mat &dst)
     return 0;
 }
 
+int Filters::blurQuantize(cv::Mat &src, cv::Mat &dst, int levels)
+{
+    // This function applies a blur and quantization effect to the source image
+    // src: source image
+    // dst: destination image
+    // levels: number of quantization levels
+
+    // validate levels
+    if (levels <= 0)
+        return -1;
+    // check for empty source images
+    if (src.empty())
+        return -1;
+    // allocate dst if empty
+    if (dst.empty())
+        dst.create(src.size(), src.type());
+
+    // first apply a blur using the blur5x5_2 function
+    cv::Mat blurred;
+    Filters::blur5x5_2(src, blurred, 1);
+
+    // then apply quantization
+    int levelSize = 255 / levels;
+    for (int i = 0; i < blurred.rows; i++)
+    {
+        // Use pointers for faster access
+        cv::Vec3b *blurredRow = blurred.ptr<cv::Vec3b>(i);
+        cv::Vec3b *dstRow = dst.ptr<cv::Vec3b>(i);
+
+        // iterate each column
+        for (int j = 0; j < blurred.cols; j++)
+        {
+            // iterate each colorchannel
+            for (int c = 0; c < 3; c++)
+            {
+                // get the pixel value
+                int x = blurredRow[j][c];
+                // quantize the pixel value
+                int xt = x / levelSize;
+                int xf = xt * levelSize;
+                // clamp to [0,255] and assign to dst
+                dstRow[j][c] = cv::saturate_cast<uchar>(xf);
+            }
+        }
+    }
+    return 0;
+}
+
 int Filters::convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, int kSize, int kSum)
 {
     // This is a function only for convolving an image with separable kernel
