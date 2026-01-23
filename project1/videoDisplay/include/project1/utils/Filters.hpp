@@ -19,6 +19,7 @@ public:
     static int sobelY3x3(cv::Mat &src, cv::Mat &dst);
     static int magnitude(cv::Mat &sx, cv::Mat &sy, cv::Mat &dst);
     static int convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, int kSize, int kSum);
+    static int blurQuantize(cv::Mat &src, cv::Mat &dst, int levels);
 
 private:
     static double getTime();
