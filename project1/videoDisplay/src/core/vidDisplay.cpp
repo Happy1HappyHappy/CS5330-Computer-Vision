@@ -5,8 +5,11 @@
 
 #include "project1/utils/TimeUtil.hpp"
 #include "project1/utils/Filters.hpp"
+#include "project1/utils/faceDetect.hpp"
 #include <iostream>
 #include <cstdio>
+#include <cstdlib>
+#include <cmath>
 #include <string>
 #include <chrono>
 #include <filesystem>
@@ -84,6 +87,26 @@ int main(int argc, char *argv[])
                 {
                         Filters::sepia(frame, currentFrame, isVignette);
                 }
+                else if (colorMode == 'f' || colorMode == 'F')
+                {       
+                        std::vector<cv::Rect> faces;
+                        cv::Rect last(0, 0, 0, 0);
+                        cv::cvtColor(frame, currentFrame, cv::COLOR_BGR2GRAY);
+
+                        // detect faces
+                        detectFaces( currentFrame, faces );
+
+                        // draw boxes around the faces
+                        drawBoxes( currentFrame, faces );
+
+                        // add a little smoothing by averaging the last two detections
+                        if( faces.size() > 0 ) {
+                        last.x = (faces[0].x + last.x)/2;
+                        last.y = (faces[0].y + last.y)/2;
+                        last.width = (faces[0].width + last.width)/2;
+                        last.height = (faces[0].height + last.height)/2;
+                        }
+                }
                 else if (colorMode == 'g' || colorMode == 'G')
                 {
                         // use OpenCV's built-in grayscale conversion
@@ -150,6 +173,11 @@ int main(int argc, char *argv[])
                 {
                         colorMode = key;
                         cout << "Switched to Sepia tone Mode" << endl;
+                }
+                else if (key == 'f' || key == 'F')
+                {
+                        colorMode = key;
+                        cout << "Switched to Face Detection Mode" << endl;
                 }
                 // keypress 'g' to toggle grayscale mode
                 else if (key == 'g' || key == 'G')
