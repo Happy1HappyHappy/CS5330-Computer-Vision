@@ -5,8 +5,11 @@
 
 #include "project1/utils/TimeUtil.hpp"
 #include "project1/utils/Filters.hpp"
+#include "project1/utils/faceDetect.hpp"
 #include <iostream>
 #include <cstdio>
+#include <cstdlib>
+#include <cmath>
 #include <string>
 #include <chrono>
 #include <filesystem>
@@ -22,6 +25,7 @@ int main(int argc, char *argv[])
         cv::namedWindow("Video", 1); // identifies a window
         cv::Mat frame;               // original frame
         cv::Mat currentFrame;        // current frame
+        cv::Rect last(0, 0, 0, 0);
         bool isVignette = false;     // vignette flag
         const int blurTimes = 2;     // number of times to apply blur
         char colorMode = 'c';        // greyscale mode flag, default to color mode
@@ -83,6 +87,32 @@ int main(int argc, char *argv[])
                 else if (colorMode == 'e' || colorMode == 'E')
                 {
                         Filters::sepia(frame, currentFrame, isVignette);
+                }
+                else if (colorMode == 'f' || colorMode == 'F')
+                {       
+                        std::vector<cv::Rect> faces;
+                        cv::Mat grey;
+                        cv::cvtColor(frame, grey, cv::COLOR_BGR2GRAY);
+
+                        // detect faces
+                        detectFaces( grey, faces );
+
+                        // add a little smoothing by averaging the last two detections
+                        if( faces.size() > 0 ) {
+                                if (last.width == 0) {
+                                        last = faces[0];
+                                } else {
+                                        last.x = (faces[0].x + last.x)/2;
+                                        last.y = (faces[0].y + last.y)/2;
+                                        last.width = (faces[0].width + last.width)/2;
+                                        last.height = (faces[0].height + last.height)/2;
+                                }
+                                faces[0] = last;
+                        }
+
+                        currentFrame = frame;
+                        // draw boxes around the faces
+                        drawBoxes( currentFrame, faces );
                 }
                 else if (colorMode == 'g' || colorMode == 'G')
                 {
@@ -150,6 +180,11 @@ int main(int argc, char *argv[])
                 {
                         colorMode = key;
                         cout << "Switched to Sepia tone Mode" << endl;
+                }
+                else if (key == 'f' || key == 'F')
+                {
+                        colorMode = key;
+                        cout << "Switched to Face Detection Mode" << endl;
                 }
                 // keypress 'g' to toggle grayscale mode
                 else if (key == 'g' || key == 'G')

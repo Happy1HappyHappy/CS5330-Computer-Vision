@@ -22,15 +22,16 @@ int main(int argc, char **argv)
 
     // Load image
     cv::Mat img = cv::imread(argv[1]);
-    // Display original image
-    cv::namedWindow("OriginalImage", cv::WINDOW_AUTOSIZE);
-    cv::imshow("OriginalImage", img);
 
     if (img.empty())
     {
         cerr << "Image load error!" << endl;
         return -1;
     }
+
+    // Display original image
+    cv::namedWindow("OriginalImage", cv::WINDOW_AUTOSIZE);
+    cv::imshow("OriginalImage", img);
 
     // Configure and show window
     cv::Mat blurred1(img.size(), img.type());

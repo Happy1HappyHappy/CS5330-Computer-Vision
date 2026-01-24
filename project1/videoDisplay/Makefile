@@ -38,7 +38,8 @@ LDLIBS = \
 -lopencv_highgui \
 -lopencv_imgcodecs \
 -lopencv_imgproc \
--lopencv_videoio
+-lopencv_videoio \
+-lopencv_objdetect
 
 
 BINDIR = ./bin
@@ -57,7 +58,7 @@ $(UTILOBJDIR)/%.o: $(UTILSDIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Targets
-vidDisplay: $(OBJDIR)/vidDisplay.o	$(UTILOBJDIR)/TimeUtil.o $(UTILOBJDIR)/Filters.o
+vidDisplay: $(OBJDIR)/vidDisplay.o	$(UTILOBJDIR)/TimeUtil.o $(UTILOBJDIR)/Filters.o $(UTILOBJDIR)/faceDetect.o
 	$(CC) $^ -o $(BINDIR)/$@ $(LDFLAGS) $(LDLIBS)
 
 vid: $(OBJDIR)/vidDisplay.o	$(UTILOBJDIR)/TimeUtil.o $(UTILOBJDIR)/Filters.o
