@@ -46,13 +46,16 @@ We declare two diffrent variable to store RGB information. One set of variable s
 We implment an abstract convolution function `int Filters::convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, int kSize, int kSum)` to process convolution with NxN seprable kernel. 
 
 **Original:**
-![color](videoDisplay/results/screenshot_20260122_123510072c.png)
+![Original](Assets/images/screenshot_20260123_230245486c.png)
 
 **Apply SobelX filter:**
-![SobelX](videoDisplay/results/screenshot_20260122_123513371x.png)
+![SobelX](Assets/images/screenshot_20260123_230248397x.png)
 
 **Apply SobelY filter:**
-![SobelY](videoDisplay/results/screenshot_20260122_123517511y.png)
+![SobelY](Assets/images/screenshot_20260123_230251992y.png)
+
+**Apply Gradient Magnitude:**
+![gradientmagnitude](Assets/images/screenshot_20260123_230302809m.png)
 
 ## Implement a function that blurs and quantizes a color image(Task9)
 
