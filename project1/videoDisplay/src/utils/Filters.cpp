@@ -328,9 +328,9 @@ int Filters::magnitude(cv::Mat &sx, cv::Mat &sy, cv::Mat &dst)
     {
         // Use pointers for faster access
         // Vec3s for possible negative values from Sobel
-        cv::Vec3s *sxRow = sx.ptr<cv::Vec3s>(i);
-        cv::Vec3s *syRow = sy.ptr<cv::Vec3s>(i);
-        cv::Vec3s *dstRow = dst.ptr<cv::Vec3s>(i);
+        cv::Vec3b *sxRow = sx.ptr<cv::Vec3b>(i);
+        cv::Vec3b *syRow = sy.ptr<cv::Vec3b>(i);
+        cv::Vec3b *dstRow = dst.ptr<cv::Vec3b>(i);
 
         // iterate each column
         for (int j = 0; j < sx.cols; j++)
@@ -456,9 +456,16 @@ int Filters::convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, in
                 sumR += prevRow[col][2] * weight;
             }
 
-            currRow[j][0] = (kSum == 0) ? sumB : (sumB / kSum);
-            currRow[j][1] = (kSum == 0) ? sumG : (sumG / kSum);
-            currRow[j][2] = (kSum == 0) ? sumR : (sumR / kSum);
+            if (kSum != 0)
+            {
+                sumB /= kSum;
+                sumG /= kSum;
+                sumR /= kSum;
+            }
+
+            currRow[j][0] = static_cast<uchar>(std::min(std::max(abs(sumB), 0), 255));
+            currRow[j][1] = static_cast<uchar>(std::min(std::max(abs(sumG), 0), 255));
+            currRow[j][2] = static_cast<uchar>(std::min(std::max(abs(sumR), 0), 255));
         }
     }
 
@@ -489,9 +496,17 @@ int Filters::convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, in
                 sumR += currRow[j][2] * weight;
             }
 
-            dptr[j][0] = (kSum == 0) ? sumB : (sumB / kSum);
-            dptr[j][1] = (kSum == 0) ? sumG : (sumG / kSum);
-            dptr[j][2] = (kSum == 0) ? sumR : (sumR / kSum);
+            if (kSum != 0)
+            {
+                sumB /= kSum;
+                sumG /= kSum;
+                sumR /= kSum;
+            }
+
+            // set the convolved pixel value in dst
+            dptr[j][0] = static_cast<uchar>(std::min(std::max(abs(sumB), 0), 255));
+            dptr[j][1] = static_cast<uchar>(std::min(std::max(abs(sumG), 0), 255));
+            dptr[j][2] = static_cast<uchar>(std::min(std::max(abs(sumR), 0), 255));
         }
     }
 
