@@ -1,7 +1,10 @@
-// Authors: Claire Liu, Yu-Jing Wei
-// File: imgDisplay.cpp
-// Path: project1/videoDisplay/src/core/imgDisplay.cpp
-// Description: Loads and displays an image using OpenCV.
+/*
+Claire Liu, Yu-Jing Wei
+imgDisplay.cpp
+
+Path: project1/videoDisplay/src/core/imgDisplay.cpp
+Description: Loads and displays an image using OpenCV.
+*/
 
 #include "project1/utils/TimeUtil.hpp"
 #include "project1/utils/Filters.hpp"

@@ -1,7 +1,10 @@
-// Authors: Claire Liu, Yu-Jing Wei
-// File: vidDisplay.cpp
-// Path: project1/videoDisplay/src/core/vidDisplay.cpp
-// Description: Loads and displays a video using OpenCV.
+/*
+Claire Liu, Yu-Jing Wei
+vidDisplay.cpp
+
+Path: project1/videoDisplay/src/core/vidDisplay.cpp
+Description: Loads and displays a video using OpenCV.
+*/
 
 #include "project1/utils/TimeUtil.hpp"
 #include "project1/utils/Filters.hpp"
@@ -25,7 +28,7 @@ int main(int argc, char *argv[])
         cv::namedWindow("Video", 1); // identifies a window
         cv::Mat frame;               // original frame
         cv::Mat currentFrame;        // current frame
-        cv::Rect last(0, 0, 0, 0);
+        cv::Rect last(0, 0, 0, 0);   // last detected face rectangle
         bool isVignette = false;     // vignette flag
         const int blurTimes = 2;     // number of times to apply blur
         char colorMode = 'c';        // greyscale mode flag, default to color mode
@@ -86,33 +89,40 @@ int main(int argc, char *argv[])
                 }
                 else if (colorMode == 'e' || colorMode == 'E')
                 {
+                        // apply sepia tone filter
                         Filters::sepia(frame, currentFrame, isVignette);
                 }
                 else if (colorMode == 'f' || colorMode == 'F')
-                {       
-                        std::vector<cv::Rect> faces;
-                        cv::Mat grey;
-                        cv::cvtColor(frame, grey, cv::COLOR_BGR2GRAY);
+                {
+                        // face detection mode
+                        std::vector<cv::Rect> faces;                   // vector of detected faces
+                        cv::Mat grey;                                  // grayscale image
+                        cv::cvtColor(frame, grey, cv::COLOR_BGR2GRAY); // convert to grayscale
 
                         // detect faces
-                        detectFaces( grey, faces );
+                        detectFaces(grey, faces);
 
                         // add a little smoothing by averaging the last two detections
-                        if( faces.size() > 0 ) {
-                                if (last.width == 0) {
+                        if (faces.size() > 0)
+                        {
+                                if (last.width == 0)
+                                {
                                         last = faces[0];
-                                } else {
-                                        last.x = (faces[0].x + last.x)/2;
-                                        last.y = (faces[0].y + last.y)/2;
-                                        last.width = (faces[0].width + last.width)/2;
-                                        last.height = (faces[0].height + last.height)/2;
+                                }
+                                else
+                                {
+                                        last.x = (faces[0].x + last.x) / 2;
+                                        last.y = (faces[0].y + last.y) / 2;
+                                        last.width = (faces[0].width + last.width) / 2;
+                                        last.height = (faces[0].height + last.height) / 2;
                                 }
                                 faces[0] = last;
                         }
 
+                        // copy the original frame to currentFrame
                         currentFrame = frame;
                         // draw boxes around the faces
-                        drawBoxes( currentFrame, faces );
+                        drawBoxes(currentFrame, faces);
                 }
                 else if (colorMode == 'g' || colorMode == 'G')
                 {
@@ -181,6 +191,7 @@ int main(int argc, char *argv[])
                         colorMode = key;
                         cout << "Switched to Sepia tone Mode" << endl;
                 }
+                // keypress 'f' for face detection mode
                 else if (key == 'f' || key == 'F')
                 {
                         colorMode = key;

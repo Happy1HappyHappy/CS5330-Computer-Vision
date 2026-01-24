@@ -1,7 +1,10 @@
-// Authors: Claire Liu, Yu-Jing Wei
-// File: Filters.cpp
-// Path: project1/videoDisplay/src/utils/Filters.cpp
-// Description: Filters implementation file defining image filtering functions.
+/*
+Claire Liu, Yu-Jing Wei
+Filters.cpp
+
+Path: project1/videoDisplay/src/utils/Filters.cpp
+Description: Filters implementation file defining image filtering functions.
+*/
 
 #include "project1/utils/Filters.hpp"
 #include "project1/utils/TimeUtil.hpp"
@@ -414,7 +417,7 @@ int Filters::convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, in
     // check for empty source images
     if (src.empty() || kernel1 == nullptr || kernel2 == nullptr)
         return -1;
-    
+
     // allocate dst if empty
     if (dst.empty())
         dst.create(src.size(), src.type());
@@ -448,10 +451,10 @@ int Filters::convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, in
                     col = 0;
                 if (col >= src.cols)
                     col = src.cols - 1;
-                
+
                 // get the kernel weight
                 int weight = kernel1[k + kHalf];
-                
+
                 // Accumulate weighted sum
                 sumB += srcRow[col][0] * weight;
                 sumG += srcRow[col][1] * weight;
@@ -495,9 +498,9 @@ int Filters::convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, in
 
                 // Access signed 16-bit intermediate values
                 const cv::Vec3s *tmpRow = tmp.ptr<cv::Vec3s>(row);
-                
+
                 int weight = kernel2[k + kHalf];
-                
+
                 sumB += tmpRow[j][0] * weight;
                 sumG += tmpRow[j][1] * weight;
                 sumR += tmpRow[j][2] * weight;
