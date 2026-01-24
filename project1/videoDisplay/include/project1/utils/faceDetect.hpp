@@ -11,7 +11,7 @@
 #include <opencv2/opencv.hpp>
 
 // prototypes
-int detectFaces( cv::Mat &grey, std::vector<cv::Rect> &faces );
-int drawBoxes( cv::Mat &frame, std::vector<cv::Rect> &faces, int minWidth = 50, float scale = 1.0  );
+int detectFaces(cv::Mat &grey, std::vector<cv::Rect> &faces);
+int drawBoxes(cv::Mat &frame, std::vector<cv::Rect> &faces, int minWidth = 50, float scale = 1.0);
 
 #endif

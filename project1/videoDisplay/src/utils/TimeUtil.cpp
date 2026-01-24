@@ -1,7 +1,10 @@
-// Authors: Claire Liu, Yu-Jing Wei
-// File: TimeUtil.cpp
-// Path: project1/videoDisplay/src/utils/TimeUtil.cpp
-// Description: Time utility implementation file defining time-related functions.
+/*
+Claire Liu, Yu-Jing Wei
+TimeUtil.cpp
+
+Path: project1/videoDisplay/src/utils/TimeUtil.cpp
+Description: Time utility implementation file defining time-related functions.
+*/
 
 #include "project1/utils/TimeUtil.hpp"
 #include <chrono>
