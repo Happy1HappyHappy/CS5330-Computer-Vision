@@ -105,18 +105,10 @@ int main(int argc, char *argv[])
                         // add a little smoothing by averaging the last two detections
                         if (faces.size() > 0)
                         {
-                                if (last.width == 0)
-                                {
-                                        last = faces[0];
-                                }
-                                else
-                                {
-                                        last.x = (faces[0].x + last.x) / 2;
-                                        last.y = (faces[0].y + last.y) / 2;
-                                        last.width = (faces[0].width + last.width) / 2;
-                                        last.height = (faces[0].height + last.height) / 2;
-                                }
-                                faces[0] = last;
+                                last.x = (faces[0].x + last.x) / 2;
+                                last.y = (faces[0].y + last.y) / 2;
+                                last.width = (faces[0].width + last.width) / 2;
+                                last.height = (faces[0].height + last.height) / 2;
                         }
 
                         // copy the original frame to currentFrame

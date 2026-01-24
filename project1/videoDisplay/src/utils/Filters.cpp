@@ -215,12 +215,6 @@ int Filters::blur5x5_1(cv::Mat &src, cv::Mat &dst, int times)
                 dptr[j][2] = sumR / kSum;
             }
         }
-        // prepare for next iteration
-        if (t < times - 1)
-        {
-            // copy dst to tmp for next iteration
-            dst.copyTo(tmp);
-        }
     }
 
     // end the timing
@@ -257,6 +251,8 @@ int Filters::blur5x5_2(cv::Mat &src, cv::Mat &dst, int times)
     {
         Filters::convolve(src, dst, kernel, kernel, kSize, 10);
     }
+    // convert to absolute values and 8U type
+    cv::convertScaleAbs(dst, dst);
 
     // end the timing
     double endTime = TimeUtil::getTime();
@@ -283,10 +279,13 @@ int Filters::sobelX3x3(cv::Mat &src, cv::Mat &dst)
     int kernelXH[3] = {-1, 0, 1}; // Horizontal kernel
     int kernelXV[3] = {1, 2, 1};  // Vertical kernel
 
+    // Convert to grayscale first
+    cv::Mat grey;
+    cv::cvtColor(src, grey, cv::COLOR_BGR2GRAY);
     // Convolve
-    int kSize = 3;
-    Filters::convolve(src, dst, kernelXH, kernelXV, kSize, 0);
-
+    Filters::convolve(grey, dst, kernelXH, kernelXV, 3, 0);
+    // convert to absolute values and 8U type
+    cv::convertScaleAbs(dst, dst);
     return 0;
 }
 
@@ -304,9 +303,13 @@ int Filters::sobelY3x3(cv::Mat &src, cv::Mat &dst)
     int kernelYH[3] = {1, 2, 1};  // Horizontal kernel
     int kernelYV[3] = {-1, 0, 1}; // Vertical kernel
 
+    // greyscale first
+    cv::Mat grey;
+    cv::cvtColor(src, grey, cv::COLOR_BGR2GRAY);
     // Convolve
-    int kSize = 3;
-    Filters::convolve(src, dst, kernelYH, kernelYV, kSize, 0);
+    Filters::convolve(grey, dst, kernelYH, kernelYV, 3, 0);
+    // convert to absolute values and 8U type
+    cv::convertScaleAbs(dst, dst);
 
     return 0;
 }
@@ -422,102 +425,109 @@ int Filters::convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, in
     if (dst.empty())
         dst.create(src.size(), src.type());
 
-    // padding size
-    const int kHalf = kSize / 2;
+    // ensure src is of type CV_8UC1(greyscale) or CV_8UC3(3 color channels)
+    CV_Assert(src.type() == CV_8UC1 || src.type() == CV_8UC3);
 
-    // intermediate image for processing
-    // Use 16-bit signed image to preserve negative values from first pass (crucial for Sobel)
-    cv::Mat tmp(src.size(), CV_16SC3);
+    int channels = src.channels(); // number of color channels
+    int rows = src.rows;           // image row dimensions
+    int cols = src.cols;           // image col dimensions
+    const int kHalf = kSize / 2;   // padding size
 
-    // horizontal pass: src (8UC3) -> tmp (16SC3)
-    for (int i = 0; i < src.rows; i++)
+    // intermediate buffer (signed!)
+    cv::Mat tmp(rows, cols, CV_MAKETYPE(CV_16S, channels));
+
+    // output (signed, keep direction info)
+    dst.create(rows, cols, CV_MAKETYPE(CV_16S, channels));
+
+    /*  Horizontal Pass*/
+    if (channels == 1) // greyscale
     {
-        // get pointer to the current row in src and tmp
-        const cv::Vec3b *srcRow = src.ptr<cv::Vec3b>(i);
-        cv::Vec3s *tmpRow = tmp.ptr<cv::Vec3s>(i);
-
-        // iterate each column
-        for (int j = 0; j < src.cols; j++)
+        for (int i = 0; i < rows; i++)
         {
-            // initialize sums for each channel
-            int sumB = 0, sumG = 0, sumR = 0;
+            const uchar *srcRow = src.ptr<uchar>(i);
+            short *tmpRow = tmp.ptr<short>(i);
 
-            // apply the kernel
-            for (int k = -kHalf; k <= kHalf; k++)
+            for (int j = 0; j < cols; j++)
             {
-                // Check for border pixels
-                int col = j + k;
-                if (col < 0)
-                    col = 0;
-                if (col >= src.cols)
-                    col = src.cols - 1;
-
-                // get the kernel weight
-                int weight = kernel1[k + kHalf];
-
-                // Accumulate weighted sum
-                sumB += srcRow[col][0] * weight;
-                sumG += srcRow[col][1] * weight;
-                sumR += srcRow[col][2] * weight;
+                int sum = 0;
+                for (int k = -kHalf; k <= kHalf; k++)
+                {
+                    int col = std::clamp(j + k, 0, cols - 1);
+                    sum += srcRow[col] * kernel1[k + kHalf];
+                }
+                if (kSum)
+                    sum /= kSum;
+                tmpRow[j] = sum;
             }
+        }
+    }
+    else // 3 channels
+    {
+        for (int i = 0; i < rows; i++)
+        {
+            const cv::Vec3b *srcRow = src.ptr<cv::Vec3b>(i);
+            cv::Vec3s *tmpRow = tmp.ptr<cv::Vec3s>(i);
 
-            if (kSum != 0)
+            for (int j = 0; j < cols; j++)
             {
-                sumB /= kSum;
-                sumG /= kSum;
-                sumR /= kSum;
+                for (int c = 0; c < 3; c++)
+                {
+                    int sum = 0;
+                    for (int k = -kHalf; k <= kHalf; k++)
+                    {
+                        int col = std::clamp(j + k, 0, cols - 1);
+                        sum += srcRow[col][c] * kernel1[k + kHalf];
+                    }
+                    if (kSum)
+                        sum /= kSum;
+                    tmpRow[j][c] = sum;
+                }
             }
-
-            // Store signed result in 16-bit buffer (no abs/clamp yet)
-            tmpRow[j][0] = static_cast<short>(sumB);
-            tmpRow[j][1] = static_cast<short>(sumG);
-            tmpRow[j][2] = static_cast<short>(sumR);
         }
     }
 
-    // vertical pass: tmp (16SC3) -> dst (8UC3)
-    for (int i = 0; i < src.rows; i++)
+    /* Vertical Pass */
+    if (channels == 1) // greyscale
     {
-        // use prev to save the vertical output
-        cv::Vec3b *dstRow = dst.ptr<cv::Vec3b>(i);
-
-        for (int j = 0; j < src.cols; j++)
+        for (int i = 0; i < rows; i++)
         {
-            // initialize sums for each channel
-            int sumB = 0, sumG = 0, sumR = 0;
+            short *dstRow = dst.ptr<short>(i);
 
-            // apply the kernel
-            for (int k = -kHalf; k <= kHalf; k++)
+            for (int j = 0; j < cols; j++)
             {
-                // Check for border pixels
-                int row = i + k;
-                if (row < 0)
-                    row = 0;
-                if (row >= src.rows)
-                    row = src.rows - 1;
-
-                // Access signed 16-bit intermediate values
-                const cv::Vec3s *tmpRow = tmp.ptr<cv::Vec3s>(row);
-
-                int weight = kernel2[k + kHalf];
-
-                sumB += tmpRow[j][0] * weight;
-                sumG += tmpRow[j][1] * weight;
-                sumR += tmpRow[j][2] * weight;
+                int sum = 0;
+                for (int k = -kHalf; k <= kHalf; k++)
+                {
+                    int row = std::clamp(i + k, 0, rows - 1);
+                    sum += tmp.ptr<short>(row)[j] * kernel2[k + kHalf];
+                }
+                if (kSum)
+                    sum /= kSum;
+                dstRow[j] = sum;
             }
+        }
+    }
+    else // 3 channels
+    {
+        for (int i = 0; i < rows; i++)
+        {
+            cv::Vec3s *dstRow = dst.ptr<cv::Vec3s>(i);
 
-            if (kSum != 0)
+            for (int j = 0; j < cols; j++)
             {
-                sumB /= kSum;
-                sumG /= kSum;
-                sumR /= kSum;
+                for (int c = 0; c < 3; c++)
+                {
+                    int sum = 0;
+                    for (int k = -kHalf; k <= kHalf; k++)
+                    {
+                        int row = std::clamp(i + k, 0, rows - 1);
+                        sum += tmp.ptr<cv::Vec3s>(row)[j][c] * kernel2[k + kHalf];
+                    }
+                    if (kSum)
+                        sum /= kSum;
+                    dstRow[j][c] = sum;
+                }
             }
-
-            // set the convolved pixel value in dst
-            // NOW apply abs() for Sobel magnitude and clamp for display
-            dstRow[j][0] = cv::saturate_cast<uchar>(std::abs(sumB));
-            dstRow[j][1] = cv::saturate_cast<uchar>(std::abs(sumG));
-            dstRow[j][2] = cv::saturate_cast<uchar>(std::abs(sumR));
         }
     }
 
