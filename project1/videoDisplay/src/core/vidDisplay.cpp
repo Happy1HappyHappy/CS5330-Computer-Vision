@@ -25,6 +25,7 @@ int main(int argc, char *argv[])
         cv::namedWindow("Video", 1); // identifies a window
         cv::Mat frame;               // original frame
         cv::Mat currentFrame;        // current frame
+        cv::Rect last(0, 0, 0, 0);
         bool isVignette = false;     // vignette flag
         const int blurTimes = 2;     // number of times to apply blur
         char colorMode = 'c';        // greyscale mode flag, default to color mode
@@ -90,22 +91,28 @@ int main(int argc, char *argv[])
                 else if (colorMode == 'f' || colorMode == 'F')
                 {       
                         std::vector<cv::Rect> faces;
-                        cv::Rect last(0, 0, 0, 0);
-                        cv::cvtColor(frame, currentFrame, cv::COLOR_BGR2GRAY);
+                        cv::Mat grey;
+                        cv::cvtColor(frame, grey, cv::COLOR_BGR2GRAY);
 
                         // detect faces
-                        detectFaces( currentFrame, faces );
-
-                        // draw boxes around the faces
-                        drawBoxes( currentFrame, faces );
+                        detectFaces( grey, faces );
 
                         // add a little smoothing by averaging the last two detections
                         if( faces.size() > 0 ) {
-                        last.x = (faces[0].x + last.x)/2;
-                        last.y = (faces[0].y + last.y)/2;
-                        last.width = (faces[0].width + last.width)/2;
-                        last.height = (faces[0].height + last.height)/2;
+                                if (last.width == 0) {
+                                        last = faces[0];
+                                } else {
+                                        last.x = (faces[0].x + last.x)/2;
+                                        last.y = (faces[0].y + last.y)/2;
+                                        last.width = (faces[0].width + last.width)/2;
+                                        last.height = (faces[0].height + last.height)/2;
+                                }
+                                faces[0] = last;
                         }
+
+                        currentFrame = frame;
+                        // draw boxes around the faces
+                        drawBoxes( currentFrame, faces );
                 }
                 else if (colorMode == 'g' || colorMode == 'G')
                 {

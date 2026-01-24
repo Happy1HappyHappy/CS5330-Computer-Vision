@@ -414,6 +414,7 @@ int Filters::convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, in
     // check for empty source images
     if (src.empty() || kernel1 == nullptr || kernel2 == nullptr)
         return -1;
+    
     // allocate dst if empty
     if (dst.empty())
         dst.create(src.size(), src.type());
@@ -422,18 +423,16 @@ int Filters::convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, in
     const int kHalf = kSize / 2;
 
     // intermediate image for processing
-    cv::Mat tmp;
-    src.copyTo(tmp);
-    // prev for last input, curr for horizontal output
-    cv::Mat *prev = &src;
-    cv::Mat *curr = &tmp;
+    // Use 16-bit signed image to preserve negative values from first pass (crucial for Sobel)
+    cv::Mat tmp(src.size(), CV_16SC3);
 
-    // horizontal pass: curr -> tmp
+    // horizontal pass: src (8UC3) -> tmp (16SC3)
     for (int i = 0; i < src.rows; i++)
     {
         // get pointer to the current row in src and tmp
-        cv::Vec3b *prevRow = prev->ptr<cv::Vec3b>(i);
-        cv::Vec3b *currRow = curr->ptr<cv::Vec3b>(i);
+        const cv::Vec3b *srcRow = src.ptr<cv::Vec3b>(i);
+        cv::Vec3s *tmpRow = tmp.ptr<cv::Vec3s>(i);
+
         // iterate each column
         for (int j = 0; j < src.cols; j++)
         {
@@ -449,11 +448,14 @@ int Filters::convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, in
                     col = 0;
                 if (col >= src.cols)
                     col = src.cols - 1;
+                
                 // get the kernel weight
                 int weight = kernel1[k + kHalf];
-                sumB += prevRow[col][0] * weight;
-                sumG += prevRow[col][1] * weight;
-                sumR += prevRow[col][2] * weight;
+                
+                // Accumulate weighted sum
+                sumB += srcRow[col][0] * weight;
+                sumG += srcRow[col][1] * weight;
+                sumR += srcRow[col][2] * weight;
             }
 
             if (kSum != 0)
@@ -463,22 +465,24 @@ int Filters::convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, in
                 sumR /= kSum;
             }
 
-            currRow[j][0] = static_cast<uchar>(std::min(std::max(abs(sumB), 0), 255));
-            currRow[j][1] = static_cast<uchar>(std::min(std::max(abs(sumG), 0), 255));
-            currRow[j][2] = static_cast<uchar>(std::min(std::max(abs(sumR), 0), 255));
+            // Store signed result in 16-bit buffer (no abs/clamp yet)
+            tmpRow[j][0] = static_cast<short>(sumB);
+            tmpRow[j][1] = static_cast<short>(sumG);
+            tmpRow[j][2] = static_cast<short>(sumR);
         }
     }
 
-    // vertical pass: tmp -> dst
+    // vertical pass: tmp (16SC3) -> dst (8UC3)
     for (int i = 0; i < src.rows; i++)
     {
         // use prev to save the vertical output
-        cv::Vec3b *dptr = dst.ptr<cv::Vec3b>(i);
+        cv::Vec3b *dstRow = dst.ptr<cv::Vec3b>(i);
 
         for (int j = 0; j < src.cols; j++)
         {
             // initialize sums for each channel
             int sumB = 0, sumG = 0, sumR = 0;
+
             // apply the kernel
             for (int k = -kHalf; k <= kHalf; k++)
             {
@@ -489,11 +493,14 @@ int Filters::convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, in
                 if (row >= src.rows)
                     row = src.rows - 1;
 
-                cv::Vec3b *currRow = curr->ptr<cv::Vec3b>(row);
+                // Access signed 16-bit intermediate values
+                const cv::Vec3s *tmpRow = tmp.ptr<cv::Vec3s>(row);
+                
                 int weight = kernel2[k + kHalf];
-                sumB += currRow[j][0] * weight;
-                sumG += currRow[j][1] * weight;
-                sumR += currRow[j][2] * weight;
+                
+                sumB += tmpRow[j][0] * weight;
+                sumG += tmpRow[j][1] * weight;
+                sumR += tmpRow[j][2] * weight;
             }
 
             if (kSum != 0)
@@ -504,9 +511,10 @@ int Filters::convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, in
             }
 
             // set the convolved pixel value in dst
-            dptr[j][0] = static_cast<uchar>(std::min(std::max(abs(sumB), 0), 255));
-            dptr[j][1] = static_cast<uchar>(std::min(std::max(abs(sumG), 0), 255));
-            dptr[j][2] = static_cast<uchar>(std::min(std::max(abs(sumR), 0), 255));
+            // NOW apply abs() for Sobel magnitude and clamp for display
+            dstRow[j][0] = cv::saturate_cast<uchar>(std::abs(sumB));
+            dstRow[j][1] = cv::saturate_cast<uchar>(std::abs(sumG));
+            dstRow[j][2] = cv::saturate_cast<uchar>(std::abs(sumR));
         }
     }
 
