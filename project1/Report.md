@@ -60,7 +60,17 @@ We implment an abstract convolution function `int Filters::convolve(cv::Mat &src
 ## Implement a function that blurs and quantizes a color image(Task9)
 
 **Original:**
-![Color](Assets/images/screenshot_20260123_152745425c.png)
+![original](Assets/images/screenshot_20260125_113756368c.png)
+**Applied filter:**
+![blurFilter](Assets/images/screenshot_20260125_113759497i.png)
 
+## Face detection(Task10)
+**Picture with face detection**
+![faceDetect](Assets/screenshot_20260125_114037747f.png)
+
+**Original:**
+![Color](Assets/images/screenshot_20260123_152745425c.png)
 **Apply blurQuantize:**
 ![blur&Quantize](Assets/images/screenshot_20260123_152718182i.png)
+
+## Depth Anything V2 network(Task11)
