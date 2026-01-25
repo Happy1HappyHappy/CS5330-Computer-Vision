@@ -8,6 +8,7 @@ Description: Filters implementation file defining image filtering functions.
 
 #include "project1/utils/Filters.hpp"
 #include "project1/utils/TimeUtil.hpp"
+#include "project1/utils/faceDetect.hpp"
 #include <opencv2/opencv.hpp>
 
 int Filters::greyscale(cv::Mat &src, cv::Mat &dst)
@@ -404,6 +405,98 @@ int Filters::blurQuantize(cv::Mat &src, cv::Mat &dst, int levels)
             }
         }
     }
+    return 0;
+}
+
+int Filters::faceDetect(cv::Mat &src, cv::Mat &dst, cv::Rect &last)
+{
+    // This function detects faces in the source image and draws rectangles around them in the destination image
+    // src: source image
+    // dst: destination image
+
+    // check for empty source images
+    if (src.empty())
+        return -1;
+
+    // copy src to dst
+    src.copyTo(dst);
+
+    std::vector<cv::Rect> faces;                 // vector to hold detected faces
+    cv::Mat grey;                                // grayscale image
+    cv::cvtColor(src, grey, cv::COLOR_BGR2GRAY); // convert to greyscale
+
+    // detect faces
+    detectFaces(grey, faces);
+
+    // add a little smoothing by averaging the last two detections
+    if (faces.size() > 0)
+    {
+        if (last.area() == 0)
+        {
+            last = faces[0]; // initialize last if it's the first detection
+        }
+        else
+        {
+            // smooth by averaging with last
+            last.x = (faces[0].x + last.x) / 2;
+            last.y = (faces[0].y + last.y) / 2;
+            last.width = (faces[0].width + last.width) / 2;
+            last.height = (faces[0].height + last.height) / 2;
+        }
+    }
+    // draw boxes around the faces
+    drawBoxes(dst, faces);
+
+    // check if dst is empty
+    if (dst.empty())
+        return -1;
+
+    return 0;
+}
+
+int Filters::blurOutsideFaces(cv::Mat &src, cv::Mat &dst, cv::Rect &last)
+{
+    // This function blurs the area outside detected faces in the source image
+    // src: source image
+    // dst: destination image
+
+    // check for empty source images
+    if (src.empty())
+        return -1;
+
+    // copy src to dst
+    src.copyTo(dst);
+
+    std::vector<cv::Rect> faces;                 // vector to hold detected faces
+    cv::Mat grey;                                // grayscale image
+    cv::cvtColor(src, grey, cv::COLOR_BGR2GRAY); // convert to greyscale
+
+    // detect faces
+    detectFaces(grey, faces);
+
+    // add a little smoothing by averaging the last two detections
+    if (faces.size() > 0)
+    {
+        last.x = (faces[0].x + last.x) / 2;
+        last.y = (faces[0].y + last.y) / 2;
+        last.width = (faces[0].width + last.width) / 2;
+        last.height = (faces[0].height + last.height) / 2;
+    }
+
+    // create a mask for the face region
+    cv::Mat mask = cv::Mat::zeros(src.size(), CV_8UC1);
+    if (faces.size() > 0)
+    {
+        cv::rectangle(mask, last, cv::Scalar(255), cv::FILLED);
+    }
+
+    // blur the entire image
+    cv::Mat blurred;
+    cv::GaussianBlur(src, blurred, cv::Size(21, 21), 0);
+
+    // copy the blurred areas outside the face region to dst
+    blurred.copyTo(dst, 255 - mask);
+
     return 0;
 }
 

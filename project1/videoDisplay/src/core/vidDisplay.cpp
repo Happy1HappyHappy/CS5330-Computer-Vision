@@ -8,7 +8,6 @@ Description: Loads and displays a video using OpenCV.
 
 #include "project1/utils/TimeUtil.hpp"
 #include "project1/utils/Filters.hpp"
-#include "project1/utils/faceDetect.hpp"
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
@@ -74,7 +73,12 @@ int main(int argc, char *argv[])
                 }
 
                 // display the image
-                if (colorMode == 'b' || colorMode == 'B')
+                if (colorMode == '1')
+                {
+                        // Feature 1: Blur the image outside of found faces
+                        Filters::blurOutsideFaces(frame, currentFrame, last);
+                }
+                else if (colorMode == 'b' || colorMode == 'B')
                 {
                         // apply blur filter verison 1
                         // Filters::blur5x5_1(frame, currentFrame, blurTimes);
@@ -94,27 +98,8 @@ int main(int argc, char *argv[])
                 }
                 else if (colorMode == 'f' || colorMode == 'F')
                 {
-                        // face detection mode
-                        std::vector<cv::Rect> faces;                   // vector of detected faces
-                        cv::Mat grey;                                  // grayscale image
-                        cv::cvtColor(frame, grey, cv::COLOR_BGR2GRAY); // convert to grayscale
-
-                        // detect faces
-                        detectFaces(grey, faces);
-
-                        // add a little smoothing by averaging the last two detections
-                        if (faces.size() > 0)
-                        {
-                                last.x = (faces[0].x + last.x) / 2;
-                                last.y = (faces[0].y + last.y) / 2;
-                                last.width = (faces[0].width + last.width) / 2;
-                                last.height = (faces[0].height + last.height) / 2;
-                        }
-
-                        // copy the original frame to currentFrame
-                        currentFrame = frame;
-                        // draw boxes around the faces
-                        drawBoxes(currentFrame, faces);
+                        // apply face detection filter
+                        Filters::faceDetect(frame, currentFrame, last);
                 }
                 else if (colorMode == 'g' || colorMode == 'G')
                 {
@@ -166,6 +151,25 @@ int main(int argc, char *argv[])
                 {
                         break;
                 }
+                // keypress '1' for feature 1
+                else if (key == '1')
+                {
+                        colorMode = key;
+                        cout << "Applied feature 1: Blur the image outside of found faces." << endl;
+                }
+                // keypress '2' for feature 2
+                else if (key == '2')
+                {
+                        colorMode = key;
+                        cout << "Applied feature 2: " << endl;
+                }
+                // keypress '3' for feature 3
+                else if (key == '3')
+                {
+                        colorMode = key;
+                        cout << "Applied feature 3: " << endl;
+                }
+                // keypress 'b' for blur mode
                 else if (key == 'b' || key == 'B')
                 {
                         colorMode = key;
