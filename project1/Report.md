@@ -84,7 +84,9 @@ We first transform RGB picture into HSV color and `cv::Scalar` to define the ran
 ![remainYellow](Assets/images/screenshot_20260125_1122280882.png)
 
 # Reflection
+This project helped us understand how image filters and visual effects work under the hood by actually examining the code behind the OpenCV APIs and ONNX. By implementing all the tasks, we also learned how to design a system that can run multiple OpenCV filters in real time and gained more hands on experience with C++ programming.
 
+Due to time limitations, we only implemented a small amount of performance optimization in this project. There are many possible improvements that could be made in the future, such as further improving real time performance or extending the system with additional filters and user controls.
 
 # Acknowlegdement
 In this project, we referred to the OpenCV official documentation to understand and implement the required image processing methods. In addition, we used ChatGPT and Google Gemini to assit us code up our idea and debug.
