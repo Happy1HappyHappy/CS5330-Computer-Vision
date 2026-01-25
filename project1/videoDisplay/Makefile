@@ -58,22 +58,12 @@ $(UTILOBJDIR)/%.o: $(UTILSDIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Targets
+all: vidDisplay imgDisplay
+
 vidDisplay: $(OBJDIR)/vidDisplay.o	$(UTILOBJDIR)/TimeUtil.o $(UTILOBJDIR)/Filters.o $(UTILOBJDIR)/faceDetect.o
 	$(CC) $^ -o $(BINDIR)/$@ $(LDFLAGS) $(LDLIBS)
 
-vid: $(OBJDIR)/vidDisplay.o	$(UTILOBJDIR)/TimeUtil.o $(UTILOBJDIR)/Filters.o
-	$(CC) $^ -o $(BINDIR)/$@ $(LDFLAGS) $(LDLIBS)
-
-imgDisplay: $(OBJDIR)/imgDisplay.o	$(UTILOBJDIR)/TimeUtil.o $(UTILOBJDIR)/Filters.o
-	$(CC) $^ -o $(BINDIR)/$@ $(LDFLAGS) $(LDLIBS)
-
-face: faceDetect.o filters.o
-	$(CC) $^ -o $(BINDIR)/$@ $(LDFLAGS) $(LDLIBS)
-
-imod: imgMod.o
-	$(CC) $^ -o $(BINDIR)/$@ $(LDFLAGS) $(LDLIBS)
-
-macbeth: macbeth.o
+imgDisplay: $(OBJDIR)/imgDisplay.o	$(UTILOBJDIR)/TimeUtil.o $(UTILOBJDIR)/Filters.o $(UTILOBJDIR)/faceDetect.o
 	$(CC) $^ -o $(BINDIR)/$@ $(LDFLAGS) $(LDLIBS)
 
 clean:
