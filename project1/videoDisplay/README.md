@@ -69,6 +69,7 @@ The application is interactive and responds to the following key presses. Make s
 | :--- | :--- |
 | `1` | **Feature 1**: Blurs the image outside of detected faces. |
 | `2` | **Feature 2**: Keeps yellow objects in color while converting the rest to grayscale. |
+| `3` | **Feature 3**: Makes detected face colorful, rest grayscale. |
 | `b` | **Blur**: Applies a 5x5 blur filter. |
 | `c` | **Color Mode**: Displays the original color image (Default). |
 | `e` | **Sepia**: Applies a sepia tone filter. |
@@ -93,6 +94,7 @@ The application is interactive and responds to the following key presses. Make s
 | `static int greyscale(cv::Mat &src, cv::Mat &dst)` | Converts a color image to grayscale. |
 | `static int sepia(cv::Mat &src, cv::Mat &dst, bool vignetteFlag = false)` | Applies a sepia tone effect, optionally with a vignette. |
 | `static int remainYellowInGrey(cv::Mat &src, cv::Mat &dst)` | Converts non-yellow parts of the image to grayscale, keeping yellow objects in color. |
+| `static int makeFaceColorful(cv::Mat &src, cv::Mat &dst, cv::Rect &last)` | Makes the detected face region colorful while the rest is grey. |
 | `static float vignette(float x, float y, float centerX, float centerY, float radius)` | Helper function to calculate vignette scaling factor. |
 
 #### Blurring & Quantization
