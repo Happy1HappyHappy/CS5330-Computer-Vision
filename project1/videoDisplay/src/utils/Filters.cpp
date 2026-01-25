@@ -623,6 +623,45 @@ int Filters::convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, in
             }
         }
     }
+        return 0;
+}
 
+    // Filter that preserve yellow and keep everything else as grey
+int Filters::remainYellowInGrey(cv::Mat &src, cv::Mat &dst) 
+{        
+    if (src.empty()) return -1;
+
+    cv::Mat grey;
+    Filters::greyscale(src, grey);
+
+    cv::Mat hsv;
+    cv::cvtColor(src, hsv, cv::COLOR_BGR2HSV);
+
+    // define yellow in HSV
+    cv::Scalar lowerYellow = cv::Scalar(15, 50, 50);
+    cv::Scalar upperYellow = cv::Scalar(45, 255, 255);
+
+    // a mask show pure white in each pixel if it is a defined yellow
+    cv::Mat mask;
+    cv::inRange(hsv, lowerYellow, upperYellow, mask);
+
+    dst.create(src.size(), src.type());
+
+    for (int i = 0; i < src.rows; i++) {
+        const cv::Vec3b *srcPtr = src.ptr<cv::Vec3b>(i);
+        const cv::Vec3b *greyPtr = grey.ptr<cv::Vec3b>(i);
+        const uchar *maskPtr = mask.ptr<uchar>(i);
+        cv::Vec3b *dstPtr = dst.ptr<cv::Vec3b>(i);
+
+        for (int j = 0; j < src.cols; j++) {
+            // if mask is 255, which means it is defined yellow, then show the original pixel
+            if (maskPtr[j] > 0) {
+                dstPtr[j] = srcPtr[j];
+            } else {
+                // if not, show grey
+                dstPtr[j] = greyPtr[j];
+            }
+        }
+    }
     return 0;
 }

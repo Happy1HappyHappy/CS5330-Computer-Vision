@@ -25,6 +25,7 @@ public:
     static int convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, int kSize, int kSum);
     static int blurQuantize(cv::Mat &src, cv::Mat &dst, int levels);
     static int blurOutsideFaces(cv::Mat &src, cv::Mat &dst, cv::Rect &last);
+    static int remainYellowInGrey(cv::Mat &src, cv::Mat &dst);
 
 private:
     static double getTime();
