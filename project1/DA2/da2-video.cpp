@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
   cv::namedWindow("Video", 1);
   cv::namedWindow("Depth", 2);
 
-  int red_limit = 50; // Threadshold of the farest
+  int red_limit = 50; // Threshold of the farrest
   cv::createTrackbar("Farthest Redness", "Video", &red_limit, 255);
 
   for (;;)
