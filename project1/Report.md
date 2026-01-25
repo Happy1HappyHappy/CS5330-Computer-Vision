@@ -1,3 +1,7 @@
+# Description
+We integrates all developed filters into a single framework. The core of the system is the `Filters` class, which encapsulates each image processing process as a modular static method. The main application, `vidDisplay`, continuously captures frames from the camera and applies the selected filter based on user input. By using a state variable (`colorMode`) controlled by keyboard shortcuts, the system allows users to dynamically switch between different effects without restarting the application. This design ensures that all filters are easily accessible and testable within a single runtime environment. 
+
+# Overview of each task
 ## How cvtColor work in OpenCV? (Task3)
 OpenCV provides over 150 color-space coversion methods. We use the RGB -> Gray color coversion code(`cv::COLOR_RGB2GRAY`) in our project. The coversion is based on the formula listed belows. 
 
@@ -35,10 +39,8 @@ We declare two diffrent variable to store RGB information. One set of variable s
 ## 5x5 blur filter (Task6)
 **Original:**
 ![original](Assets/images/original.png)
-
 **Apply 5x5 blur:**
 ![5x5](Assets/images/blurred1.png)
-
 **Timing information:**
 ![time](<Assets/images/Screenshot 2026-01-22 at 10.16.34.png>)
 
@@ -62,18 +64,26 @@ We implment an abstract convolution function `int Filters::convolve(cv::Mat &src
 
 ## Face detection(Task10)
 **Picture with face detection**
-![faceDetect](Assets/screenshot_20260125_114037747f.png)
+![faceDetect text](Assets/images/screenshot_20260125_114037747f.png)
 
 ## Depth Anything V2 network (Task11)
 **DA2 works in video stream**
 ![DA2](<Assets/images/Screenshot 2026-01-25 at 11.51.09.png>)
 **Our filter**
-We use DA2's picture to mark the farrest object from the camera as red
+We use DA2's picture to mark the farrest object from the camera as red.
 ![DAOurFilter](<Assets/images/Screenshot 2026-01-25 at 11.46.21.png>)
 
 ## More effect (Task12)
 ### Remain yellow and grey everything else
+We first transform RGB picture into HSV color and `cv::Scalar` to define the range of yellow color. Then we use `cv::inRange` to create a mask and apply it to the original image. If the pixel is not in the range of yellow, we assign it to grey.
+
 **Original:**
 ![original](Assets/images/screenshot_20260125_112222154c.png)
 **Apply filter:**
 ![remainYellow](Assets/images/screenshot_20260125_1122280882.png)
+
+# Reflection
+
+
+# Acknowlegdement
+In this project, we referred to the OpenCV official documentation to understand and implement the required image processing methods. In addition, we used ChatGPT and Google Gemini to code up our idea and debug.
