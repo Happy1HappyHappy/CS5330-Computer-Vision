@@ -1,10 +1,14 @@
-// Authors: Claire Liu, Yu-Jing Wei
-// File: Filters.cpp
-// Path: project1/videoDisplay/src/utils/Filters.cpp
-// Description: Filters implementation file defining image filtering functions.
+/*
+Claire Liu, Yu-Jing Wei
+Filters.cpp
+
+Path: project1/videoDisplay/src/utils/Filters.cpp
+Description: Filters implementation file defining image filtering functions.
+*/
 
 #include "project1/utils/Filters.hpp"
 #include "project1/utils/TimeUtil.hpp"
+#include "project1/utils/faceDetect.hpp"
 #include <opencv2/opencv.hpp>
 
 int Filters::greyscale(cv::Mat &src, cv::Mat &dst)
@@ -212,12 +216,6 @@ int Filters::blur5x5_1(cv::Mat &src, cv::Mat &dst, int times)
                 dptr[j][2] = sumR / kSum;
             }
         }
-        // prepare for next iteration
-        if (t < times - 1)
-        {
-            // copy dst to tmp for next iteration
-            dst.copyTo(tmp);
-        }
     }
 
     // end the timing
@@ -254,6 +252,8 @@ int Filters::blur5x5_2(cv::Mat &src, cv::Mat &dst, int times)
     {
         Filters::convolve(src, dst, kernel, kernel, kSize, 10);
     }
+    // convert to absolute values and 8U type
+    cv::convertScaleAbs(dst, dst);
 
     // end the timing
     double endTime = TimeUtil::getTime();
@@ -280,10 +280,13 @@ int Filters::sobelX3x3(cv::Mat &src, cv::Mat &dst)
     int kernelXH[3] = {-1, 0, 1}; // Horizontal kernel
     int kernelXV[3] = {1, 2, 1};  // Vertical kernel
 
+    // Convert to grayscale first
+    cv::Mat grey;
+    cv::cvtColor(src, grey, cv::COLOR_BGR2GRAY);
     // Convolve
-    int kSize = 3;
-    Filters::convolve(src, dst, kernelXH, kernelXV, kSize, 0);
-
+    Filters::convolve(grey, dst, kernelXH, kernelXV, 3, 0);
+    // convert to absolute values and 8U type
+    cv::convertScaleAbs(dst, dst);
     return 0;
 }
 
@@ -301,9 +304,13 @@ int Filters::sobelY3x3(cv::Mat &src, cv::Mat &dst)
     int kernelYH[3] = {1, 2, 1};  // Horizontal kernel
     int kernelYV[3] = {-1, 0, 1}; // Vertical kernel
 
+    // greyscale first
+    cv::Mat grey;
+    cv::cvtColor(src, grey, cv::COLOR_BGR2GRAY);
     // Convolve
-    int kSize = 3;
-    Filters::convolve(src, dst, kernelYH, kernelYV, kSize, 0);
+    Filters::convolve(grey, dst, kernelYH, kernelYV, 3, 0);
+    // convert to absolute values and 8U type
+    cv::convertScaleAbs(dst, dst);
 
     return 0;
 }
@@ -401,6 +408,98 @@ int Filters::blurQuantize(cv::Mat &src, cv::Mat &dst, int levels)
     return 0;
 }
 
+int Filters::faceDetect(cv::Mat &src, cv::Mat &dst, cv::Rect &last)
+{
+    // This function detects faces in the source image and draws rectangles around them in the destination image
+    // src: source image
+    // dst: destination image
+
+    // check for empty source images
+    if (src.empty())
+        return -1;
+
+    // copy src to dst
+    src.copyTo(dst);
+
+    std::vector<cv::Rect> faces;                 // vector to hold detected faces
+    cv::Mat grey;                                // grayscale image
+    cv::cvtColor(src, grey, cv::COLOR_BGR2GRAY); // convert to greyscale
+
+    // detect faces
+    detectFaces(grey, faces);
+
+    // add a little smoothing by averaging the last two detections
+    if (faces.size() > 0)
+    {
+        if (last.area() == 0)
+        {
+            last = faces[0]; // initialize last if it's the first detection
+        }
+        else
+        {
+            // smooth by averaging with last
+            last.x = (faces[0].x + last.x) / 2;
+            last.y = (faces[0].y + last.y) / 2;
+            last.width = (faces[0].width + last.width) / 2;
+            last.height = (faces[0].height + last.height) / 2;
+        }
+    }
+    // draw boxes around the faces
+    drawBoxes(dst, faces);
+
+    // check if dst is empty
+    if (dst.empty())
+        return -1;
+
+    return 0;
+}
+
+int Filters::blurOutsideFaces(cv::Mat &src, cv::Mat &dst, cv::Rect &last)
+{
+    // This function blurs the area outside detected faces in the source image
+    // src: source image
+    // dst: destination image
+
+    // check for empty source images
+    if (src.empty())
+        return -1;
+
+    // copy src to dst
+    src.copyTo(dst);
+
+    std::vector<cv::Rect> faces;                 // vector to hold detected faces
+    cv::Mat grey;                                // grayscale image
+    cv::cvtColor(src, grey, cv::COLOR_BGR2GRAY); // convert to greyscale
+
+    // detect faces
+    detectFaces(grey, faces);
+
+    // add a little smoothing by averaging the last two detections
+    if (faces.size() > 0)
+    {
+        last.x = (faces[0].x + last.x) / 2;
+        last.y = (faces[0].y + last.y) / 2;
+        last.width = (faces[0].width + last.width) / 2;
+        last.height = (faces[0].height + last.height) / 2;
+    }
+
+    // create a mask for the face region
+    cv::Mat mask = cv::Mat::zeros(src.size(), CV_8UC1);
+    if (faces.size() > 0)
+    {
+        cv::rectangle(mask, last, cv::Scalar(255), cv::FILLED);
+    }
+
+    // blur the entire image
+    cv::Mat blurred;
+    cv::GaussianBlur(src, blurred, cv::Size(21, 21), 0);
+
+    // copy the blurred areas outside the face region to dst
+    blurred.copyTo(dst, 255 - mask);
+
+    return 0;
+}
+
 int Filters::convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, int kSize, int kSum)
 {
     // This is a function only for convolving an image with separable kernel
@@ -414,101 +513,155 @@ int Filters::convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, in
     // check for empty source images
     if (src.empty() || kernel1 == nullptr || kernel2 == nullptr)
         return -1;
+
     // allocate dst if empty
     if (dst.empty())
         dst.create(src.size(), src.type());
 
-    // padding size
-    const int kHalf = kSize / 2;
+    // ensure src is of type CV_8UC1(greyscale) or CV_8UC3(3 color channels)
+    CV_Assert(src.type() == CV_8UC1 || src.type() == CV_8UC3);
 
-    // intermediate image for processing
-    cv::Mat tmp;
-    src.copyTo(tmp);
-    // prev for last input, curr for horizontal output
-    cv::Mat *prev = &src;
-    cv::Mat *curr = &tmp;
+    int channels = src.channels(); // number of color channels
+    int rows = src.rows;           // image row dimensions
+    int cols = src.cols;           // image col dimensions
+    const int kHalf = kSize / 2;   // padding size
 
-    // horizontal pass: curr -> tmp
-    for (int i = 0; i < src.rows; i++)
+    // intermediate buffer (signed!)
+    cv::Mat tmp(rows, cols, CV_MAKETYPE(CV_16S, channels));
+
+    // output (signed, keep direction info)
+    dst.create(rows, cols, CV_MAKETYPE(CV_16S, channels));
+
+    /*  Horizontal Pass*/
+    if (channels == 1) // greyscale
     {
-        // get pointer to the current row in src and tmp
-        cv::Vec3b *prevRow = prev->ptr<cv::Vec3b>(i);
-        cv::Vec3b *currRow = curr->ptr<cv::Vec3b>(i);
-        // iterate each column
-        for (int j = 0; j < src.cols; j++)
+        for (int i = 0; i < rows; i++)
         {
-            // initialize sums for each channel
-            int sumB = 0, sumG = 0, sumR = 0;
+            const uchar *srcRow = src.ptr<uchar>(i);
+            short *tmpRow = tmp.ptr<short>(i);
 
-            // apply the kernel
-            for (int k = -kHalf; k <= kHalf; k++)
+            for (int j = 0; j < cols; j++)
             {
-                // Check for border pixels
-                int col = j + k;
-                if (col < 0)
-                    col = 0;
-                if (col >= src.cols)
-                    col = src.cols - 1;
-                // get the kernel weight
-                int weight = kernel1[k + kHalf];
-                sumB += prevRow[col][0] * weight;
-                sumG += prevRow[col][1] * weight;
-                sumR += prevRow[col][2] * weight;
+                int sum = 0;
+                for (int k = -kHalf; k <= kHalf; k++)
+                {
+                    int col = std::clamp(j + k, 0, cols - 1);
+                    sum += srcRow[col] * kernel1[k + kHalf];
+                }
+                if (kSum)
+                    sum /= kSum;
+                tmpRow[j] = sum;
             }
+        }
+    }
+    else // 3 channels
+    {
+        for (int i = 0; i < rows; i++)
+        {
+            const cv::Vec3b *srcRow = src.ptr<cv::Vec3b>(i);
+            cv::Vec3s *tmpRow = tmp.ptr<cv::Vec3s>(i);
 
-            if (kSum != 0)
+            for (int j = 0; j < cols; j++)
             {
-                sumB /= kSum;
-                sumG /= kSum;
-                sumR /= kSum;
+                for (int c = 0; c < 3; c++)
+                {
+                    int sum = 0;
+                    for (int k = -kHalf; k <= kHalf; k++)
+                    {
+                        int col = std::clamp(j + k, 0, cols - 1);
+                        sum += srcRow[col][c] * kernel1[k + kHalf];
+                    }
+                    if (kSum)
+                        sum /= kSum;
+                    tmpRow[j][c] = sum;
+                }
             }
-
-            currRow[j][0] = static_cast<uchar>(std::min(std::max(abs(sumB), 0), 255));
-            currRow[j][1] = static_cast<uchar>(std::min(std::max(abs(sumG), 0), 255));
-            currRow[j][2] = static_cast<uchar>(std::min(std::max(abs(sumR), 0), 255));
         }
     }
 
-    // vertical pass: tmp -> dst
-    for (int i = 0; i < src.rows; i++)
+    /* Vertical Pass */
+    if (channels == 1) // greyscale
     {
-        // use prev to save the vertical output
-        cv::Vec3b *dptr = dst.ptr<cv::Vec3b>(i);
-
-        for (int j = 0; j < src.cols; j++)
+        for (int i = 0; i < rows; i++)
         {
-            // initialize sums for each channel
-            int sumB = 0, sumG = 0, sumR = 0;
-            // apply the kernel
-            for (int k = -kHalf; k <= kHalf; k++)
+            short *dstRow = dst.ptr<short>(i);
+
+            for (int j = 0; j < cols; j++)
             {
-                // Check for border pixels
-                int row = i + k;
-                if (row < 0)
-                    row = 0;
-                if (row >= src.rows)
-                    row = src.rows - 1;
-
-                cv::Vec3b *currRow = curr->ptr<cv::Vec3b>(row);
-                int weight = kernel2[k + kHalf];
-                sumB += currRow[j][0] * weight;
-                sumG += currRow[j][1] * weight;
-                sumR += currRow[j][2] * weight;
+                int sum = 0;
+                for (int k = -kHalf; k <= kHalf; k++)
+                {
+                    int row = std::clamp(i + k, 0, rows - 1);
+                    sum += tmp.ptr<short>(row)[j] * kernel2[k + kHalf];
+                }
+                if (kSum)
+                    sum /= kSum;
+                dstRow[j] = sum;
             }
-
-            if (kSum != 0)
-            {
-                sumB /= kSum;
-                sumG /= kSum;
-                sumR /= kSum;
-            }
-
-            // set the convolved pixel value in dst
-            dptr[j][0] = static_cast<uchar>(std::min(std::max(abs(sumB), 0), 255));
-            dptr[j][1] = static_cast<uchar>(std::min(std::max(abs(sumG), 0), 255));
-            dptr[j][2] = static_cast<uchar>(std::min(std::max(abs(sumR), 0), 255));
         }
     }
+    else // 3 channels
+    {
+        for (int i = 0; i < rows; i++)
+        {
+            cv::Vec3s *dstRow = dst.ptr<cv::Vec3s>(i);
 
+            for (int j = 0; j < cols; j++)
+            {
+                for (int c = 0; c < 3; c++)
+                {
+                    int sum = 0;
+                    for (int k = -kHalf; k <= kHalf; k++)
+                    {
+                        int row = std::clamp(i + k, 0, rows - 1);
+                        sum += tmp.ptr<cv::Vec3s>(row)[j][c] * kernel2[k + kHalf];
+                    }
+                    if (kSum)
+                        sum /= kSum;
+                    dstRow[j][c] = sum;
+                }
+            }
+        }
+    }
+        return 0;
+}
+
+    // Filter that preserve yellow and keep everything else as grey
+int Filters::remainYellowInGrey(cv::Mat &src, cv::Mat &dst) 
+{        
+    if (src.empty()) return -1;
+
+    cv::Mat grey;
+    Filters::greyscale(src, grey);
+
+    cv::Mat hsv;
+    cv::cvtColor(src, hsv, cv::COLOR_BGR2HSV);
+
+    // define yellow in HSV
+    cv::Scalar lowerYellow = cv::Scalar(15, 50, 50);
+    cv::Scalar upperYellow = cv::Scalar(45, 255, 255);
+
+    // a mask show pure white in each pixel if it is a defined yellow
+    cv::Mat mask;
+    cv::inRange(hsv, lowerYellow, upperYellow, mask);
+
+    dst.create(src.size(), src.type());
+
+    for (int i = 0; i < src.rows; i++) {
+        const cv::Vec3b *srcPtr = src.ptr<cv::Vec3b>(i);
+        const cv::Vec3b *greyPtr = grey.ptr<cv::Vec3b>(i);
+        const uchar *maskPtr = mask.ptr<uchar>(i);
+        cv::Vec3b *dstPtr = dst.ptr<cv::Vec3b>(i);
+
+        for (int j = 0; j < src.cols; j++) {
+            // if mask is 255, which means it is defined yellow, then show the original pixel
+            if (maskPtr[j] > 0) {
+                dstPtr[j] = srcPtr[j];
+            } else {
+                // if not, show grey
+                dstPtr[j] = greyPtr[j];
+            }
+        }
+    }
     return 0;
 }

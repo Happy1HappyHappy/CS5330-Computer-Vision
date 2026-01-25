@@ -73,4 +73,16 @@ We implment an abstract convolution function `int Filters::convolve(cv::Mat &src
 **Apply blurQuantize:**
 ![blur&Quantize](Assets/images/screenshot_20260123_152718182i.png)
 
-## Depth Anything V2 network(Task11)
+## Face detection (Task10)
+
+## Depth Anything V2 network (Task11)
+
+## More effect (Task12)
+
+### Remain yellow and grey everything else
+
+**Original:**
+![original](Assets/images/screenshot_20260125_112222154c.png)
+
+**Apply filter:**
+![remainYellow](Assets/images/screenshot_20260125_1122280882.png)

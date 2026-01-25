@@ -1,7 +1,10 @@
-// Authors: Claire Liu, Yu-Jing Wei
-// File: imgDisplay.cpp
-// Path: project1/videoDisplay/src/core/imgDisplay.cpp
-// Description: Loads and displays an image using OpenCV.
+/*
+Claire Liu, Yu-Jing Wei
+imgDisplay.cpp
+
+Path: project1/videoDisplay/src/core/imgDisplay.cpp
+Description: Loads and displays an image using OpenCV.
+*/
 
 #include "project1/utils/TimeUtil.hpp"
 #include "project1/utils/Filters.hpp"
@@ -22,15 +25,16 @@ int main(int argc, char **argv)
 
     // Load image
     cv::Mat img = cv::imread(argv[1]);
-    // Display original image
-    cv::namedWindow("OriginalImage", cv::WINDOW_AUTOSIZE);
-    cv::imshow("OriginalImage", img);
 
     if (img.empty())
     {
         cerr << "Image load error!" << endl;
         return -1;
     }
+
+    // Display original image
+    cv::namedWindow("OriginalImage", cv::WINDOW_AUTOSIZE);
+    cv::imshow("OriginalImage", img);
 
     // Configure and show window
     cv::Mat blurred1(img.size(), img.type());

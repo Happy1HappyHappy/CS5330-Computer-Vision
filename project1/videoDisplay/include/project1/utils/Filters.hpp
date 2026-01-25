@@ -1,7 +1,10 @@
-// Authors: Claire Liu, Yu-Jing Wei
-// File: Filters.hpp
-// Path: project1/include/utils/Filters.hpp
-// Description: Declares image filtering functions (e.g., greyscale, blur, etc.).
+/*
+Claire Liu, Yu-Jing Wei
+Filters.hpp
+
+Path: project1/include/utils/Filters.hpp
+Description: Declares image filtering functions (e.g., greyscale, blur, etc.).
+*/
 
 #pragma once // Include guard
 
@@ -18,8 +21,11 @@ public:
     static int sobelX3x3(cv::Mat &src, cv::Mat &dst);
     static int sobelY3x3(cv::Mat &src, cv::Mat &dst);
     static int magnitude(cv::Mat &sx, cv::Mat &sy, cv::Mat &dst);
+    static int faceDetect(cv::Mat &src, cv::Mat &dst, cv::Rect &last);
     static int convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, int kSize, int kSum);
     static int blurQuantize(cv::Mat &src, cv::Mat &dst, int levels);
+    static int blurOutsideFaces(cv::Mat &src, cv::Mat &dst, cv::Rect &last);
+    static int remainYellowInGrey(cv::Mat &src, cv::Mat &dst);
 
 private:
     static double getTime();
