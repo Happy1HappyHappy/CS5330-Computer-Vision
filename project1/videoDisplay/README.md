@@ -130,7 +130,3 @@ The application is interactive and responds to the following key presses. Make s
 | :--- | :--- |
 | `static std::string getTimestamp()` | Returns the current timestamp as a string. |
 | `static double getTime()` | Returns the current time in seconds. |
-
-## Acknowledgements
-
-Thanks to Professor Bruce A. Maxwell for providing the starter code and guidance for this project.
