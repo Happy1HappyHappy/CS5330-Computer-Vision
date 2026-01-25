@@ -1,0 +1,5 @@
+Makefile text eol=lf
+* text=auto
+*.cpp text eol=lf
+*.hpp text eol=lf
+Makefile whitespace=indent-with-non-tab
