@@ -694,8 +694,9 @@ int Filters::makeFaceColorful(cv::Mat &src, cv::Mat &dst, cv::Rect &last)
         cv::Rect safeRect = last & bounds;
 
         printf("last: x=%d y=%d w=%d h=%d area=%d | safeRect area=%d\n",
-       last.x, last.y, last.width, last.height,
-       last.area(), safeRect.area());
+        last.x, last.y, last.width, last.height,
+        last.area(), safeRect.area());
+        
         if (safeRect.area() > 0)
         {
             src(safeRect).copyTo(dst(safeRect));

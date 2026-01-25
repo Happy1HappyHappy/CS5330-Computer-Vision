@@ -32,9 +32,10 @@ We declare two diffrent variable to store RGB information. One set of variable s
 
 **Original:**
 ![Color](Assets/images/screenshot_20260120_220456250c.png)
-
 **Apply Sepia filter:**
 ![Sepia](Assets/images/screenshot_20260120_220500992e.png)
+**Apply vignetting filter:**
+![vignetting](Assets/images/screenshot_20260125_142255183e.png)
 
 ## 5x5 blur filter (Task6)
 **Original:**
@@ -48,13 +49,13 @@ We declare two diffrent variable to store RGB information. One set of variable s
 We implment an abstract convolution function `int Filters::convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, int kSize, int kSum)` to process convolution with NxN seprable kernel. 
 
 **Original:**
-![Original](Assets/images/screenshot_20260123_230245486c.png)
+![color](Assets/images/screenshot_20260125_142028066c.png)
 **Apply SobelX filter:**
-![SobelX](Assets/images/screenshot_20260123_230248397x.png)
+![sobelX](Assets/images/screenshot_20260125_142030214x.png)
 **Apply SobelY filter:**
-![SobelY](Assets/images/screenshot_20260123_230251992y.png)
+![sobelY](Assets/images/screenshot_20260125_142032188y.png)
 **Apply Gradient Magnitude:**
-![gradientmagnitude](Assets/images/screenshot_20260123_230302809m.png)
+![gradient](Assets/images/screenshot_20260125_142034602m.png)
 
 ## Implement a function that blurs and quantizes a color image(Task9)
 **Original:**
@@ -86,4 +87,4 @@ We first transform RGB picture into HSV color and `cv::Scalar` to define the ran
 
 
 # Acknowlegdement
-In this project, we referred to the OpenCV official documentation to understand and implement the required image processing methods. In addition, we used ChatGPT and Google Gemini to code up our idea and debug.
+In this project, we referred to the OpenCV official documentation to understand and implement the required image processing methods. In addition, we used ChatGPT and Google Gemini to assit us code up our idea and debug.
