@@ -500,6 +500,112 @@ int Filters::blurOutsideFaces(cv::Mat &src, cv::Mat &dst, cv::Rect &last)
     return 0;
 }
 
+int Filters::remainYellowInGrey(cv::Mat &src, cv::Mat &dst)
+{
+    // This filter preserves yellow and keep everything else as grey
+    // src: source image
+    // dst: destination image
+
+    // check for empty source images
+    if (src.empty())
+        return -1;
+
+    cv::Mat grey;
+    Filters::greyscale(src, grey);
+
+    cv::Mat hsv;
+    cv::cvtColor(src, hsv, cv::COLOR_BGR2HSV);
+
+    // define yellow in HSV
+    cv::Scalar lowerYellow = cv::Scalar(15, 50, 50);
+    cv::Scalar upperYellow = cv::Scalar(45, 255, 255);
+
+    // a mask show pure white in each pixel if it is a defined yellow
+    cv::Mat mask;
+    cv::inRange(hsv, lowerYellow, upperYellow, mask);
+
+    dst.create(src.size(), src.type());
+
+    for (int i = 0; i < src.rows; i++)
+    {
+        const cv::Vec3b *srcPtr = src.ptr<cv::Vec3b>(i);
+        const cv::Vec3b *greyPtr = grey.ptr<cv::Vec3b>(i);
+        const uchar *maskPtr = mask.ptr<uchar>(i);
+        cv::Vec3b *dstPtr = dst.ptr<cv::Vec3b>(i);
+
+        for (int j = 0; j < src.cols; j++)
+        {
+            // if mask is 255, which means it is defined yellow, then show the original pixel
+            if (maskPtr[j] > 0)
+            {
+                dstPtr[j] = srcPtr[j];
+            }
+            else
+            {
+                // if not, show grey
+                dstPtr[j] = greyPtr[j];
+            }
+        }
+    }
+    return 0;
+}
+
+int Filters::makeFaceColorful(cv::Mat &src, cv::Mat &dst, cv::Rect &last)
+{
+    // This filter makes the detected face region colorful while the rest is grey
+    // src: source image
+    // dst: destination image
+
+    // create a copy of the original color image
+    cv::Mat colorCopy = src.clone();
+
+    // check for empty source images
+    if (src.empty())
+        return -1;
+
+    // create a grey image as the background image
+    Filters::greyscale(src, dst);
+
+    // call the detectFace function
+    std::vector<cv::Rect> faces;
+    cv::Mat greyForDetect;
+    cv::cvtColor(src, greyForDetect, cv::COLOR_BGR2GRAY);
+    detectFaces(greyForDetect, faces);
+
+    // smooth the face rectangle position with last
+    if (!faces.empty())
+    {
+        if (last.area() == 0)
+        {
+            last = faces[0];
+        }
+        else
+        {
+            last.x = (faces[0].x + last.x) / 2;
+            last.y = (faces[0].y + last.y) / 2;
+            last.width = (faces[0].width + last.width) / 2;
+            last.height = (faces[0].height + last.height) / 2;
+        }
+    }
+
+    // add the color back to face region from the original image
+    if (last.area() > 0)
+    {
+        // define bounds of the image
+        cv::Rect bounds(0, 0, src.cols, src.rows);
+        // ensure the rectangle is within image bounds
+        cv::Rect safeRect = last & bounds;
+
+        // only copy if the rectangle is valid
+        if (safeRect.area() > 0)
+        {
+            colorCopy(safeRect).copyTo(dst(safeRect));
+        }
+    }
+
+    return 0;
+}
+
 int Filters::convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, int kSize, int kSum)
 {
     // This is a function only for convolving an image with separable kernel
@@ -621,85 +727,6 @@ int Filters::convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, in
                     dstRow[j][c] = sum;
                 }
             }
-        }
-    }
-        return 0;
-}
-
-    // Filter that preserve yellow and keep everything else as grey
-int Filters::remainYellowInGrey(cv::Mat &src, cv::Mat &dst) 
-{        
-    if (src.empty()) return -1;
-
-    cv::Mat grey;
-    Filters::greyscale(src, grey);
-
-    cv::Mat hsv;
-    cv::cvtColor(src, hsv, cv::COLOR_BGR2HSV);
-
-    // define yellow in HSV
-    cv::Scalar lowerYellow = cv::Scalar(15, 50, 50);
-    cv::Scalar upperYellow = cv::Scalar(45, 255, 255);
-
-    // a mask show pure white in each pixel if it is a defined yellow
-    cv::Mat mask;
-    cv::inRange(hsv, lowerYellow, upperYellow, mask);
-
-    dst.create(src.size(), src.type());
-
-    for (int i = 0; i < src.rows; i++) {
-        const cv::Vec3b *srcPtr = src.ptr<cv::Vec3b>(i);
-        const cv::Vec3b *greyPtr = grey.ptr<cv::Vec3b>(i);
-        const uchar *maskPtr = mask.ptr<uchar>(i);
-        cv::Vec3b *dstPtr = dst.ptr<cv::Vec3b>(i);
-
-        for (int j = 0; j < src.cols; j++) {
-            // if mask is 255, which means it is defined yellow, then show the original pixel
-            if (maskPtr[j] > 0) {
-                dstPtr[j] = srcPtr[j];
-            } else {
-                // if not, show grey
-                dstPtr[j] = greyPtr[j];
-            }
-        }
-    }
-    return 0;
-}
-
-int Filters::makeFaceColorful(cv::Mat &src, cv::Mat &dst, cv::Rect &last)
-{   
-    // create a grey image as the background image
-    cv::Mat grey;
-    Filters::greyscale(src, grey); 
-    grey.copyTo(dst);
-
-    // call the detectFace function
-    std::vector<cv::Rect> faces;
-    cv::Mat greyForDetect;
-    cv::cvtColor(src, greyForDetect, cv::COLOR_BGR2GRAY);
-    detectFaces(greyForDetect, faces);
-
-    if (faces.size() > 0)
-    {
-        last.x = (faces[0].x + last.x) / 2;
-        last.y = (faces[0].y + last.y) / 2;
-        last.width = (faces[0].width + last.width) / 2;
-        last.height = (faces[0].height + last.height) / 2;
-    }
-
-    // add the color back to face region from the original image
-    if (last.area() > 0)
-    {   
-        cv::Rect bounds(0, 0, src.cols, src.rows);
-        cv::Rect safeRect = last & bounds;
-
-        printf("last: x=%d y=%d w=%d h=%d area=%d | safeRect area=%d\n",
-        last.x, last.y, last.width, last.height,
-        last.area(), safeRect.area());
-        
-        if (safeRect.area() > 0)
-        {
-            src(safeRect).copyTo(dst(safeRect));
         }
     }
     return 0;

@@ -171,13 +171,13 @@ int main(int argc, char *argv[])
                 else if (key == '2')
                 {
                         colorMode = key;
-                        cout << "Applied feature 2: " << endl;
+                        cout << "Applied feature 2: Remain Yellow In Grey" << endl;
                 }
                 // keypress '3' for feature 3
                 else if (key == '3')
                 {
                         colorMode = key;
-                        cout << "Applied feature 3: " << endl;
+                        cout << "Applied feature 3: Make Face Colorful" << endl;
                 }
                 // keypress 'b' for blur mode
                 else if (key == 'b' || key == 'B')
