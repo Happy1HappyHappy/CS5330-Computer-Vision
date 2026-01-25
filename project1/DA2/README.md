@@ -47,17 +47,21 @@ DA2/
 ## Building
 
 ```bash
-make
+make <target>
+```
+Example:
+```bash
+make da2vid
 ```
 
 Or compile manually:
 
 ```bash
 # Single image example
-g++ -o da2-example da2-example.cpp `pkg-config --cflags --libs opencv4` -lonnxruntime
+g++ -o da2 da2-example.cpp `pkg-config --cflags --libs opencv4` -lonnxruntime
 
 # Video example
-g++ -o da2-video da2-video.cpp `pkg-config --cflags --libs opencv4` -lonnxruntime
+g++ -o da2vid da2-video.cpp `pkg-config --cflags --libs opencv4` -lonnxruntime
 ```
 
 ## Usage
