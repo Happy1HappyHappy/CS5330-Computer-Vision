@@ -12,9 +12,9 @@ CXX = $(CC)
 # OSX include paths (for homebrew, probably)
 CFLAGS = -Wc++17-extensions \
          -std=c++17 \
-		 -I/opt/homebrew/include/opencv4 \
-		 -I./include \
-		 -DENABLE_PRECOMPILED_HEADERS=OFF
+         -I/opt/homebrew/include/opencv4 \
+         -I./include \
+         -DENABLE_PRECOMPILED_HEADERS=OFF
 
 # Dwarf include paths
 #CFLAGS = -I../include # opencv includes are in /usr/include
@@ -61,9 +61,11 @@ $(UTILOBJDIR)/%.o: $(UTILSDIR)/%.cpp
 all: vidDisplay imgDisplay
 
 vidDisplay: $(OBJDIR)/vidDisplay.o	$(UTILOBJDIR)/TimeUtil.o $(UTILOBJDIR)/Filters.o $(UTILOBJDIR)/faceDetect.o
+	mkdir -p $(BINDIR)
 	$(CC) $^ -o $(BINDIR)/$@ $(LDFLAGS) $(LDLIBS)
 
 imgDisplay: $(OBJDIR)/imgDisplay.o	$(UTILOBJDIR)/TimeUtil.o $(UTILOBJDIR)/Filters.o $(UTILOBJDIR)/faceDetect.o
+	mkdir -p $(BINDIR)
 	$(CC) $^ -o $(BINDIR)/$@ $(LDFLAGS) $(LDLIBS)
 
 clean:
