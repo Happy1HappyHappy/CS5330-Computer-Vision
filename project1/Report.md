@@ -89,4 +89,4 @@ This project helped us understand how image filters and visual effects work unde
 Due to time limitations, we only implemented a small amount of performance optimization in this project. There are many possible improvements that could be made in the future, such as further improving real time performance or extending the system with additional filters and user controls.
 
 # Acknowlegdement
-In this project, we referred to the OpenCV official documentation to understand and implement the required image processing methods. In addition, we used ChatGPT and Google Gemini to assit us code up our idea and debug.
+In this project, we referred to the OpenCV official documentation to understand and implement the required image processing methods. In addition, we used ChatGPT and Google Gemini to assist us code up our idea and debug.
