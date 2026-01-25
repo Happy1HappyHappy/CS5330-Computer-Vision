@@ -34,8 +34,8 @@ int main(int argc, char *argv[])
 
         // Video recording variables
         cv::VideoWriter videoWriter; // Object to handle video file output
-        bool isRecording = false; // Flag to indicate if recording is active
-        double fps = 24.0; // Frames per second for the output video
+        bool isRecording = false;    // Flag to indicate if recording is active
+        double fps = 24.0;           // Frames per second for the output video
 
         // create results directory if it doesn't exist
         if (std::filesystem::create_directory(fsPath, ec))
@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
                 }
 
                 // if recording is active, write the frame to the video file
-                if (isRecording && videoWriter.isOpened()) 
+                if (isRecording && videoWriter.isOpened())
                 {
                         // Write the current processed frame (with all filters applied) to the file
                         videoWriter.write(currentFrame);
@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
                         cv::circle(currentFrame, cv::Point(30, 30), 10, cv::Scalar(0, 0, 255), -1);
                         cv::putText(currentFrame, "REC", cv::Point(50, 42), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(0, 0, 255), 2);
                 }
-                
+
                 // show the current frame
                 cv::imshow("Video", currentFrame);
 
@@ -245,31 +245,32 @@ int main(int argc, char *argv[])
                 }
 
                 // keypress 'r' for recording mode
-                else if (key == 'r' || key == 'R') 
+                else if (key == 'r' || key == 'R')
                 {
                         isRecording = !isRecording; // toggle the recording state
 
-                        if (isRecording) 
+                        if (isRecording)
                         {
-                                // Generate  filename using a timestamp 
+                                // Generate  filename using a timestamp
                                 std::string vidPath = fsPath.string() + "record_" + TimeUtil::getTimestamp() + ".avi";
-                                
+
                                 // Setup MJPG codec and 30 FPS
                                 int fourcc = cv::VideoWriter::fourcc('M', 'J', 'P', 'G');
 
                                 // Open the writer using the camera's resolution (refS)
                                 videoWriter.open(vidPath, fourcc, fps, refS, true);
 
-                                if (!videoWriter.isOpened()) 
+                                if (!videoWriter.isOpened())
                                 {
-                                std::cerr << "ERROR: Failed to open video file for writing." << std::endl;
-                                isRecording = false;
-                                } 
-                                else 
-                                {
-                                std::cout << "STARTED Recording: " << vidPath << std::endl;
+                                        std::cerr << "ERROR: Failed to open video file for writing." << std::endl;
+                                        isRecording = false;
                                 }
-                        } else 
+                                else
+                                {
+                                        std::cout << "STARTED Recording: " << vidPath << std::endl;
+                                }
+                        }
+                        else
                         {
                                 // Release the writer to finalize the video file
                                 videoWriter.release();
