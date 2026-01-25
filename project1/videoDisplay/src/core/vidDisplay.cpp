@@ -83,6 +83,11 @@ int main(int argc, char *argv[])
                         // apply remain color filter
                         Filters::remainYellowInGrey(frame, currentFrame);
                 }
+                else if (colorMode == '3')
+                {
+                        // apply make face colorful filter
+                        Filters::makeFaceColorful(frame, currentFrame, last);
+                }
                 else if (colorMode == 'b' || colorMode == 'B')
                 {
                         // apply blur filter verison 1

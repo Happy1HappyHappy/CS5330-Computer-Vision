@@ -665,3 +665,41 @@ int Filters::remainYellowInGrey(cv::Mat &src, cv::Mat &dst)
     }
     return 0;
 }
+
+int Filters::makeFaceColorful(cv::Mat &src, cv::Mat &dst, cv::Rect &last)
+{   
+    // create a grey image as the background image
+    cv::Mat grey;
+    Filters::greyscale(src, grey); 
+    grey.copyTo(dst);
+
+    // call the detectFace function
+    std::vector<cv::Rect> faces;
+    cv::Mat greyForDetect;
+    cv::cvtColor(src, greyForDetect, cv::COLOR_BGR2GRAY);
+    detectFaces(greyForDetect, faces);
+
+    if (faces.size() > 0)
+    {
+        last.x = (faces[0].x + last.x) / 2;
+        last.y = (faces[0].y + last.y) / 2;
+        last.width = (faces[0].width + last.width) / 2;
+        last.height = (faces[0].height + last.height) / 2;
+    }
+
+    // add the color back to face region from the original image
+    if (last.area() > 0)
+    {   
+        cv::Rect bounds(0, 0, src.cols, src.rows);
+        cv::Rect safeRect = last & bounds;
+
+        printf("last: x=%d y=%d w=%d h=%d area=%d | safeRect area=%d\n",
+       last.x, last.y, last.width, last.height,
+       last.area(), safeRect.area());
+        if (safeRect.area() > 0)
+        {
+            src(safeRect).copyTo(dst(safeRect));
+        }
+    }
+    return 0;
+}

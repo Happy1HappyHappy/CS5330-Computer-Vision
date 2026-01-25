@@ -26,6 +26,7 @@ public:
     static int blurQuantize(cv::Mat &src, cv::Mat &dst, int levels);
     static int blurOutsideFaces(cv::Mat &src, cv::Mat &dst, cv::Rect &last);
     static int remainYellowInGrey(cv::Mat &src, cv::Mat &dst);
+    static int makeFaceColorful(cv::Mat &src, cv::Mat &dst, cv::Rect &last);
 
 private:
     static double getTime();
