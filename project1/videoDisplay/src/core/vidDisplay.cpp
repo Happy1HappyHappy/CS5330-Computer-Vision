@@ -78,6 +78,11 @@ int main(int argc, char *argv[])
                         // Feature 1: Blur the image outside of found faces
                         Filters::blurOutsideFaces(frame, currentFrame, last);
                 }
+                else if (colorMode == '2')
+                {
+                        // apply remain color filter
+                        Filters::remainYellowInGrey(frame, currentFrame);
+                }
                 else if (colorMode == 'b' || colorMode == 'B')
                 {
                         // apply blur filter verison 1
