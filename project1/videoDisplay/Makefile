@@ -11,10 +11,10 @@ CXX = $(CC)
 
 # OSX include paths (for homebrew, probably)
 CFLAGS = -Wc++17-extensions \
-         -std=c++17 \
-         -I/opt/homebrew/include/opencv4 \
-         -I./include \
-         -DENABLE_PRECOMPILED_HEADERS=OFF
+	-std=c++17 \
+	-I/opt/homebrew/include/opencv4 \
+	-I./include \
+	-DENABLE_PRECOMPILED_HEADERS=OFF
 
 # Dwarf include paths
 #CFLAGS = -I../include # opencv includes are in /usr/include
@@ -34,12 +34,12 @@ LDFLAGS = -L/opt/homebrew/opt/opencv/lib
 # opencv libraries
 # LDLIBS = -ltiff -lpng -ljpeg -llapack -lblas -lz -ljasper -lwebp -lIlmImf -lgs -framework AVFoundation -framework CoreMedia -framework CoreVideo -framework CoreServices -framework CoreGraphics -framework AppKit -framework OpenCL  -lopencv_core -lopencv_highgui -lopencv_video -lopencv_videoio -lopencv_imgcodecs -lopencv_imgproc -lopencv_objdetect
 LDLIBS = \
--lopencv_core \
--lopencv_highgui \
--lopencv_imgcodecs \
--lopencv_imgproc \
--lopencv_videoio \
--lopencv_objdetect
+	-lopencv_core \
+	-lopencv_highgui \
+	-lopencv_imgcodecs \
+	-lopencv_imgproc \
+	-lopencv_videoio \
+	-lopencv_objdetect
 
 
 BINDIR = ./bin
