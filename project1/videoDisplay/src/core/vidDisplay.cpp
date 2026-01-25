@@ -32,6 +32,11 @@ int main(int argc, char *argv[])
         const int blurTimes = 2;     // number of times to apply blur
         char colorMode = 'c';        // greyscale mode flag, default to color mode
 
+        // Video recording variables
+        cv::VideoWriter videoWriter; // Object to handle video file output
+        bool isRecording = false; // Flag to indicate if recording is active
+        double fps = 24.0; // Frames per second for the output video
+
         // create results directory if it doesn't exist
         if (std::filesystem::create_directory(fsPath, ec))
         {
@@ -150,6 +155,17 @@ int main(int argc, char *argv[])
                         currentFrame = frame;
                 }
 
+                // if recording is active, write the frame to the video file
+                if (isRecording && videoWriter.isOpened()) 
+                {
+                        // Write the current processed frame (with all filters applied) to the file
+                        videoWriter.write(currentFrame);
+
+                        // Visual feedback: Draw a red recording dot on the live display
+                        cv::circle(currentFrame, cv::Point(30, 30), 10, cv::Scalar(0, 0, 255), -1);
+                        cv::putText(currentFrame, "REC", cv::Point(50, 42), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(0, 0, 255), 2);
+                }
+                
                 // show the current frame
                 cv::imshow("Video", currentFrame);
 
@@ -226,6 +242,39 @@ int main(int argc, char *argv[])
                 {
                         colorMode = key;
                         cout << "Switched to Magnitude of Sobel X and Y Mode" << endl;
+                }
+
+                // keypress 'r' for recording mode
+                else if (key == 'r' || key == 'R') 
+                {
+                        isRecording = !isRecording; // toggle the recording state
+
+                        if (isRecording) 
+                        {
+                                // Generate  filename using a timestamp 
+                                std::string vidPath = fsPath.string() + "record_" + TimeUtil::getTimestamp() + ".avi";
+                                
+                                // Setup MJPG codec and 30 FPS
+                                int fourcc = cv::VideoWriter::fourcc('M', 'J', 'P', 'G');
+
+                                // Open the writer using the camera's resolution (refS)
+                                videoWriter.open(vidPath, fourcc, fps, refS, true);
+
+                                if (!videoWriter.isOpened()) 
+                                {
+                                std::cerr << "ERROR: Failed to open video file for writing." << std::endl;
+                                isRecording = false;
+                                } 
+                                else 
+                                {
+                                std::cout << "STARTED Recording: " << vidPath << std::endl;
+                                }
+                        } else 
+                        {
+                                // Release the writer to finalize the video file
+                                videoWriter.release();
+                                std::cout << "STOPPED Recording. File saved." << std::endl;
+                        }
                 }
                 // keypress 'v' to toggle vignette filter
                 else if (key == 'v' || key == 'V')
