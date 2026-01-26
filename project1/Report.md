@@ -2,6 +2,9 @@
 ## Team Members
 Claire Liu, Yu-Jing Wei
 
+## Github repo link
+https://github.com/Happy1HappyHappy/CS5330-Computer-Vision/tree/main/project1
+
 ## Description
 We integrates all developed filters into a single framework. The core of the system is the `Filters` class, which encapsulates each image processing process as a modular static method. The main application, `vidDisplay`, continuously captures frames from the camera and applies the selected filter based on user input. By using a state variable (`colorMode`) controlled by keyboard shortcuts, the system allows users to dynamically switch between different effects without restarting the application. This design ensures that all filters are easily accessible and testable within a single runtime environment. 
 
