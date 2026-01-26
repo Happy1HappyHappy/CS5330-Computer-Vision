@@ -73,7 +73,7 @@ We implment an abstract convolution function `int Filters::convolve(cv::Mat &src
 
 ### Face detection (Task10)
 **Picture with face detection**
-![faceDetect text](Assets/images/screenshot_20260125_114037747f.png)
+![faceDetect text](Assets/images/screenshot_20260125_162559130f.png)
 
 ### Depth Anything V2 network (Task11)
 **DA2 works in video stream**
@@ -117,6 +117,13 @@ We first copy a image from source frame and make it into two copies of grey imag
 **Apply filter:**
 
 ![faceColorful](Assets/images/screenshot_20260125_1552276833.png)
+
+#### Recording
+When the user presses 'r', the isRecording flag is toggled.
+If isRecording becomes true, a codec will be set for VideoWriter object and the captured frames are written to the output video at 24 frames per second (FPS).
+
+**Demo Video:**
+https://drive.google.com/file/d/1lJuaoenjd3pi9xdir9wf7_1uaN2f6v3q/view
 
 ## Reflection
 This project helped us understand how image filters and visual effects work under the hood by actually examining the code behind the OpenCV APIs and ONNX. By implementing all the tasks, we also learned how to design a system that can run multiple OpenCV filters in real time and gained more hands on experience with C++ programming.
