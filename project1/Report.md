@@ -8,7 +8,7 @@ We integrates all developed filters into a single framework. The core of the sys
 ## Overview of each task
 ### OpenCV Greyscale Filter (Task3)
 #### How cvtColor work in OpenCV? 
-OpenCV provides over 150 color-space coversion methods. We use the RGB -> Grey color coversion code(`cv::COLOR_RGB2GRAY`) in our project. The coversion is based on the formula listed belows. 
+OpenCV provides over 150 color-space conversion methods. We use the RGB -> Grey color conversion code(`cv::COLOR_RGB2GRAY`) in our project. The conversion is based on the formula listed belows. 
 
 Transformations within RGB space like adding/removing the alpha channel, reversing the channel order, conversion to/from 16-bit RGB color (R5:G6:B5 or R5:G5:B5), as well as conversion to/from greyscale using:
 
@@ -23,7 +23,7 @@ The original and `cvtColor::COLOR_RGB2GRAY` version images are listed below:
 
 ### Alternative greyscale filter (Task4)
 #### How we decided to generate our greyscale version?
-We use weighted RGB mean for the filter. The weight is designed to mimic the true tonal perception of the human visual system. The coverison is listed below:
+We use weighted RGB mean for the filter. The weight is designed to mimic the true tonal perception of the human visual system. The coverings is listed below:
 
 $$Y \leftarrow  0.32  \cdot R + 0.64 \cdot G + 0.04 \cdot B$$
 
@@ -36,7 +36,7 @@ $$Y \leftarrow  0.32  \cdot R + 0.64 \cdot G + 0.04 \cdot B$$
 
 ### Sepia filter (Task5)
 #### How we ensured using the original RGB values in the computation?
-We declare two diffrent variable to store RGB information. One set of variable store orginal RGB information and the other store the RGB information after coversion. For example, blue and newBlue.
+We declare two different variable to store RGB information. One set of variable store original RGB information and the other store the RGB information after conversion. For example, blue and newBlue.
 
 **Original:**
 ![Color](Assets/images/screenshot_20260120_220456250c.png)
@@ -54,7 +54,7 @@ We declare two diffrent variable to store RGB information. One set of variable s
 ![time](<Assets/images/Screenshot 2026-01-22 at 10.16.34.png>)
 
 ### 3x3 Sobel X and 3x3 Sobel Y (Task8)
-We implment an abstract convolution function `int Filters::convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, int kSize, int kSum)` to process convolution with NxN seprable kernel. 
+We implement an abstract convolution function `int Filters::convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, int kSize, int kSum)` to process convolution with NxN separable kernel. 
 
 **Original:**
 ![color](Assets/images/screenshot_20260125_142028066c.png)
@@ -81,7 +81,7 @@ We implment an abstract convolution function `int Filters::convolve(cv::Mat &src
 
 **Our filter**
 
-We use DA2's picture to mark the farrest object from the camera as red.
+We use DA2's picture to mark the farest object from the camera as red.
 ![DAOurFilter](<Assets/images/Screenshot 2026-01-25 at 11.46.21.png>)
 
 ### More effect (Task12)
@@ -126,9 +126,9 @@ If isRecording becomes true, a codec will be set for VideoWriter object and the 
 https://drive.google.com/file/d/1lJuaoenjd3pi9xdir9wf7_1uaN2f6v3q/view
 
 ## Reflection
-This project helped us understand how image filters and visual effects work under the hood by actually examining the code behind the OpenCV APIs and ONNX. By implementing all the tasks, we also learned how to design a system that can run multiple OpenCV filters in real time and gained more hands on experience with C++ programming.
+This project helped us understand how image filters and visual effects work under the hood by actually examining the code behind the OpenCV APIs and ONNX. By implementing all the tasks, we also learned how to design a system that can run multiple OpenCV filters in real time and gained more hands-on experience with C++ programming.
 
 Due to time limitations, we only implemented a small amount of performance optimization in this project. There are many possible improvements that could be made in the future, such as further improving real time performance or extending the system with additional filters and user controls.
 
-## Acknowlegdement
+## Acknowledgement
 In this project, we referred to the OpenCV official documentation to understand and implement the required image processing methods. In addition, we used ChatGPT and Google Gemini to assist us code up our idea and debug.
