@@ -1,0 +1,6 @@
+.DS_store
+.github/
+results/
+/bin/
+/obj/
+data/
