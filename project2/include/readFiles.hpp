@@ -1,9 +1,9 @@
 /*
 Claire Liu, Yu-Jing Wei
-ReadFiles.hpp
+readFiles.hpp
 
-Path: include/readfiles.h
-Description: Header file for readfiles.cpp to read image files in a directory.
+Path: include/readFiles.hpp
+Description: Header file for readFiles.cpp to read image files in a directory.
 */
 
 #pragma once // Include guard
@@ -13,5 +13,5 @@ Description: Header file for readfiles.cpp to read image files in a directory.
 class ReadFiles
 {
 public:
-    static int readFilesInDir(char *dirname, char *buffer);
+    static int readFilesInDir(char *dirname, std::vector<std::string> &files);
 };

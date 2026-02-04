@@ -1,10 +1,11 @@
 /*
   Claire Liu, Yu-Jing Wei
-  featureGenerator.cpp
+  readFiles.cpp
 
-  Path: project2/src/offline/featureGenerator.cpp
-  Description: Generates feature files for each image in a directory.
+  Path: project2/src/utils/readFiles.cpp
+  Description: Reads image files in a directory.
 */
+
 #include "readFiles.hpp"
 #include <cstdio>
 #include <cstring>
@@ -16,8 +17,9 @@
 
   Prints out the full path name for each file.  This can be used as an argument to fopen or to cv::imread.
  */
-int ReadFiles::readFilesInDir(char *dirname, char *buffer)
+int ReadFiles::readFilesInDir(char *dirname, std::vector<std::string> &files)
 {
+    char buffer[256]; // buffer to hold full path names
     FILE *fp;
     DIR *dirp;
     struct dirent *dp;
@@ -42,14 +44,17 @@ int ReadFiles::readFilesInDir(char *dirname, char *buffer)
             strstr(dp->d_name, ".tif"))
         {
 
-            printf("processing image file: %s\n", dp->d_name);
+            // printf("processing image file: %s\n", dp->d_name);
 
             // build the overall filename
             strcpy(buffer, dirname);
             strcat(buffer, "/");
             strcat(buffer, dp->d_name);
 
-            printf("full path name: %s\n", buffer);
+            // printf("full path name: %s\n", buffer);
+
+            // store the full path name in the vector
+            files.push_back(std::string(buffer));
         }
     }
 

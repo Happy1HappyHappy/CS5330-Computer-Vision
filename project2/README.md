@@ -2,12 +2,15 @@
 
 This project implements a Content-Based Image Retrieval system to search for similar images based on visual features.
 
+## Authors
+Claire Liu, Yu-Jing Wei
+
 ## Project Structure
 
 The project is organized as follows:
 
 ```text
-CBIR_Project/
+project2/
 ├── Makefile                   # Build system
 ├── data/
 │   ├── olympus/               # Image database
@@ -21,11 +24,14 @@ CBIR_Project/
 │   ├── offline/
 │   │   └── featureGenerator.cpp # CLI for feature extraction
 │   ├── online/
-│   │   ├── main.cpp           # App entry point
+│   │   ├── featureMatcher.cpp # Feature matching logic
 │   │   ├── mainWindow.cpp     # GUI implementation
 │   │   └── mainWindow.h       # GUI definition
 │   └── utils/
-│       └── readfiles.cpp      # File utility implementation
+│       ├── csvUtil.cpp        # CSV utility implementation
+│       ├── distanceMetrics.cpp # Distance metrics implementation
+│       ├── featureExtractor.cpp # Feature extraction implementation
+│       └── readFiles.cpp      # File reading implementation
 ├── resources/                 # Application resources
 ├── bin/                       # Executables output
 └── obj/                       # Compiled objects
