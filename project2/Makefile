@@ -62,9 +62,12 @@ $(OBJDIR)/%.o: $(UTILSDIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Targets
-all: fg
+all: fg matcher
 
-fg: $(OBJDIR)/featureGenerator.o	 $(OBJDIR)/readfiles.o
+fg: $(OBJDIR)/featureGenerator.o	$(OBJDIR)/readFiles.o	$(OBJDIR)/featureExtractor.o	$(OBJDIR)/csvUtil.o
+	mkdir -p $(BINDIR)
+	$(CC) $^ -o $(BINDIR)/$@ $(LDFLAGS) $(LDLIBS)
+matcher: $(OBJDIR)/featureMatcher.o		$(OBJDIR)/csvUtil.o		$(OBJDIR)/featureExtractor.o	$(OBJDIR)/distanceMetrics.o
 	mkdir -p $(BINDIR)
 	$(CC) $^ -o $(BINDIR)/$@ $(LDFLAGS) $(LDLIBS)
 

@@ -15,7 +15,7 @@ The function returns a std::vector of char* for the filenames and a 2D std::vect
 #include <cstring>
 #include <vector>
 #include "opencv2/opencv.hpp"
-#include "utils/csv_util.h"
+#include "csvUtil.hpp"
 
 /*
   reads a string from a CSV file. the 0-terminated string is returned in the char array os.
@@ -124,7 +124,7 @@ int getfloat(FILE *fp, float *v)
 
   The function returns a non-zero value in case of an error.
  */
-int append_image_data_csv(char *filename, char *image_filename, std::vector<float> &image_data, int reset_file)
+int csvUtil::append_image_data_csv(const char *filename, const char *image_filename, std::vector<float> &image_data, int reset_file)
 {
   char buffer[256];
   char mode[8];
@@ -150,7 +150,7 @@ int append_image_data_csv(char *filename, char *image_filename, std::vector<floa
   for (int i = 0; i < image_data.size(); i++)
   {
     char tmp[256];
-    sprintf(tmp, ",%.4f", image_data[i]);
+    snprintf(tmp, sizeof(tmp), ",%.4f", image_data[i]);
     std::fwrite(tmp, sizeof(char), strlen(tmp), fp);
   }
 
@@ -175,7 +175,7 @@ int append_image_data_csv(char *filename, char *image_filename, std::vector<floa
 
   The function returns a non-zero value if something goes wrong.
  */
-int read_image_data_csv(char *filename, std::vector<char *> &filenames, std::vector<std::vector<float>> &data, int echo_file)
+int csvUtil::read_image_data_csv(char *filename, std::vector<char *> &filenames, std::vector<std::vector<float>> &data, int echo_file)
 {
   FILE *fp;
   float fval;
@@ -234,4 +234,12 @@ int read_image_data_csv(char *filename, std::vector<char *> &filenames, std::vec
   }
 
   return (0);
+}
+
+int csvUtil::clearExistingFile(const char *filename)
+{
+  FILE *f = fopen(filename, "w");
+  if (f)
+    fclose(f);
+  return 0;
 }
