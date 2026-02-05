@@ -21,9 +21,11 @@ enum FeatureType
 class FeatureExtractor
 {
 public:
-    static int extractFeatures(const char *imagePath, const char *featureType, std::vector<float> *featureVector);
+    static int extractFeatures(const char *imagePath, FeatureType featureType, std::vector<float> *featureVector);
+    static FeatureType stringToFeatureType(const char *typeStr);
+    static std::string featureTypeToString(FeatureType type);
 
 private:
-    static FeatureType stringToFeatureType(const char *typeStr);
     static int middle7x7(const char *imagePath, std::vector<float> *featureVector);
+    static int rgColorHistogram(const char *imagePath, std::vector<float> *featureVector);
 };

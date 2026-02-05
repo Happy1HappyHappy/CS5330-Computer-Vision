@@ -1,15 +1,14 @@
 /*
 Claire Liu, Yu-Jing Wei
-featureMatcher.cpp
+matchUtil.cpp
 
-Path: project2/src/online/featureMatcher.cpp
-Description: Matches features from a query image to a database of feature vectors.
+Path: project2/src/utils/matchUtil.cpp
+Description: Matching utilities.
 */
 
+#include "matchResult.hpp"
 #include "distanceMetrics.hpp"
 #include "featureExtractor.hpp"
-#include "matchResult.hpp"
-#include "matchUtil.hpp"
 #include "opencv2/opencv.hpp"
 #include "csvUtil.hpp"
 #include <cstdio>
@@ -17,47 +16,22 @@ Description: Matches features from a query image to a database of feature vector
 #include <cstdlib>
 #include <dirent.h>
 
-struct MatchResult
-{
-    std::string filename;
-    float distance;
-};
-
 bool compareMatches(const MatchResult &a, const MatchResult &b)
 {
     return a.distance < b.distance;
 }
 
-int main(int argc, char *argv[])
+int matchTopN(char *dbPath, std::vector<char *> dbFilenames, std::vector<std::vector<float>> dbData, std::vector<MatchResult> results, int topN)
 {
-    // argv[1]: target image file path
-    // argv[2]: database feature vectors file path
-    // argv[3]: feature type
+    // dbPath: target image file path
+    // dbFilenames: database feature vectors file path
+    // dbData: feature vectors database
+    // results:
     // argv[4]: N most similar images to retrieve
-
-    if (argc < 4)
-    {
-        printf("usage: %s <target image path> <feature db file> <N>\n", argv[0]);
-        exit(-1);
-    }
-
-    char *targetPath = argv[1]; // target image file path
-    char *dbPath = argv[2];     // database feature vectors file path
-    FeatureType featureType = FeatureExtractor::stringToFeatureType(argv[3]);
-    int topN = atoi(argv[4]); // number of top matches to retrieve
-
-    std::vector<char *> dbFilenames;        // database to save image filenames
-    std::vector<std::vector<float>> dbData; // database to save feature vectors
-    // read database feature vectors from CSV file
-    if (csvUtil::read_image_data_csv(dbPath, dbFilenames, dbData, 0) != 0)
-    {
-        printf("Error reading CSV file.\n");
-        return -1;
-    }
 
     std::vector<float> targetFeatures; // feature vector for target image
     // extract features for target imagedatabase
-    FeatureExtractor::extractFeatures(targetPath, featureType, &targetFeatures);
+    FeatureExtractor::extractFeatures(targetPath, "baseline", &targetFeatures);
 
     std::vector<MatchResult> results; // to store matching results
     for (size_t i = 0; i < dbData.size(); ++i)

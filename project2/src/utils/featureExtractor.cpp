@@ -21,24 +21,37 @@ FeatureType FeatureExtractor::stringToFeatureType(const char *typeStr)
     return UNKNOWN;
 }
 
-int FeatureExtractor::extractFeatures(const char *imagePath, const char *featureType, std::vector<float> *featureVector)
+std::string FeatureExtractor::featureTypeToString(FeatureType type)
+{
+    switch (type)
+    {
+    case BASELINE:
+        return "Baseline";
+    case COLOR_HIST:
+        return "Color Histogram";
+    case TEXTURE_SOBEL:
+        return "Texture Sobel";
+    default:
+        return "Unknown";
+    }
+}
+
+int FeatureExtractor::extractFeatures(const char *imagePath, FeatureType featureType, std::vector<float> *featureVector)
 {
     // This is a function to extract features from an image given its path and feature type.
     // imagePath: path to the image file
     // featureType: type of feature to extract (e.g., "SIFT", "
     // featureVector: output array to hold the extracted features
 
-    printf("Extracting %s features from image: %s\n", featureType, imagePath);
-    FeatureType type = stringToFeatureType(featureType);
-    switch (type)
+    printf("Extracting %s features from image: %s\n", featureTypeToString(featureType).c_str(), imagePath);
+    switch (featureType)
     {
     case BASELINE:
         FeatureExtractor::middle7x7(imagePath, featureVector);
         break;
 
     case COLOR_HIST:
-        // Future implementation for color histogram feature extraction
-        printf("Color histogram feature extraction not implemented yet.\n");
+        FeatureExtractor::rgColorHistogram(imagePath, featureVector);
         break;
 
     default:
@@ -80,6 +93,47 @@ int FeatureExtractor::middle7x7(const char *imagePath, std::vector<float> *featu
     // Assign the reshaped data directly to the vector
     // This is much faster than manual loops as it utilizes block memory copying
     featureVector->assign((float *)flat.datastart, (float *)flat.dataend);
+
+    return 0; // Success
+}
+
+int FeatureExtractor::rgColorHistogram(const char *imagePath, std::vector<float> *featureVector)
+{
+    // Load the image using OpenCV
+    cv::Mat image = cv::imread(imagePath);
+    if (image.empty())
+    {
+        printf("Error: Unable to load image %s\n", imagePath);
+        return -1;
+    }
+    int histsize = 16;
+    cv::Mat hist = cv::Mat::zeros(cv::Size(histsize, histsize), CV_32FC1);
+
+    for (int i = 0; i < image.rows; i++)
+    {
+        cv::Vec3b *ptr = image.ptr<cv::Vec3b>(i);
+        for (int j = 0; j < image.cols; j++)
+        {
+            float B = ptr[j][0];
+            float G = ptr[j][1];
+            float R = ptr[j][2];
+
+            float divisor = B + G + R;
+            divisor = divisor > 0.0 ? divisor : 1.0;
+            float r = R / divisor;
+            float g = G / divisor;
+
+            int rindex = (int)(r * (histsize - 1) + 0.5);
+            int gindex = (int)(g * (histsize - 1) + 0.5);
+
+            hist.at<float>(rindex, gindex)++;
+        }
+    }
+
+    hist /= (image.rows * image.cols);
+
+    // Assign histogram values to feature vector
+    featureVector->assign((float *)hist.datastart, (float *)hist.dataend);
 
     return 0; // Success
 }

@@ -29,10 +29,10 @@ int main(int argc, char *argv[])
 
     // get the directory path, feature type, and output feature file path from command line arguments
     std::string dirname = argv[1];
-    std::string featureType = argv[2];
+    FeatureType featureType = FeatureExtractor::stringToFeatureType(argv[2]);
     std::string outputFeatureFilePath = argv[3];
     printf("Processing directory %s\n", dirname.c_str());
-    printf("Using feature type %s\n", featureType.c_str());
+    printf("Using feature type %s\n", FeatureExtractor::featureTypeToString(featureType));
     printf("Output feature file path: %s\n", outputFeatureFilePath.c_str());
 
     std::vector<std::string> imagePaths; // vector to hold file paths
@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     {
         featureVector.clear(); // clear the feature vector for each image
         // extract features from the image
-        FeatureExtractor::extractFeatures(path.c_str(), featureType.c_str(), &featureVector);
+        FeatureExtractor::extractFeatures(path.c_str(), featureType, &featureVector);
         printf("Extracting features from: %s\n", path.c_str());
 
         // save features to a file
