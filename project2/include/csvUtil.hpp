@@ -9,6 +9,9 @@
 
 #ifndef CVS_UTIL_H
 #define CVS_UTIL_H
+
+#include <vector>
+
 class csvUtil
 {
 public:
@@ -44,6 +47,8 @@ public:
 
   /*
   Clears the contents of the specified file.
+  @param filename The path to the file to be cleared.
+  @return 0 on success, non-zero value on error.
   */
   static int clearExistingFile(const char *filename);
 };

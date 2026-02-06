@@ -12,50 +12,26 @@
 #include <cstdlib>
 #include <opencv2/opencv.hpp>
 
-FeatureType FeatureExtractor::stringToFeatureType(const char *typeStr)
+#define HISTSIZE 16
+
+/*
+BaselineExtractor::extract(const char *imagePath, std::vector<float> *featureVector) const
+This method extracts a 7x7 patch from the center of the image, flattens it into a
+feature vector, and normalizes the pixel values to the range [0, 1]. It uses OpenCV to
+load the image and perform the necessary operations. The extracted feature vector is
+stored in the provided pointer.
+- @param imagePath The file path of the image to extract features from.
+- @param featureVector A pointer to a vector where the extracted features will be stored.
+- @return 0 on success, -1 on failure (e.g., if the image cannot be loaded or is too small).
+*/
+int BaselineExtractor::extract(const char *imagePath, std::vector<float> *featureVector) const
 {
-    if (strcmp(typeStr, "baseline") == 0)
-        return BASELINE;
-    if (strcmp(typeStr, "colorhist") == 0)
-        return COLOR_HIST;
-    return UNKNOWN;
-}
-
-int FeatureExtractor::extractFeatures(const char *imagePath, const char *featureType, std::vector<float> *featureVector)
-{
-    // This is a function to extract features from an image given its path and feature type.
-    // imagePath: path to the image file
-    // featureType: type of feature to extract (e.g., "SIFT", "
-    // featureVector: output array to hold the extracted features
-
-    printf("Extracting %s features from image: %s\n", featureType, imagePath);
-    FeatureType type = stringToFeatureType(featureType);
-    switch (type)
-    {
-    case BASELINE:
-        FeatureExtractor::middle7x7(imagePath, featureVector);
-        break;
-
-    case COLOR_HIST:
-        // Future implementation for color histogram feature extraction
-        printf("Color histogram feature extraction not implemented yet.\n");
-        break;
-
-    default:
-        break;
-    }
-
-    return 0; // Return 0 to indicate success
-}
-
-int FeatureExtractor::middle7x7(const char *imagePath, std::vector<float> *featureVector)
-{
-    // Load the image using OpenCV
+    // Load the image
     cv::Mat image = cv::imread(imagePath);
     if (image.empty())
     {
         printf("Error: Unable to load image %s\n", imagePath);
-        return -1;
+        return -1.0f;
     }
 
     // Ensure the image is large enough
@@ -73,13 +49,67 @@ int FeatureExtractor::middle7x7(const char *imagePath, std::vector<float> *featu
     cv::Mat patch = image(cv::Rect(startCol, startRow, 7, 7)).clone();
 
     // Reshape the patch to a single row with 1 channel (7*7*3 = 147 elements)
-    // and convert the data type from 8-bit unsigned to 32-bit float
+    // and convert the data type from 8-bit unsigned to 32-bit float and do normalization
     cv::Mat flat;
-    patch.reshape(1, 1).convertTo(flat, CV_32F);
+    patch.reshape(1, 1).convertTo(flat, CV_32F, 1.0 / 255.0);
 
     // Assign the reshaped data directly to the vector
-    // This is much faster than manual loops as it utilizes block memory copying
     featureVector->assign((float *)flat.datastart, (float *)flat.dataend);
+
+    return 0.0f; // Success
+}
+
+/*
+ColorHistExtractor::extract(const char *imagePath, std::vector<float> *featureVector) const
+This method extracts a color histogram feature from the image. It computes a 2D histogram
+for the red and green channels, normalizes it, and stores the histogram values in the provided
+feature vector. It uses OpenCV to load the image and perform the necessary operations.
+- @param imagePath The file path of the image to extract features from.
+- @param featureVector A pointer to a vector where the extracted features will be stored.
+- @return 0 on success, -1 on failure (e.g., if the image cannot be loaded).
+*/
+int ColorHistExtractor::extract(const char *imagePath, std::vector<float> *featureVector) const
+{
+    // Load the image
+    cv::Mat image = cv::imread(imagePath);
+    if (image.empty())
+    {
+        printf("Error: Unable to load image %s\n", imagePath);
+        return -1.0f;
+    }
+    // Create a 2D histogram for the red and green channels
+    cv::Mat hist = cv::Mat::zeros(cv::Size(HISTSIZE, HISTSIZE), CV_32FC1);
+    for (int i = 0; i < image.rows; i++)
+    {
+        cv::Vec3b *ptr = image.ptr<cv::Vec3b>(i);
+        for (int j = 0; j < image.cols; j++)
+        {
+            float B = ptr[j][0];
+            float G = ptr[j][1];
+            float R = ptr[j][2];
+
+            float divisor = B + G + R;
+            divisor = divisor > 0.0 ? divisor : 1.0;
+            float r = R / divisor;
+            float g = G / divisor;
+
+            int rindex = (int)(r * (HISTSIZE - 1) + 0.5);
+            int gindex = (int)(g * (HISTSIZE - 1) + 0.5);
+
+            hist.at<float>(rindex, gindex)++;
+        }
+    }
+    // Normalization
+    hist /= (image.rows * image.cols);
+
+    // Assign histogram values to feature vector
+    featureVector->assign((float *)hist.datastart, (float *)hist.dataend);
+
+    return 0; // Success
+}
+
+int TextureSobelExtractor::extract(const char *imagePath, std::vector<float> *featureVector) const
+{
 
     return 0; // Success
 }

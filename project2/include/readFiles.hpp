@@ -10,8 +10,34 @@ Description: Header file for readFiles.cpp to read image files in a directory.
 
 #include <opencv2/opencv.hpp>
 
+/*
+ReadFiles class provides static methods to read files from a directory and
+to read features from a CSV file.
+- readFilesInDir(
+        char *dirname,
+        std::vector<std::string> &files):
+    A static method that takes a directory name and a reference to a vector of strings.
+    It reads all the files in the specified directory and stores their full paths in
+    the provided vector. It returns an integer status code (e.g., 0 for success, -1 for failure).
+- readFeaturesFromCSV(
+        char *filename,
+        std::vector<char *> &filenames,
+        std::vector<std::vector<float>> &data):
+    A static method that takes a CSV filename, a reference to a vector of character pointers
+    for filenames, and a reference to a vector of vectors of floats for feature data.
+    It reads the CSV file, extracts the filenames and their corresponding feature vectors,
+    and stores them in the provided vectors.
+    It returns an integer status code (e.g., 0 for success, -1 for failure).
+*/
 class ReadFiles
 {
 public:
-    static int readFilesInDir(char *dirname, std::vector<std::string> &files);
+    static int readFilesInDir(
+        char *dirname,
+        std::vector<std::string> &files);
+
+    static int readFeaturesFromCSV(
+        char *filename,
+        std::vector<char *> &filenames,
+        std::vector<std::vector<float>> &data);
 };

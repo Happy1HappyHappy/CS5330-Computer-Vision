@@ -7,6 +7,7 @@ Description: Generates feature vectors for each image in a directory and saves t
 */
 
 #include "readFiles.hpp"
+#include "extractorFactory.hpp"
 #include "featureExtractor.hpp"
 #include "csvUtil.hpp"
 #include <cstdio>
@@ -16,9 +17,17 @@ Description: Generates feature vectors for each image in a directory and saves t
 
 int main(int argc, char *argv[])
 {
-    // argv[1]: directory path
-    // argv[2]: feature type
-    // argv[3]: output feature file path
+    /*
+    This program generates feature vectors for each image in a specified directory and
+    saves them to a CSV file.
+    The program takes three command line arguments: the directory path containing the images,
+    the type of feature to extract (e.g., "baseline", "colorhist"), and the output file path
+    for the CSV file where the features will be saved.
+
+    - @param argc The number of command line arguments.
+    - @param argv An array of character pointers representing the command line arguments.
+    - @return 0 on success, non-zero value on error.
+    */
 
     // check for sufficient arguments
     if (argc < 4)
@@ -29,30 +38,35 @@ int main(int argc, char *argv[])
 
     // get the directory path, feature type, and output feature file path from command line arguments
     std::string dirname = argv[1];
-    std::string featureType = argv[2];
+    FeatureType featureType = ExtractorFactory::stringToFeatureType(argv[2]);
     std::string outputFeatureFilePath = argv[3];
     printf("Processing directory %s\n", dirname.c_str());
-    printf("Using feature type %s\n", featureType.c_str());
+    printf("Using feature type %s\n", ExtractorFactory::featureTypeToString(featureType).c_str());
     printf("Output feature file path: %s\n", outputFeatureFilePath.c_str());
 
+    // read the files in the directory, get the file paths, and store them in a vector
     std::vector<std::string> imagePaths; // vector to hold file paths
-    // read the files in the directory, getting their full path names in buffer
     ReadFiles::readFilesInDir((char *)dirname.c_str(), imagePaths);
 
-    // Check the output feature file not exist or empty
+    // Check the output feature CSV file not exist or empty
     csvUtil::clearExistingFile(outputFeatureFilePath.c_str());
 
+    // create the appropriate feature extractor based on the feature type and
+    // extract features for each image
     std::vector<float> featureVector; // vector to hold features for each image
-    // process each image file
+    auto extractor = ExtractorFactory::create(featureType);
     for (const auto &path : imagePaths)
     {
         featureVector.clear(); // clear the feature vector for each image
-        // extract features from the image
-        FeatureExtractor::extractFeatures(path.c_str(), featureType.c_str(), &featureVector);
         printf("Extracting features from: %s\n", path.c_str());
+        extractor->extract(path.c_str(), &featureVector);
 
-        // save features to a file
-        csvUtil::append_image_data_csv((char *)outputFeatureFilePath.c_str(), (char *)path.c_str(), featureVector, 0);
+        // save features in an image to output file
+        csvUtil::append_image_data_csv(
+            (char *)outputFeatureFilePath.c_str(),
+            (char *)path.c_str(),
+            featureVector,
+            0);
     }
 
     printf("Done. Processed %lu images.\n", imagePaths.size());
