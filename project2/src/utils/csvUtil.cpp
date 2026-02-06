@@ -236,6 +236,11 @@ int csvUtil::read_image_data_csv(char *filename, std::vector<char *> &filenames,
   return (0);
 }
 
+/*
+clears the contents of the specified file.
+@param filename The path to the file to be cleared.
+@return 0 on success, non-zero value on error.
+*/
 int csvUtil::clearExistingFile(const char *filename)
 {
   FILE *f = fopen(filename, "w");

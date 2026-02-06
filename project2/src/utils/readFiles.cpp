@@ -7,6 +7,7 @@
 */
 
 #include "readFiles.hpp"
+#include "csvUtil.hpp"
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
@@ -14,8 +15,13 @@
 
 /*
   Given a directory on the command line, scans through the directory for image files.
+  Prints out the full path name for each file.  This can be used as an argument to fopen
+  or to cv::imread.
 
-  Prints out the full path name for each file.  This can be used as an argument to fopen or to cv::imread.
+  - @param dirname The path to the directory to scan for image files.
+  - @param files A reference to a vector of strings where the full path names of the
+                 image files will be stored.
+  - @return 0 on success, non-zero value on error.
  */
 int ReadFiles::readFilesInDir(char *dirname, std::vector<std::string> &files)
 {
@@ -58,5 +64,25 @@ int ReadFiles::readFilesInDir(char *dirname, std::vector<std::string> &files)
         }
     }
 
+    return 0;
+}
+
+/*
+Reads image features from a CSV file. The CSV file is expected to have a string as the first
+column (the filename) and floating point numbers as the remaining columns (the features).
+The function populates the provided vectors with the filenames and their corresponding feature data.
+
+- @param filename The path to the CSV file to read.
+- @param filenames A reference to a vector of character pointers where the filenames will be stored.
+- @param data A reference to a 2D vector of floats where the feature data will be stored. Each inner vector corresponds to the features of one image.
+- @return 0 on success, non-zero value on error.
+*/
+int ReadFiles::readFeaturesFromCSV(char *filename, std::vector<char *> &filenames, std::vector<std::vector<float>> &data)
+{
+    if (csvUtil::read_image_data_csv(filename, filenames, data, 0) != 0)
+    {
+        printf("Error reading CSV file.\n");
+        return -1;
+    }
     return 0;
 }
