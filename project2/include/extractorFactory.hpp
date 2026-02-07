@@ -30,6 +30,7 @@ enum FeatureType
     RG_COLOR_HIST,
     RGB_COLOR_HIST,
     TEXTURE_SOBEL,
+    CIELAB_HIST,
     UNKNOWN_FEATURE
 };
 
