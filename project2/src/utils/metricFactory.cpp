@@ -9,6 +9,7 @@
 #include "metricFactory.hpp"
 #include "distanceMetrics.hpp"
 #include <memory>
+#include <unordered_map>
 
 /*
 MetricFactory::create(MetricType type)
@@ -43,11 +44,12 @@ If the input string does not match any known metric type, it returns UNKNOWN_MET
 */
 MetricType MetricFactory::stringToMetricType(const char *typeStr)
 {
-    if (strcmp(typeStr, "ssd") == 0)
-        return SSD;
-    if (strcmp(typeStr, "hist_intersection") == 0)
-        return HIST_INTERSECTION;
-    return UNKNOWN_METRIC;
+    static const std::unordered_map<std::string, MetricType> typeMap = {
+        {"ssd", SSD},
+        {"hist_intersection", HIST_INTERSECTION}};
+
+    auto it = typeMap.find(typeStr);
+    return (it != typeMap.end()) ? it->second : UNKNOWN_METRIC;
 }
 
 /*
@@ -61,13 +63,10 @@ If the type is unrecognized, it returns "Unknown".
 */
 std::string MetricFactory::metricTypeToString(MetricType type)
 {
-    switch (type)
-    {
-    case SSD:
-        return "ssd";
-    case HIST_INTERSECTION:
-        return "hist_intersection";
-    default:
-        return "Unknown";
-    }
+    static const std::unordered_map<MetricType, std::string> typeMap = {
+        {SSD, "ssd"},
+        {HIST_INTERSECTION, "hist_intersection"}};
+
+    auto it = typeMap.find(type);
+    return (it != typeMap.end()) ? it->second : "Unknown";
 }

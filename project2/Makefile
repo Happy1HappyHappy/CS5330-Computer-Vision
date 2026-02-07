@@ -67,7 +67,7 @@ all: fg matcher
 fg: $(OBJDIR)/featureGenerator.o	$(OBJDIR)/readFiles.o	$(OBJDIR)/featureExtractor.o	$(OBJDIR)/csvUtil.o  $(OBJDIR)/extractorFactory.o
 	mkdir -p $(BINDIR)
 	$(CC) $^ -o $(BINDIR)/$@ $(LDFLAGS) $(LDLIBS)
-matcher: $(OBJDIR)/featureMatcher.o		$(OBJDIR)/csvUtil.o		$(OBJDIR)/featureExtractor.o	$(OBJDIR)/distanceMetrics.o	$(OBJDIR)/metricFactory.o	$(OBJDIR)/extractorFactory.o	$(OBJDIR)/readFiles.o
+matcher: $(OBJDIR)/featureMatcher.o		$(OBJDIR)/csvUtil.o		$(OBJDIR)/featureExtractor.o	$(OBJDIR)/distanceMetrics.o	$(OBJDIR)/metricFactory.o	$(OBJDIR)/extractorFactory.o	$(OBJDIR)/readFiles.o $(OBJDIR)/matchUtil.o
 	mkdir -p $(BINDIR)
 	$(CC) $^ -o $(BINDIR)/$@ $(LDFLAGS) $(LDLIBS)
 

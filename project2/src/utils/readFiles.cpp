@@ -12,6 +12,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <dirent.h>
+#include <filesystem>
 
 /*
   Given a directory on the command line, scans through the directory for image files.
@@ -77,7 +78,7 @@ The function populates the provided vectors with the filenames and their corresp
 - @param data A reference to a 2D vector of floats where the feature data will be stored. Each inner vector corresponds to the features of one image.
 - @return 0 on success, non-zero value on error.
 */
-int ReadFiles::readFeaturesFromCSV(char *filename, std::vector<char *> &filenames, std::vector<std::vector<float>> &data)
+int ReadFiles::readFeaturesFromCSV(char *filename, std::vector<std::string> &filenames, std::vector<std::vector<float>> &data)
 {
     if (csvUtil::read_image_data_csv(filename, filenames, data, 0) != 0)
     {
@@ -85,4 +86,13 @@ int ReadFiles::readFeaturesFromCSV(char *filename, std::vector<char *> &filename
         return -1;
     }
     return 0;
+}
+
+bool ReadFiles::isTargetImageInDatabase(const char *targetPath, const char *dbFilename)
+{
+    namespace fs = std::filesystem;
+    if (fs::path(dbFilename).filename() == fs::path(targetPath).filename())
+        return true;
+
+    return false;
 }

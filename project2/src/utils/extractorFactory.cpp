@@ -9,6 +9,7 @@
 #include "extractorFactory.hpp"
 #include "featureExtractor.hpp"
 #include <memory>
+#include <unordered_map>
 
 /*
 ExtractorFactory::create(FeatureType type)
@@ -47,11 +48,13 @@ If the input string does not match any known feature type, it returns UNKNOWN_FE
 */
 FeatureType ExtractorFactory::stringToFeatureType(const char *typeStr)
 {
-    if (strcmp(typeStr, "baseline") == 0)
-        return BASELINE;
-    if (strcmp(typeStr, "colorhist") == 0)
-        return COLOR_HIST;
-    return UNKNOWN_FEATURE;
+    static const std::unordered_map<std::string, FeatureType> typeMap = {
+        {"baseline", BASELINE},
+        {"colorhist", COLOR_HIST},
+        {"texturesobel", TEXTURE_SOBEL}};
+
+    auto it = typeMap.find(typeStr);
+    return (it != typeMap.end()) ? it->second : UNKNOWN_FEATURE;
 }
 
 /*
@@ -66,15 +69,11 @@ If the type is unrecognized, it returns "Unknown".
 */
 std::string ExtractorFactory::featureTypeToString(FeatureType type)
 {
-    switch (type)
-    {
-    case BASELINE:
-        return "baseline";
-    case COLOR_HIST:
-        return "colorhist";
-    case TEXTURE_SOBEL:
-        return "texturesobel";
-    default:
-        return "Unknown";
-    }
+    static const std::unordered_map<FeatureType, std::string> reverseMap = {
+        {BASELINE, "baseline"},
+        {COLOR_HIST, "colorhist"},
+        {TEXTURE_SOBEL, "texturesobel"}};
+
+    auto it = reverseMap.find(type);
+    return (it != reverseMap.end()) ? it->second : "Unknown";
 }

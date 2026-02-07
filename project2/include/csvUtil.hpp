@@ -43,7 +43,10 @@ public:
 
   The function returns a non-zero value if something goes wrong.
  */
-  static int read_image_data_csv(char *filename, std::vector<char *> &filenames, std::vector<std::vector<float>> &data, int echo_file = 0);
+  static int read_image_data_csv(const std::string &filename,
+                                 std::vector<std::string> &filenames,
+                                 std::vector<std::vector<float>> &data,
+                                 int echo_file = 0);
 
   /*
   Clears the contents of the specified file.
