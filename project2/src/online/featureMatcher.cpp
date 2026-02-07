@@ -11,6 +11,7 @@ Description: Matches features from a query image to a database of feature vector
 #include "extractorFactory.hpp"
 #include "featureExtractor.hpp"
 #include "matchResult.hpp"
+#include "matchUtil.hpp"
 #include "metricFactory.hpp"
 #include "opencv2/opencv.hpp"
 #include "readFiles.hpp"
@@ -18,20 +19,17 @@ Description: Matches features from a query image to a database of feature vector
 #include <cstring>
 #include <cstdlib>
 #include <dirent.h>
-#include <filesystem>
 
 /*
-compareMatches is a helper function used to sort MatchResult objects
-based on their distance values in ascending order.
-- @param a: The first MatchResult object to compare.
-- @param b: The second MatchResult object to compare.
-- @return: true if the distance of a is less than the distance of b, false otherwise.
-*/
-bool compareMatches(const MatchResult &a, const MatchResult &b)
-{
-    return a.distance < b.distance;
-}
+featureMatcher is the main program that matches features from a query image to
+a database of feature vectors. The program takes five command line arguments:
+the path to the target image, the path to the database CSV file, the feature type,
+the distance metric type, and the number of top matches to display.
 
+- @param argc The number of command line arguments.
+- @param argv An array of character pointers representing the command line arguments.
+- @return 0 on success, non-zero value on error.
+*/
 int main(int argc, char *argv[])
 {
     {
@@ -52,7 +50,7 @@ int main(int argc, char *argv[])
         int topN = atoi(argv[5]);
 
         // Load database feature vectors and filenames from the CSV file
-        std::vector<char *> dbFilenames;        // database to save image filenames
+        std::vector<std::string> dbFilenames;   // database to save image filenames
         std::vector<std::vector<float>> dbData; // database to save feature vectors
         ReadFiles::readFeaturesFromCSV(dbPath, dbFilenames, dbData);
 
@@ -68,32 +66,22 @@ int main(int argc, char *argv[])
         std::vector<MatchResult> results;
         for (size_t i = 0; i < dbData.size(); ++i)
         {
-            // skip if the target image is the same as the database image
-            namespace fs = std::filesystem;
-            if (fs::path(dbFilenames[i]).filename() == fs::path(targetPath).filename())
+            // Skip the target image if in the database to avoid matching it with itself
+            if (ReadFiles::isTargetImageInDatabase(targetPath, dbFilenames[i].c_str()))
                 continue;
-            float dist = distanceMetric->compute(targetFeatures, dbData[i]);
 
             MatchResult res;               // store filename and distance
             res.filename = dbFilenames[i]; // database image filename
-            res.distance = dist;           // computed distance
-            results.push_back(res);        // add to results
+            res.distance = distanceMetric->compute(
+                targetFeatures, dbData[i]); // computed distance
+            results.push_back(res);         // add to results
         }
 
         // Sort results by distance in ascending order
-        std::sort(results.begin(), results.end(), compareMatches);
+        std::sort(results.begin(), results.end(), MatchUtil::compareMatches);
+        // Get and print the top N matches
+        std::vector<MatchResult> topMatches = MatchUtil::getTopNMatches(results, topN);
 
-        // Print top N matches
-        printf("Top %d matches:\n", topN);
-        for (int i = 0; i < topN && i < (int)results.size(); ++i)
-        {
-            printf("%s %f\n", results[i].filename.c_str(), results[i].distance);
-        }
-
-        // Clean up allocated memory for filenames
-        for (auto p : dbFilenames)
-            delete[] p;
-
-        return (0);
+        return (0); // Success
     }
 }

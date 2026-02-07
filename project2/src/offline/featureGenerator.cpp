@@ -15,19 +15,19 @@ Description: Generates feature vectors for each image in a directory and saves t
 #include <cstdlib>
 #include <dirent.h>
 
+/*
+This program generates feature vectors for each image in a specified directory and
+saves them to a CSV file.
+The program takes three command line arguments: the directory path containing the images,
+the type of feature to extract (e.g., "baseline", "colorhist"), and the output file path
+for the CSV file where the features will be saved.
+
+- @param argc The number of command line arguments.
+- @param argv An array of character pointers representing the command line arguments.
+- @return 0 on success, non-zero value on error.
+*/
 int main(int argc, char *argv[])
 {
-    /*
-    This program generates feature vectors for each image in a specified directory and
-    saves them to a CSV file.
-    The program takes three command line arguments: the directory path containing the images,
-    the type of feature to extract (e.g., "baseline", "colorhist"), and the output file path
-    for the CSV file where the features will be saved.
-
-    - @param argc The number of command line arguments.
-    - @param argv An array of character pointers representing the command line arguments.
-    - @return 0 on success, non-zero value on error.
-    */
 
     // check for sufficient arguments
     if (argc < 4)
@@ -58,7 +58,6 @@ int main(int argc, char *argv[])
     for (const auto &path : imagePaths)
     {
         featureVector.clear(); // clear the feature vector for each image
-        printf("Extracting features from: %s\n", path.c_str());
         extractor->extract(path.c_str(), &featureVector);
 
         // save features in an image to output file

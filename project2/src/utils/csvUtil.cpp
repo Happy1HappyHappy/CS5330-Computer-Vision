@@ -175,20 +175,23 @@ int csvUtil::append_image_data_csv(const char *filename, const char *image_filen
 
   The function returns a non-zero value if something goes wrong.
  */
-int csvUtil::read_image_data_csv(char *filename, std::vector<char *> &filenames, std::vector<std::vector<float>> &data, int echo_file)
+int csvUtil::read_image_data_csv(const std::string &filename,
+                                 std::vector<std::string> &filenames,
+                                 std::vector<std::vector<float>> &data,
+                                 int echo_file)
 {
   FILE *fp;
   float fval;
   char img_file[256];
 
-  fp = fopen(filename, "r");
+  fp = fopen(filename.c_str(), "r");
   if (!fp)
   {
     printf("Unable to open feature file\n");
     return (-1);
   }
 
-  printf("Reading %s\n", filename);
+  printf("Reading %s\n", filename.c_str());
   for (;;)
   {
     std::vector<float> dvec;
@@ -198,7 +201,7 @@ int csvUtil::read_image_data_csv(char *filename, std::vector<char *> &filenames,
     {
       break;
     }
-    // printf("Evaluting %s\n", filename);
+    // printf("Evaluting %s\n", filename.c_str());
 
     // read the whole feature file into memory
     for (;;)
@@ -213,9 +216,7 @@ int csvUtil::read_image_data_csv(char *filename, std::vector<char *> &filenames,
 
     data.push_back(dvec);
 
-    char *fname = new char[strlen(img_file) + 1];
-    strcpy(fname, img_file);
-    filenames.push_back(fname);
+    filenames.push_back(std::string(img_file));
   }
   fclose(fp);
   printf("Finished reading CSV file\n");
