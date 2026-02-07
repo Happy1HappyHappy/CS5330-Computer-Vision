@@ -71,6 +71,7 @@ COMMON_OBJS = $(OBJDIR)/csvUtil.o \
               $(OBJDIR)/featureGenCLI.o
 
 fg: $(OBJDIR)/featureGenerator.o $(COMMON_OBJS)
+	mkdir -p $(OBJDIR)
 	mkdir -p $(BINDIR)
 	$(CC) $^ -o $(BINDIR)/$@ $(LDFLAGS) $(LDLIBS)
 
@@ -80,6 +81,7 @@ matcher: $(OBJDIR)/featureMatcher.o \
          $(OBJDIR)/matchUtil.o \
 		 ${OBJDIR}/featureMatcherCLI.o \
          $(COMMON_OBJS)
+	mkdir -p $(OBJDIR)
 	mkdir -p $(BINDIR)
 	$(CC) $^ -o $(BINDIR)/$@ $(LDFLAGS) $(LDLIBS)
 
