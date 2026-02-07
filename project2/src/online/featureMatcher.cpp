@@ -10,6 +10,7 @@ Description: Matches features from a query image to a database of feature vector
 #include "distanceMetrics.hpp"
 #include "extractorFactory.hpp"
 #include "featureExtractor.hpp"
+#include "featureMatcherCLI.hpp"
 #include "matchResult.hpp"
 #include "matchUtil.hpp"
 #include "metricFactory.hpp"
@@ -33,55 +34,80 @@ the distance metric type, and the number of top matches to display.
 int main(int argc, char *argv[])
 {
     {
-        // Check for sufficient arguments
-        if (argc < 6)
-        {
-            printf("usage: %s <target image path> <database feature vectors file> \
-            <feature type> <matcher type> <N>\n",
-                   argv[0]);
-            exit(-1);
-        }
-
         // Parse command line arguments
-        char *targetPath = argv[1];
-        char *dbPath = argv[2];
-        FeatureType featureType = ExtractorFactory::stringToFeatureType(argv[3]);
-        MetricType metricType = MetricFactory::stringToMetricType(argv[4]);
-        int topN = atoi(argv[5]);
-
-        // Load database feature vectors and filenames from the CSV file
-        std::vector<std::string> dbFilenames;   // database to save image filenames
-        std::vector<std::vector<float>> dbData; // database to save feature vectors
-        ReadFiles::readFeaturesFromCSV(dbPath, dbFilenames, dbData);
-
-        // Extract features from the target image using the specified feature extractor
-        std::vector<float> targetFeatures;
-        auto extractor = ExtractorFactory::create(featureType);
-        extractor->extract(targetPath, &targetFeatures);
-
-        // Create the appropriate distance metric based on the specified metric type
-        // Compute distances between the target features and each database feature vector,
-        // and store the results in a vector of MatchResult objects
-        auto distanceMetric = MetricFactory::create(metricType);
-        std::vector<MatchResult> results;
-        for (size_t i = 0; i < dbData.size(); ++i)
+        auto args = FeatureMatcherCLI::parse(argc, argv);
+        if (args.showHelp)
         {
-            // Skip the target image if in the database to avoid matching it with itself
-            if (ReadFiles::isTargetImageInDatabase(targetPath, dbFilenames[i].c_str()))
-                continue;
-
-            MatchResult res;               // store filename and distance
-            res.filename = dbFilenames[i]; // database image filename
-            res.distance = distanceMetric->compute(
-                targetFeatures, dbData[i]); // computed distance
-            results.push_back(res);         // add to results
+            FeatureMatcherCLI::printUsage(argv[0]);
+            return 0;
+        }
+        if (args.targetPath.empty() || args.dbs.empty() || args.topN <= 0)
+        {
+            printf("Error: missing required arguments.\n\n");
+            FeatureMatcherCLI::printUsage(argv[0]);
+            return -1;
         }
 
-        // Sort results by distance in ascending order
-        std::sort(results.begin(), results.end(), MatchUtil::compareMatches);
-        // Get and print the top N matches
-        std::vector<MatchResult> topMatches = MatchUtil::getTopNMatches(results, topN);
+        auto distanceMetric = MetricFactory::create(args.metricType);
+        if (!distanceMetric)
+        {
+            printf("Error: invalid metric type (MetricFactory::create returned nullptr).\n\n");
+            FeatureMatcherCLI::printUsage(argv[0]);
+            return -1;
+        }
+        for (const auto &dbEntry : args.dbs)
+        {
+            // Load database feature vectors and filenames from the CSV file
+            std::vector<std::string> dbFilenames;   // database to save image filenames
+            std::vector<std::vector<float>> dbData; // database to save feature vectors
+            ReadFiles::readFeaturesFromCSV(dbEntry.dbPath.c_str(), dbFilenames, dbData);
 
-        return (0); // Success
+            if (dbData.empty())
+            {
+                printf("Warning: DB is empty: %s\n", dbEntry.dbPath.c_str());
+                continue;
+            }
+
+            // Extract features from the target image using the specified feature extractor
+            std::vector<float> targetFeatures;
+            auto extractor = ExtractorFactory::create(dbEntry.featureType);
+            if (!extractor)
+            {
+                printf("Error: extractor nullptr for feature=%s\n", dbEntry.featureName.c_str());
+                return -1;
+            }
+            int rc = extractor->extract(args.targetPath.c_str(), &targetFeatures);
+            if (rc != 0)
+            {
+                printf("Error: failed to extract target features for feature=%s\n", dbEntry.featureName.c_str());
+                return -1;
+            }
+
+            // Create the appropriate distance metric based on the specified metric type
+            // Compute distances between the target features and each database feature vector,
+            // and store the results in a vector of MatchResult objects
+            std::vector<MatchResult> results;
+            results.reserve(dbData.size());
+
+            for (size_t i = 0; i < dbData.size(); ++i)
+            {
+                // Skip the target image if in the database to avoid matching it with itself
+                if (ReadFiles::isTargetImageInDatabase(args.targetPath.c_str(), dbFilenames[i].c_str()))
+                    continue;
+
+                MatchResult res;               // store filename and distance
+                res.filename = dbFilenames[i]; // database image filename
+                res.distance = distanceMetric->compute(
+                    targetFeatures, dbData[i]); // computed distance
+                results.push_back(res);         // add to results
+            }
+
+            // Sort results by distance in ascending order
+            std::sort(results.begin(), results.end(), MatchUtil::compareMatches);
+            // Get and print the top N matches
+            std::vector<MatchResult> topMatches = MatchUtil::getTopNMatches(results, args.topN);
+
+            return (0); // Success
+        }
     }
 }

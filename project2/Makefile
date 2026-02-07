@@ -64,10 +64,22 @@ $(OBJDIR)/%.o: $(UTILSDIR)/%.cpp
 # Targets
 all: fg matcher
 
-fg: $(OBJDIR)/featureGenerator.o	$(OBJDIR)/readFiles.o	$(OBJDIR)/featureExtractor.o	$(OBJDIR)/csvUtil.o  $(OBJDIR)/extractorFactory.o
+COMMON_OBJS = $(OBJDIR)/csvUtil.o \
+              $(OBJDIR)/featureExtractor.o \
+              $(OBJDIR)/extractorFactory.o \
+              $(OBJDIR)/readFiles.o \
+              $(OBJDIR)/featureGenCLI.o
+
+fg: $(OBJDIR)/featureGenerator.o $(COMMON_OBJS)
 	mkdir -p $(BINDIR)
 	$(CC) $^ -o $(BINDIR)/$@ $(LDFLAGS) $(LDLIBS)
-matcher: $(OBJDIR)/featureMatcher.o		$(OBJDIR)/csvUtil.o		$(OBJDIR)/featureExtractor.o	$(OBJDIR)/distanceMetrics.o	$(OBJDIR)/metricFactory.o	$(OBJDIR)/extractorFactory.o	$(OBJDIR)/readFiles.o $(OBJDIR)/matchUtil.o
+
+matcher: $(OBJDIR)/featureMatcher.o \
+         $(OBJDIR)/distanceMetrics.o \
+         $(OBJDIR)/metricFactory.o \
+         $(OBJDIR)/matchUtil.o \
+		 ${OBJDIR}/featureMatcherCLI.o \
+         $(COMMON_OBJS)
 	mkdir -p $(BINDIR)
 	$(CC) $^ -o $(BINDIR)/$@ $(LDFLAGS) $(LDLIBS)
 

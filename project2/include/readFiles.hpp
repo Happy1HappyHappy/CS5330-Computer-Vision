@@ -43,7 +43,7 @@ public:
         std::vector<std::string> &files);
 
     static int readFeaturesFromCSV(
-        char *filename,
+        const char *filename,
         std::vector<std::string> &filenames,
         std::vector<std::vector<float>> &data);
 
