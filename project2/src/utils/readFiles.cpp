@@ -78,7 +78,7 @@ The function populates the provided vectors with the filenames and their corresp
 - @param data A reference to a 2D vector of floats where the feature data will be stored. Each inner vector corresponds to the features of one image.
 - @return 0 on success, non-zero value on error.
 */
-int ReadFiles::readFeaturesFromCSV(char *filename, std::vector<std::string> &filenames, std::vector<std::vector<float>> &data)
+int ReadFiles::readFeaturesFromCSV(const char *filename, std::vector<std::string> &filenames, std::vector<std::vector<float>> &data)
 {
     if (csvUtil::read_image_data_csv(filename, filenames, data, 0) != 0)
     {

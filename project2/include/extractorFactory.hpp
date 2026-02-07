@@ -27,8 +27,8 @@ Enumeration for different feature types that can be extracted from images.
 enum FeatureType
 {
     BASELINE,
-    RG_COLOR_HIST,
-    RGB_COLOR_HIST,
+    RG_HIST_2D,
+    RGB_HIST_3D,
     TEXTURE_SOBEL,
     UNKNOWN_FEATURE
 };
