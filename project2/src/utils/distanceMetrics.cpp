@@ -30,7 +30,10 @@ float SumSquaredDistance::compute(
 {
     // v1 and v2 not the same size, return infinity to indicate they cannot be compared
     if (v1.size() != v2.size())
+    {
+        printf("Feature vectors size does not match\n");
         return std::numeric_limits<float>::infinity();
+    }
 
     float sum = 0.0f; // Initialize the sum of squared differences as 0
     for (size_t i = 0; i < v1.size(); ++i)
@@ -43,7 +46,7 @@ float SumSquaredDistance::compute(
 
 /*
 Histogram Intersection metric
-Computes the histogram intersection between two feature vectors (already normalized).
+Computes the rghistogram intersection between two feature vectors (already normalized).
 Higher values indicate more similar features, so we convert it to a distance by
 subtracting from 1.
 
@@ -58,7 +61,10 @@ float HistogramIntersection::compute(
 {
     // v1 and v2 not the same size, return infinity to indicate they cannot be compared
     if (v1.size() != v2.size())
+    {
+        printf("Feature vectors size does not match\n");
         return std::numeric_limits<float>::infinity();
+    }
 
     float intersection = 0.0f; // Initialize the intersection value as 0
     for (size_t i = 0; i < v1.size(); ++i)

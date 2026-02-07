@@ -28,7 +28,7 @@ public:
     virtual ~IDistanceMetric() = default;
 
     virtual float compute(const std::vector<float> &features1, const std::vector<float> &features2) const = 0;
-    virtual MetricType type() const { return type_; }
+    virtual std::string type() { return MetricFactory::metricTypeToString(type_); }
 
 protected:
     // Protected member variable to store the type of the distance metric

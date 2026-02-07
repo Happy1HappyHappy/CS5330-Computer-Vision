@@ -34,7 +34,7 @@ public:
     virtual int extract(const char *imagePath,
                         std::vector<float> *featureVector) const = 0;
 
-    virtual FeatureType type() const { return type_; }
+    virtual std::string type() { return ExtractorFactory::featureTypeToString(type_); }
 
 protected:
     // Protected member variable to store the type of the feature extractor
