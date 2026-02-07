@@ -59,7 +59,7 @@ void FeatureGenCLI::printUsage(const char *prog)
     printf("\n");
     printf("options:\n");
     printf("  -i, --input    <dir>     input image directory\n");
-    printf("  -f, --feature  <type>    baseline | rghist | rgbhist | texturesobel\n");
+    printf("  -f, --feature  <type>    baseline | rghist | rgbhist | magnitude\n");
     printf("                           can be repeated, or comma-separated\n");
     printf("  -o, --output   <csv>     output csv path\n");
     printf("  -h, --help               show help\n");
