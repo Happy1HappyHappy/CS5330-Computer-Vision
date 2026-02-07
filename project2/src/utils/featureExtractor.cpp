@@ -12,8 +12,6 @@
 #include <cstdlib>
 #include <opencv2/opencv.hpp>
 
-#define HISTSIZE 16
-
 /*
 BaselineExtractor::extract(const char *imagePath, std::vector<float> *featureVector) const
 This method extracts a 7x7 patch from the center of the image, flattens it into a
@@ -60,7 +58,7 @@ int BaselineExtractor::extract(const char *imagePath, std::vector<float> *featur
 }
 
 /*
-ColorHistExtractor::extract(const char *imagePath, std::vector<float> *featureVector) const
+RGColorHistExtractor::extract(const char *imagePath, std::vector<float> *featureVector) const
 This method extracts a color histogram feature from the image. It computes a 2D histogram
 for the red and green channels, normalizes it, and stores the histogram values in the provided
 feature vector. It uses OpenCV to load the image and perform the necessary operations.
@@ -68,7 +66,7 @@ feature vector. It uses OpenCV to load the image and perform the necessary opera
 - @param featureVector A pointer to a vector where the extracted features will be stored.
 - @return 0 on success, -1 on failure (e.g., if the image cannot be loaded).
 */
-int ColorHistExtractor::extract(const char *imagePath, std::vector<float> *featureVector) const
+int RGColorHistExtractor::extract(const char *imagePath, std::vector<float> *featureVector) const
 {
     // Load the image
     cv::Mat image = cv::imread(imagePath);
@@ -78,7 +76,8 @@ int ColorHistExtractor::extract(const char *imagePath, std::vector<float> *featu
         return -1.0f;
     }
     // Create a 2D histogram for the red and green channels
-    cv::Mat hist = cv::Mat::zeros(cv::Size(HISTSIZE, HISTSIZE), CV_32FC1);
+    int histSize = 16;
+    cv::Mat hist = cv::Mat::zeros(cv::Size(histSize, histSize), CV_32FC1);
     for (int i = 0; i < image.rows; i++)
     {
         cv::Vec3b *ptr = image.ptr<cv::Vec3b>(i);
@@ -93,8 +92,8 @@ int ColorHistExtractor::extract(const char *imagePath, std::vector<float> *featu
             float r = R / divisor;
             float g = G / divisor;
 
-            int rindex = (int)(r * (HISTSIZE - 1) + 0.5);
-            int gindex = (int)(g * (HISTSIZE - 1) + 0.5);
+            int rindex = (int)(r * (histSize - 1) + 0.5);
+            int gindex = (int)(g * (histSize - 1) + 0.5);
 
             hist.at<float>(rindex, gindex)++;
         }
@@ -104,6 +103,68 @@ int ColorHistExtractor::extract(const char *imagePath, std::vector<float> *featu
 
     // Assign histogram values to feature vector
     featureVector->assign((float *)hist.datastart, (float *)hist.dataend);
+
+    return 0; // Success
+}
+
+int RGBColorHistExtractor::extract(const char *imagePath, std::vector<float> *featureVector) const
+{
+    // Load the image
+    cv::Mat image = cv::imread(imagePath);
+    if (image.empty())
+    {
+        printf("Error: Unable to load image %s\n", imagePath);
+        return -1.0f;
+    }
+    // Create a 3D histogram for the red and green channels
+    int histSize = 8;
+    int dims = 3;
+    int sizes[] = {histSize, histSize, histSize};
+    cv::Mat hist = cv::Mat::zeros(dims, sizes, CV_32FC1);
+
+    float scale = (float)histSize / 256.0f;
+    for (int i = 0; i < image.rows; i++)
+    {
+        cv::Vec3b *ptr = image.ptr<cv::Vec3b>(i);
+        for (int j = 0; j < image.cols; j++)
+        {
+            float B = ptr[j][0];
+            float G = ptr[j][1];
+            float R = ptr[j][2];
+
+            int rindex = (int)(R * scale);
+            int gindex = (int)(G * scale);
+            int bindex = (int)(B * scale);
+
+            hist.at<float>(rindex, gindex, bindex)++;
+        }
+    }
+    // Normalization
+    hist /= (image.rows * image.cols);
+
+    // Assign histogram values to feature vector
+    if (hist.isContinuous())
+    {
+        float *start = (float *)hist.ptr<float>(0);
+        int totalElements = histSize * histSize * histSize;
+        featureVector->assign(start, start + totalElements);
+    }
+    else
+    {
+        featureVector->clear();
+        featureVector->reserve(histSize * histSize * histSize);
+
+        for (int r = 0; r < histSize; ++r)
+        {
+            for (int g = 0; g < histSize; ++g)
+            {
+                for (int b = 0; b < histSize; ++b)
+                {
+                    featureVector->push_back(hist.at<float>(r, g, b));
+                }
+            }
+        }
+    }
 
     return 0; // Success
 }

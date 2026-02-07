@@ -24,10 +24,18 @@ struct BaselineExtractor : public IExtractor
     int extract(const char *imagePath, std::vector<float> *featureVector) const override;
 };
 
-struct ColorHistExtractor : public IExtractor
+struct RGColorHistExtractor : public IExtractor
 {
     // Constructor to initialize the feature type
-    ColorHistExtractor(FeatureType type) : IExtractor(type) {}
+    RGColorHistExtractor(FeatureType type) : IExtractor(type) {}
+    // Override the extract function to implement the feature extraction logic for the color histogram extractor
+    int extract(const char *imagePath, std::vector<float> *featureVector) const override;
+};
+
+struct RGBColorHistExtractor : public IExtractor
+{
+    // Constructor to initialize the feature type
+    RGBColorHistExtractor(FeatureType type) : IExtractor(type) {}
     // Override the extract function to implement the feature extraction logic for the color histogram extractor
     int extract(const char *imagePath, std::vector<float> *featureVector) const override;
 };
