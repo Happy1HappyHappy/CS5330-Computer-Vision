@@ -28,9 +28,9 @@ std::shared_ptr<IExtractor> ExtractorFactory::create(FeatureType type)
     {
     case BASELINE:
         return std::make_shared<BaselineExtractor>(type);
-    case RG_COLOR_HIST:
+    case RG_HIST_2D:
         return std::make_shared<RGColorHistExtractor>(type);
-    case RGB_COLOR_HIST:
+    case RGB_HIST_3D:
         return std::make_shared<RGBColorHistExtractor>(type);
     case TEXTURE_SOBEL:
         return std::make_shared<TextureSobelExtractor>(type);
@@ -52,8 +52,8 @@ FeatureType ExtractorFactory::stringToFeatureType(const char *typeStr)
 {
     static const std::unordered_map<std::string, FeatureType> typeMap = {
         {"baseline", BASELINE},
-        {"rghist", RG_COLOR_HIST},
-        {"rgbhist", RGB_COLOR_HIST},
+        {"rghist2d", RG_HIST_2D},
+        {"rgbhist3d", RGB_HIST_3D},
         {"texturesobel", TEXTURE_SOBEL}};
 
     auto it = typeMap.find(typeStr);
@@ -74,8 +74,8 @@ std::string ExtractorFactory::featureTypeToString(FeatureType type)
 {
     static const std::unordered_map<FeatureType, std::string> reverseMap = {
         {BASELINE, "baseline"},
-        {RG_COLOR_HIST, "rghist"},
-        {RGB_COLOR_HIST, "rgbhist"},
+        {RG_HIST_2D, "rghist2d"},
+        {RGB_HIST_3D, "rgbhist3d"},
         {TEXTURE_SOBEL, "texturesobel"}};
 
     auto it = reverseMap.find(type);
