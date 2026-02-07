@@ -18,7 +18,7 @@ on the specified FeatureType. It uses a switch statement to determine which type
 extractor to create:
 - BASELINE, it creates and returns a shared pointer to a BaselineExtractor instance.
 - RG_COLOR_HIST, it creates and returns a shared pointer to a RGColorHistExtractor instance.
-- TEXTURE_SOBEL, it creates and returns a shared pointer to a TextureSobelExtractor instance.
+- SOBEL_MAGNITUDE, it creates and returns a shared pointer to a SobelMagnitudeExtractor instance.
 - UNKNOWN_FEATURE or any unrecognized type, it returns nullptr to indicate that no valid
     extractor could be created.
 */
@@ -32,8 +32,8 @@ std::shared_ptr<IExtractor> ExtractorFactory::create(FeatureType type)
         return std::make_shared<RGColorHistExtractor>(type);
     case RGB_HIST_3D:
         return std::make_shared<RGBColorHistExtractor>(type);
-    case TEXTURE_SOBEL:
-        return std::make_shared<TextureSobelExtractor>(type);
+    case SOBEL_MAGNITUDE:
+        return std::make_shared<SobelMagnitudeExtractor>(type);
     case CIELAB_HIST:
         return std::make_shared<CIELabHistExtractor>(type);
     default:
@@ -47,7 +47,7 @@ This static method converts a string representation of a feature type to the cor
 FeatureType enum value. It compares the input string to known feature type strings:
 - "baseline" returns BASELINE
 - "colorhist" returns RG_COLOR_HIST
-- "texturesobel" returns TEXTURE_SOBEL
+- "magnitude" returns SOBEL_MAGNITUDE
 If the input string does not match any known feature type, it returns UNKNOWN_FEATURE.
 */
 FeatureType ExtractorFactory::stringToFeatureType(const char *typeStr)
@@ -56,10 +56,8 @@ FeatureType ExtractorFactory::stringToFeatureType(const char *typeStr)
         {"baseline", BASELINE},
         {"rghist2d", RG_HIST_2D},
         {"rgbhist3d", RGB_HIST_3D},
-        {"texturesobel", TEXTURE_SOBEL},
-        {"cielab", CIELAB_HIST}
-        };
-
+        {"magnitude", SOBEL_MAGNITUDE},
+        {"cielab", CIELAB_HIST}};
 
     auto it = typeMap.find(typeStr);
     return (it != typeMap.end()) ? it->second : UNKNOWN_FEATURE;
@@ -72,7 +70,7 @@ display purposes. It uses a switch statement to return the corresponding string 
 FeatureType:
 - BASELINE returns "baseline"
 - RG_COLOR_HIST returns "colorhist"
-- TEXTURE_SOBEL returns "texturesobel"
+- SOBEL_MAGNITUDE returns "magnitude"
 If the type is unrecognized, it returns "Unknown".
 */
 std::string ExtractorFactory::featureTypeToString(FeatureType type)
@@ -81,7 +79,7 @@ std::string ExtractorFactory::featureTypeToString(FeatureType type)
         {BASELINE, "baseline"},
         {RG_HIST_2D, "rghist2d"},
         {RGB_HIST_3D, "rgbhist3d"},
-        {TEXTURE_SOBEL, "texturesobel"},
+        {SOBEL_MAGNITUDE, "magnitude"},
         {CIELAB_HIST, "cielab"}};
 
     auto it = reverseMap.find(type);

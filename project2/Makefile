@@ -65,20 +65,22 @@ $(OBJDIR)/%.o: $(UTILSDIR)/%.cpp
 all: fg matcher
 
 COMMON_OBJS = $(OBJDIR)/csvUtil.o \
-              $(OBJDIR)/featureExtractor.o \
               $(OBJDIR)/extractorFactory.o \
+			  ${OBJDIR}/faceDetect.o \
+              $(OBJDIR)/featureExtractor.o \
+              $(OBJDIR)/featureGenCLI.o \
+			  ${OBJDIR}/filters.o \
               $(OBJDIR)/readFiles.o \
-              $(OBJDIR)/featureGenCLI.o
 
 fg: $(OBJDIR)/featureGenerator.o $(COMMON_OBJS)
 	mkdir -p $(BINDIR)
 	$(CC) $^ -o $(BINDIR)/$@ $(LDFLAGS) $(LDLIBS)
 
-matcher: $(OBJDIR)/featureMatcher.o \
-         $(OBJDIR)/distanceMetrics.o \
+matcher: $(OBJDIR)/distanceMetrics.o \
+		 $(OBJDIR)/featureMatcher.o \
+		 ${OBJDIR}/featureMatcherCLI.o \
          $(OBJDIR)/metricFactory.o \
          $(OBJDIR)/matchUtil.o \
-		 ${OBJDIR}/featureMatcherCLI.o \
          $(COMMON_OBJS)
 	mkdir -p $(BINDIR)
 	$(CC) $^ -o $(BINDIR)/$@ $(LDFLAGS) $(LDLIBS)

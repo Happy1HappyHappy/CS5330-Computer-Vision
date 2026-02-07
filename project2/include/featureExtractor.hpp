@@ -40,14 +40,13 @@ struct RGBColorHistExtractor : public IExtractor
     int extract(const char *imagePath, std::vector<float> *featureVector) const override;
 };
 
-struct TextureSobelExtractor : public IExtractor
+struct SobelMagnitudeExtractor : public IExtractor
 {
     // Constructor to initialize the feature type
-    TextureSobelExtractor(FeatureType type) : IExtractor(type) {}
+    SobelMagnitudeExtractor(FeatureType type) : IExtractor(type) {}
     // Override the extract function to implement the feature extraction logic for the texture Sobel extractor
     int extract(const char *imagePath, std::vector<float> *featureVector) const override;
 };
-
 
 struct CIELabHistExtractor : public IExtractor
 {

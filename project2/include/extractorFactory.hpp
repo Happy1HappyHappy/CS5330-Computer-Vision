@@ -20,7 +20,7 @@ Enumeration for different feature types that can be extracted from images.
             center of the image and flattens it into a feature vector.
 - RG_COLOR_HIST: A color histogram feature extractor that computes a histogram of pixel
             intensities for each color channel.
-- TEXTURE_SOBEL: A texture feature extractor that uses the Sobel operator to capture
+- SOBEL_MAGNITUDE: A texture feature extractor that uses the Sobel operator to capture
             edge information in the image.
 - UNKNOWN_FEATURE: A default value for unrecognized feature types.
 */
@@ -29,7 +29,7 @@ enum FeatureType
     BASELINE,
     RG_HIST_2D,
     RGB_HIST_3D,
-    TEXTURE_SOBEL,
+    SOBEL_MAGNITUDE,
     CIELAB_HIST,
     UNKNOWN_FEATURE
 };

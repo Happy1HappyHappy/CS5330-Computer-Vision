@@ -7,6 +7,7 @@
 */
 
 #include "featureExtractor.hpp"
+#include "filters.hpp"
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
@@ -170,8 +171,58 @@ int RGBColorHistExtractor::extract(const char *imagePath, std::vector<float> *fe
     return 0; // Success
 }
 
-int TextureSobelExtractor::extract(const char *imagePath, std::vector<float> *featureVector) const
+int SobelMagnitudeExtractor::extract(const char *imagePath, std::vector<float> *featureVector) const
 {
+    // Load the image in greyscale
+    cv::Mat image = cv::imread(imagePath);
+    if (image.empty())
+    {
+        printf("Error: Unable to load image %s\n", imagePath);
+        return -1;
+    }
+    // Apply Sobel X and Y filters to get sX and sY, then apply magnitude filter
+    cv::Mat sX, sY, dst;
+    if (Filters::sobelX3x3(image, sX) != 0 || Filters::sobelY3x3(image, sY) != 0)
+    {
+        printf("Error: failed to extract target features by sobel X/Y filter\n");
+        return -1;
+    }
+    if (Filters::magnitude(sX, sY, dst) != 0)
+    {
+        printf("Error: failed to extract target features by sobel magnitude filter\n");
+        return -1;
+    };
+    // Make sure dst has only single channel
+    if (dst.type() != CV_8UC1)
+    {
+        dst.convertTo(dst, CV_8UC1);
+    }
+    // Ceate 1D histogram
+    int histSize = 256;
+    std::vector<float> hist(histSize, 0.0f);
+
+    // Iterates magnitude values at each pixel in dst
+    float scale = (float)histSize / 256.0f;
+    for (int i = 0; i < dst.rows; i++)
+    {
+        uchar *ptr = dst.ptr<uchar>(i);
+        for (int j = 0; j < dst.cols; j++)
+        {
+            float value = ptr[j];
+            int index = std::min((int)(value * scale), histSize - 1);
+
+            hist[index]++;
+        }
+    }
+
+    // Push normalized vectors back to histogram
+    float totalPixels = (float)(image.rows * image.cols);
+    featureVector->clear();
+    featureVector->reserve(histSize);
+    for (int i = 0; i < histSize; i++)
+    {
+        featureVector->push_back(hist[i] / totalPixels);
+    }
 
     return 0; // Success
 }
@@ -200,11 +251,11 @@ int CIELabHistExtractor::extract(const char *imagePath, std::vector<float> *feat
             float g_norm = ptr[j][1] / 255.0f;
             float r_norm = ptr[j][2] / 255.0f;
 
-            // Inverse Gamma Correction            
+            // Inverse Gamma Correction
             float r_lin = (r_norm > 0.04045f) ? pow((r_norm + 0.055f) / 1.055f, 2.4f) : r_norm / 12.92f;
             float g_lin = (g_norm > 0.04045f) ? pow((g_norm + 0.055f) / 1.055f, 2.4f) : g_norm / 12.92f;
             float b_lin = (b_norm > 0.04045f) ? pow((b_norm + 0.055f) / 1.055f, 2.4f) : b_norm / 12.92f;
-            
+
             // Convert to XYZ color space
             // X: response corresponding roughly to red-green perception
             // Y: luminance (perceived brightness)
@@ -225,16 +276,16 @@ int CIELabHistExtractor::extract(const char *imagePath, std::vector<float> *feat
             float fz = (z > 0.008856f) ? cbrt(z) : (7.787f * z + 16.0f / 116.0f);
 
             // Convert to Lab
-            float Lab_L = 116.0f * fy - 16.0f;
-            float Lab_a = 500.0f * (fx - fy);
-            float Lab_b = 200.0f * (fy - fz);
-            
+            float L = 116.0f * fy - 16.0f;
+            float a = 500.0f * (fx - fy);
+            float b = 200.0f * (fy - fz);
+
             // L (0~100) -> project 0~15
             int Lindex = (int)(L / 100.0f * histSize);
             // a, b (-128~127) -> (+128) -> normalize(/255) -> project 0~15
             int aindex = (int)((a + 128.0f) / 255.0f * histSize);
             int bindex = (int)((b + 128.0f) / 255.0f * histSize);
-            
+
             // Clamp
             Lindex = std::max(0, std::min(Lindex, histSize - 1));
             aindex = std::max(0, std::min(aindex, histSize - 1));
