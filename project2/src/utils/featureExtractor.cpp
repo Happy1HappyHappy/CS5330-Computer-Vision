@@ -285,8 +285,8 @@ int CIELabHistExtractor::extract(const char *imagePath, std::vector<float> *feat
             // L (0~100) -> project 0~15
             int Lindex = (int)(L / 100.0f * L_histSize);
             // a, b (-128~127) -> (+128) -> normalize(/255) -> project 0~15
-            int aindex = (int)((a + 128.0f) / 255.0f * histSize);
-            int bindex = (int)((b + 128.0f) / 255.0f * histSize);
+            int aindex = (int)((a + 128.0f) / 255.0f * a_histSize);
+            int bindex = (int)((b + 128.0f) / 255.0f * b_histSize);
 
             // Clamp
             Lindex = std::max(0, std::min(Lindex, L_histSize - 1));
