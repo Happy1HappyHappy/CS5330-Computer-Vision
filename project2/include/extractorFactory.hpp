@@ -30,6 +30,7 @@ enum FeatureType
     RG_HIST_2D,
     RGB_HIST_3D,
     TEXTURE_SOBEL,
+    CIELAB_HIST,
     UNKNOWN_FEATURE
 };
 

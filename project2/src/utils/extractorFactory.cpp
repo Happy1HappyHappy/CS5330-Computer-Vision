@@ -34,6 +34,8 @@ std::shared_ptr<IExtractor> ExtractorFactory::create(FeatureType type)
         return std::make_shared<RGBColorHistExtractor>(type);
     case TEXTURE_SOBEL:
         return std::make_shared<TextureSobelExtractor>(type);
+    case CIELAB_HIST:
+        return std::make_shared<CIELabHistExtractor>(type);
     default:
         return nullptr;
     }
@@ -54,7 +56,10 @@ FeatureType ExtractorFactory::stringToFeatureType(const char *typeStr)
         {"baseline", BASELINE},
         {"rghist2d", RG_HIST_2D},
         {"rgbhist3d", RGB_HIST_3D},
-        {"texturesobel", TEXTURE_SOBEL}};
+        {"texturesobel", TEXTURE_SOBEL},
+        {"cielab", CIELAB_HIST}
+        };
+
 
     auto it = typeMap.find(typeStr);
     return (it != typeMap.end()) ? it->second : UNKNOWN_FEATURE;
@@ -76,7 +81,8 @@ std::string ExtractorFactory::featureTypeToString(FeatureType type)
         {BASELINE, "baseline"},
         {RG_HIST_2D, "rghist2d"},
         {RGB_HIST_3D, "rgbhist3d"},
-        {TEXTURE_SOBEL, "texturesobel"}};
+        {TEXTURE_SOBEL, "texturesobel"},
+        {CIELAB_HIST, "cielab"}};
 
     auto it = reverseMap.find(type);
     return (it != reverseMap.end()) ? it->second : "Unknown";
