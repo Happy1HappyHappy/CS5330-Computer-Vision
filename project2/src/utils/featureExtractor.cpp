@@ -237,9 +237,11 @@ int CIELabHistExtractor::extract(const char *imagePath, std::vector<float> *feat
         return -1;
     }
     // Create a 3D histogram for the red and green channels
-    int histSize = 16;
+    int L_histSize = 4;
+    int a_histSize = 8;
+    int b_histSize = 8;
     int dims = 3;
-    int sizes[] = {histSize, histSize, histSize};
+    int sizes[] = {L_histSize, a_histSize, b_histSize};
     cv::Mat hist = cv::Mat::zeros(dims, sizes, CV_32FC1);
 
     for (int i = 0; i < image.rows; i++)
@@ -281,15 +283,15 @@ int CIELabHistExtractor::extract(const char *imagePath, std::vector<float> *feat
             float b = 200.0f * (fy - fz);
 
             // L (0~100) -> project 0~15
-            int Lindex = (int)(L / 100.0f * histSize);
+            int Lindex = (int)(L / 100.0f * L_histSize);
             // a, b (-128~127) -> (+128) -> normalize(/255) -> project 0~15
             int aindex = (int)((a + 128.0f) / 255.0f * histSize);
             int bindex = (int)((b + 128.0f) / 255.0f * histSize);
 
             // Clamp
-            Lindex = std::max(0, std::min(Lindex, histSize - 1));
-            aindex = std::max(0, std::min(aindex, histSize - 1));
-            bindex = std::max(0, std::min(bindex, histSize - 1));
+            Lindex = std::max(0, std::min(Lindex, L_histSize - 1));
+            aindex = std::max(0, std::min(aindex, a_histSize - 1));
+            bindex = std::max(0, std::min(bindex, b_histSize - 1));
 
             hist.at<float>(Lindex, aindex, bindex)++;
         }
@@ -302,19 +304,19 @@ int CIELabHistExtractor::extract(const char *imagePath, std::vector<float> *feat
     if (hist.isContinuous())
     {
         float *start = (float *)hist.ptr<float>(0);
-        int totalElements = histSize * histSize * histSize;
+        int totalElements = L_histSize * a_histSize * b_histSize;
         featureVector->assign(start, start + totalElements);
     }
     else
     {
         featureVector->clear();
-        featureVector->reserve(histSize * histSize * histSize);
+        featureVector->reserve(L_histSize * a_histSize * b_histSize);
 
-        for (int l_idx = 0; l_idx < histSize; ++l_idx)
+        for (int l_idx = 0; l_idx < L_histSize; ++l_idx)
         {
-            for (int a_idx = 0; a_idx < histSize; ++a_idx)
+            for (int a_idx = 0; a_idx < a_histSize; ++a_idx)
             {
-                for (int b_idx = 0; b_idx < histSize; ++b_idx)
+                for (int b_idx = 0; b_idx < b_histSize; ++b_idx)
                 {
                     featureVector->push_back(hist.at<float>(l_idx, a_idx, b_idx));
                 }

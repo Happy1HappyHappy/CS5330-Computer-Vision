@@ -73,6 +73,7 @@ COMMON_OBJS = $(OBJDIR)/csvUtil.o \
               $(OBJDIR)/readFiles.o \
 
 fg: $(OBJDIR)/featureGenerator.o $(COMMON_OBJS)
+	mkdir -p $(OBJDIR)
 	mkdir -p $(BINDIR)
 	$(CC) $^ -o $(BINDIR)/$@ $(LDFLAGS) $(LDLIBS)
 
@@ -82,6 +83,7 @@ matcher: $(OBJDIR)/distanceMetrics.o \
          $(OBJDIR)/metricFactory.o \
          $(OBJDIR)/matchUtil.o \
          $(COMMON_OBJS)
+	mkdir -p $(OBJDIR)
 	mkdir -p $(BINDIR)
 	$(CC) $^ -o $(BINDIR)/$@ $(LDFLAGS) $(LDLIBS)
 
