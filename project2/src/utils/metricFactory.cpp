@@ -29,6 +29,8 @@ std::shared_ptr<IDistanceMetric> MetricFactory::create(MetricType type)
         return std::make_shared<SumSquaredDistance>(type);
     case HIST_INTERSECTION:
         return std::make_shared<HistogramIntersection>(type);
+    case COSINE:
+        return std::make_shared<CosDistance>(type);
     default:
         return nullptr;
     }
@@ -46,7 +48,8 @@ MetricType MetricFactory::stringToMetricType(const char *typeStr)
 {
     static const std::unordered_map<std::string, MetricType> typeMap = {
         {"ssd", SSD},
-        {"hist_intersection", HIST_INTERSECTION}};
+        {"hist_intersection", HIST_INTERSECTION},
+        {"Cosine", COSINE}};
 
     auto it = typeMap.find(typeStr);
     return (it != typeMap.end()) ? it->second : UNKNOWN_METRIC;
@@ -65,7 +68,8 @@ std::string MetricFactory::metricTypeToString(MetricType type)
 {
     static const std::unordered_map<MetricType, std::string> typeMap = {
         {SSD, "ssd"},
-        {HIST_INTERSECTION, "hist_intersection"}};
+        {HIST_INTERSECTION, "hist_intersection"},
+        {COSINE, "Cosine"}};
 
     auto it = typeMap.find(type);
     return (it != typeMap.end()) ? it->second : "Unknown";
