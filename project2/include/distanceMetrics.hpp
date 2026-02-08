@@ -42,3 +42,14 @@ struct HistogramIntersection : public IDistanceMetric
                   const std::vector<float> &v2)
         const override;
 };
+
+
+struct CosDistance : public IDistanceMetric
+{
+    // Constructor to initialize the metric type
+    CosDistance(MetricType mt) : IDistanceMetric(mt) {}
+    // Override the compute function to calculate the histogram intersection distance between two vectors
+    float compute(const std::vector<float> &v1,
+                  const std::vector<float> &v2)
+        const override;
+};
