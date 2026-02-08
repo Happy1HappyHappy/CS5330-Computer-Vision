@@ -12,6 +12,14 @@ Description: Header file for matchUtil.cpp to
 #include <vector>
 #include "matchResult.hpp"
 
+struct DBFeature
+{
+    std::string featureType;
+    std::string position;
+    std::string metric;
+    std::vector<float> values;
+};
+
 /*
 MatchUtil class provides static utility functions for comparing and retrieving match results.
 - compareMatches(const MatchResult &a, const MatchResult &b): A static function that compares

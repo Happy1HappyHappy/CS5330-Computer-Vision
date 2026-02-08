@@ -10,28 +10,57 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
+#include <sstream>
+#include <cctype>
 
-static bool ends_with(const std::string &s, const std::string &suffix)
+// ---- local helpers (avoid name collision with cv::split) ----
+namespace
 {
-    if (s.size() < suffix.size())
-        return false;
-    return s.compare(s.size() - suffix.size(), suffix.size(), suffix) == 0;
-}
 
-static std::string basename_no_dirs(const std::string &path)
-{
-    size_t pos = path.find_last_of("/\\");
-    if (pos == std::string::npos)
-        return path;
-    return path.substr(pos + 1);
-}
+    static bool ends_with_str(const std::string &s, const std::string &suffix)
+    {
+        if (s.size() < suffix.size())
+            return false;
+        return s.compare(s.size() - suffix.size(), suffix.size(), suffix) == 0;
+    }
+
+    static std::string basename_no_dirs(const std::string &path)
+    {
+        size_t pos = path.find_last_of("/\\");
+        if (pos == std::string::npos)
+            return path;
+        return path.substr(pos + 1);
+    }
+
+    static std::string trim_copy(const std::string &s)
+    {
+        size_t b = 0;
+        while (b < s.size() && std::isspace(static_cast<unsigned char>(s[b])))
+            ++b;
+        size_t e = s.size();
+        while (e > b && std::isspace(static_cast<unsigned char>(s[e - 1])))
+            --e;
+        return s.substr(b, e - b);
+    }
+
+    static std::vector<std::string> split_str(const std::string &s, char delim)
+    {
+        std::vector<std::string> out;
+        std::stringstream ss(s);
+        std::string item;
+        while (std::getline(ss, item, delim))
+            out.push_back(trim_copy(item));
+        return out;
+    }
+
+} // namespace
 
 // e.g. "feature_vectors_rgbhist.csv" -> "rgbhist"
 std::string FeatureMatcherCLI::inferFeatureKeyFromFilename(const std::string &dbPath)
 {
     std::string base = basename_no_dirs(dbPath);
 
-    if (ends_with(base, ".csv"))
+    if (ends_with_str(base, ".csv"))
         base = base.substr(0, base.size() - 4);
 
     size_t us = base.find_last_of('_');
@@ -42,45 +71,36 @@ std::string FeatureMatcherCLI::inferFeatureKeyFromFilename(const std::string &db
 }
 
 // --db spec supports:
-//  A) "rghist=path.csv"
-//  B) "path_with_suffix_rghist.csv"  (infer from suffix)
+//  feature&position&metric=path
 bool FeatureMatcherCLI::parseDbSpec(const char *specCStr, DbEntry &out)
 {
-    std::string spec(specCStr);
+    std::string spec = trim_copy(specCStr);
 
-    // A) key=path
+    // feature:position:metric=path
     size_t eq = spec.find('=');
-    if (eq != std::string::npos)
+
+    std::string lhs = trim_copy(spec.substr(0, eq));
+    std::string rhs = trim_copy(spec.substr(eq + 1));
+
+    auto parts = split_str(lhs, ':');
+    if (parts.size() == 3 && !rhs.empty())
     {
-        std::string key = spec.substr(0, eq);
-        std::string path = spec.substr(eq + 1);
-
-        if (key.empty() || path.empty())
-            return false;
-
-        FeatureType ft = ExtractorFactory::stringToFeatureType(key.c_str());
+        FeatureType ft = ExtractorFactory::stringToFeatureType(parts[0].c_str());
         if (ft == UNKNOWN_FEATURE)
             return false;
 
         out.featureType = ft;
         out.featureName = ExtractorFactory::featureTypeToString(ft);
-        out.dbPath = path;
+        Position pos = stringToPosition(parts[1].c_str());
+        out.position = pos;
+
+        out.metricType = MetricFactory::stringToMetricType(parts[2].c_str());
+        out.hasMetric = (out.metricType != UNKNOWN_METRIC);
+
+        out.dbPath = rhs;
         return true;
     }
-
-    // B) infer from filename
-    std::string key = inferFeatureKeyFromFilename(spec);
-    if (key.empty())
-        return false;
-
-    FeatureType ft = ExtractorFactory::stringToFeatureType(key.c_str());
-    if (ft == UNKNOWN_FEATURE)
-        return false;
-
-    out.featureType = ft;
-    out.featureName = ExtractorFactory::featureTypeToString(ft);
-    out.dbPath = spec;
-    return true;
+    return false;
 }
 
 FeatureMatcherCLI::Args FeatureMatcherCLI::parse(int argc, char *argv[])
@@ -108,19 +128,21 @@ FeatureMatcherCLI::Args FeatureMatcherCLI::parse(int argc, char *argv[])
             break;
         case 'd':
         {
-            DbEntry entry;
-            if (!parseDbSpec(optarg, entry))
+            for (const auto &one : split_str(optarg, ','))
             {
-                printf("Error: invalid --db spec '%s'\n", optarg);
-                args.showHelp = true;
-                break;
+                if (one.empty())
+                    continue;
+                DbEntry entry;
+                if (!parseDbSpec(one.c_str(), entry))
+                {
+                    printf("Error: invalid --db spec '%s'\n", one.c_str());
+                    args.showHelp = true;
+                    break;
+                }
+                args.dbs.push_back(entry);
             }
-            args.dbs.push_back(entry);
             break;
         }
-        case 'm':
-            args.metricType = MetricFactory::stringToMetricType(optarg);
-            break;
         case 'n':
             args.topN = std::atoi(optarg);
             break;
@@ -144,10 +166,8 @@ void FeatureMatcherCLI::printUsage(const char *prog)
     printf("\n");
     printf("options:\n");
     printf("  -t, --target   <img>   target image path\n");
-    printf("  -d, --db       <spec>  database CSV spec (repeatable)\n");
-    printf("                    format A: rghist=feature_vectors_rghist.csv\n");
-    printf("                    format B: feature_vectors_rghist.csv  (infer feature from _<feature>.csv)\n");
-    printf("  -m, --metric   <type>  distance metric type (per your MetricFactory mapping)\n");
+    printf("  -d, --db       <spec>  (repeatable, or comma-separated)\n");
+    printf("                    format: feature:position:metric=feature_vectors_mag.csv\n");
     printf("  -n, --top      <N>     number of matches to return\n");
     printf("  -h, --help             show help\n");
 }
