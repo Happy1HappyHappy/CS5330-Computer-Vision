@@ -305,38 +305,37 @@ int CIELabHistExtractor::extractMat(
 
 int GaborHistExtractor::GaborBankGenerator(std::vector<cv::Mat> *filters) const
 {
-    int ksize = 31;       // kernel size
-    double sigma = 4.0;   // Gaussian sigma
-    double lambd = 10.0;  // wavelength
-    double gamma = 0.5;   // Aspect ratio
-    double psi = 0;       // Phase offset
-    
-    double thetas[] = {0, CV_PI/4, CV_PI/2, CV_PI*3/4};
+    int ksize = 31;      // kernel size
+    double sigma = 4.0;  // Gaussian sigma
+    double lambd = 10.0; // wavelength
+    double gamma = 0.5;  // Aspect ratio
+    double psi = 0;      // Phase offset
 
-    for (double theta : thetas) {
+    double thetas[] = {0, CV_PI / 4, CV_PI / 2, CV_PI * 3 / 4};
+
+    for (double theta : thetas)
+    {
         cv::Mat kernel = getGaborKernel(cv::Size(ksize, ksize), sigma, theta, lambd, gamma, psi, CV_32F);
         filters->push_back(kernel);
     }
     return 0;
 }
 
-int GaborHistExtractor::extract(const char *imagePath, std::vector<float> *featureVector) const
+int GaborHistExtractor::extractMat(
+    const cv::Mat &image,
+    std::vector<float> *featureVector) const
 {
-    // Load the image
-    cv::Mat image = cv::imread(imagePath);
-    if (image.empty())
-    {
-        printf("Error: Unable to load image %s\n", imagePath);
-        return -1;
-    }
-
+    cv::Mat src = image.clone();
     cv::Mat gray;
-    
+
     // Check if image is in gray
-    if (image.channels() > 1) {
-        cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY); 
-    } else {
-        gray = image; 
+    if (image.channels() > 1)
+    {
+        cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
+    }
+    else
+    {
+        gray = image;
     }
 
     // Get Gabor filters
@@ -344,9 +343,10 @@ int GaborHistExtractor::extract(const char *imagePath, std::vector<float> *featu
     GaborBankGenerator(&gaborFilters);
 
     // Process each Gabor filter
-    for (const cv::Mat &kernel : gaborFilters) {
+    for (const cv::Mat &kernel : gaborFilters)
+    {
         cv::Mat fimg;
-        
+
         // CV32F to prevent overflow during convolution
         cv::filter2D(gray, fimg, CV_32F, kernel);
 
@@ -356,9 +356,9 @@ int GaborHistExtractor::extract(const char *imagePath, std::vector<float> *featu
 
         // create histogram for the filtered image
         cv::Mat hist;
-        int histSize = 32;        
-        float range[] = {0, 256}; 
-        const float* histRange = {range};
+        int histSize = 32;
+        float range[] = {0, 256};
+        const float *histRange = {range};
 
         cv::calcHist(&fimg_8u, 1, 0, cv::Mat(), hist, 1, &histSize, &histRange, true, false);
 
@@ -366,13 +366,10 @@ int GaborHistExtractor::extract(const char *imagePath, std::vector<float> *featu
         cv::normalize(hist, hist, 0, 1, cv::NORM_MINMAX, -1, cv::Mat());
 
         // concatenate histogram values to feature vector
-        for (int i = 0; i < histSize; i++) {
+        for (int i = 0; i < histSize; i++)
+        {
             featureVector->push_back(hist.at<float>(i));
         }
     }
-    return 0; 
+    return 0;
 }
-
-
-
-

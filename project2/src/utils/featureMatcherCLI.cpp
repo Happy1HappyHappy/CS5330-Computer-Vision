@@ -167,7 +167,7 @@ void FeatureMatcherCLI::printUsage(const char *prog)
     printf("options:\n");
     printf("  -t, --target   <img>   target image path\n");
     printf("  -d, --db       <spec>  (repeatable, or comma-separated)\n");
-    printf("                    format: feature:position:metric=feature_vectors_mag.csv\n");
+    printf("                    format: feature:position:metric=feature_vectors_baseline_whole.csv\n");
     printf("  -n, --top      <N>     number of matches to return\n");
     printf("  -h, --help             show help\n");
 }
