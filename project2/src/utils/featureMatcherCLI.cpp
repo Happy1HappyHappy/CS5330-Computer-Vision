@@ -190,6 +190,12 @@ FeatureMatcherCLI::Args FeatureMatcherCLI::parse(int argc, char *argv[])
             {
                 if (one.empty())
                     continue;
+                if (!ends_with_str(one, ".csv"))
+                {
+                    printf("Error: --db spec must end with .csv '%s'\n", one.c_str());
+                    args.showHelp = true;
+                    break;
+                }
                 DbEntry entry;
                 if (!parseDbSpec(one.c_str(), entry))
                 {
