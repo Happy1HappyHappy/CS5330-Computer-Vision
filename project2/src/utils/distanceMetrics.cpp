@@ -13,6 +13,7 @@
 #include <cstring>
 #include <limits>
 #include <vector>
+#include <numeric>
 
 /*
 Sum of Squared Distance (SSD) metric
