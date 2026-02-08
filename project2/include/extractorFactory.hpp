@@ -9,6 +9,7 @@ Description: Header file for extractorFactory.cpp to
 
 #pragma once // Include guard
 
+#include "position.hpp"
 #include <memory>
 #include <vector>
 
