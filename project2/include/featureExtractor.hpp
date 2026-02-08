@@ -48,7 +48,6 @@ struct GaborHistExtractor : public IExtractor
     // Constructor to initialize the feature type and precompute Gabor filters
     GaborHistExtractor(FeatureType type) : IExtractor(type) {};
     // Override the extract function to implement the feature extraction logic for the texture Sobel extractor
-    int extract(const char *imagePath, std::vector<float> *featureVector) const override;
+    int extractMat(const cv::Mat &image, std::vector<float> *featureVector) const override;
     int GaborBankGenerator(std::vector<cv::Mat> *filters) const;
 };
-

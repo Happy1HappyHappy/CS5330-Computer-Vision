@@ -74,20 +74,43 @@ int main(int argc, char *argv[])
 
         // Extract features from the target image using the specified feature extractor
         std::vector<float> targetFeatures;
-        auto extractor = ExtractorFactory::create(dbEntry.featureType);
-        if (!extractor)
+        bool targetFromDb = false;
+
+        // Check if target image exists in DB CSV
+        for (size_t i = 0; i < dbFilenames.size(); ++i)
         {
-            printf("Error: extractor nullptr for feature=%s\n", dbEntry.featureName.c_str());
-            return -1;
+            if (ReadFiles::isTargetImageInDatabase(
+                    args.targetPath.c_str(),
+                    dbFilenames[i].c_str()))
+            {
+                // Target image found in DB: reuse its feature vector
+                targetFeatures = dbData[i];
+                targetFromDb = true;
+
+                printf("Info: target image found in DB '%s', reuse feature vector.\n",
+                       dbEntry.dbPath.c_str());
+                break;
+            }
         }
-        int rc = extractor->extract(
-            args.targetPath.c_str(),
-            &targetFeatures,
-            dbEntry.position);
-        if (rc != 0)
+
+        // If target not in DB, extract features from image
+        if (!targetFromDb)
         {
-            printf("Error: failed to extract target features for feature=%s\n", dbEntry.featureName.c_str());
-            return -1;
+            auto extractor = ExtractorFactory::create(dbEntry.featureType);
+            if (!extractor)
+            {
+                printf("Error: extractor nullptr for feature=%s\n", dbEntry.featureName.c_str());
+                return -1;
+            }
+            int rc = extractor->extract(
+                args.targetPath.c_str(),
+                &targetFeatures,
+                dbEntry.position);
+            if (rc != 0)
+            {
+                printf("Error: failed to extract target features for feature=%s\n", dbEntry.featureName.c_str());
+                return -1;
+            }
         }
 
         // Create the appropriate distance metric based on the specified metric type
