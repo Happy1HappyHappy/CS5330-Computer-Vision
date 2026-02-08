@@ -30,6 +30,7 @@ enum MetricType
 {
     SSD,
     HIST_INTERSECTION,
+    COSINE,
     UNKNOWN_METRIC
 };
 
