@@ -36,6 +36,8 @@ std::shared_ptr<IExtractor> ExtractorFactory::create(FeatureType type)
         return std::make_shared<SobelMagnitudeExtractor>(type);
     case CIELAB_HIST:
         return std::make_shared<CIELabHistExtractor>(type);
+    case GABOR_HIST:
+        return std::make_shared<GaborHistExtractor>(type);
     default:
         return nullptr;
     }
@@ -57,7 +59,8 @@ FeatureType ExtractorFactory::stringToFeatureType(const char *typeStr)
         {"rghist2d", RG_HIST_2D},
         {"rgbhist3d", RGB_HIST_3D},
         {"magnitude", SOBEL_MAGNITUDE},
-        {"cielab", CIELAB_HIST}};
+        {"cielab", CIELAB_HIST},    
+        {"gabor", GABOR_HIST}};
 
     auto it = typeMap.find(typeStr);
     return (it != typeMap.end()) ? it->second : UNKNOWN_FEATURE;
@@ -80,7 +83,8 @@ std::string ExtractorFactory::featureTypeToString(FeatureType type)
         {RG_HIST_2D, "rghist2d"},
         {RGB_HIST_3D, "rgbhist3d"},
         {SOBEL_MAGNITUDE, "magnitude"},
-        {CIELAB_HIST, "cielab"}};
+        {CIELAB_HIST, "cielab"},
+        {GABOR_HIST, "gabor"}};
 
     auto it = reverseMap.find(type);
     return (it != reverseMap.end()) ? it->second : "Unknown";

@@ -11,6 +11,7 @@ Description: Header file for featureExtractor.cpp to extract features from image
 #include "IExtractor.hpp"
 #include <opencv2/opencv.hpp>
 #include <vector>
+#include <opencv2/core.hpp>
 
 struct BaselineExtractor : public IExtractor
 {
@@ -41,3 +42,13 @@ struct CIELabHistExtractor : public IExtractor
     CIELabHistExtractor(FeatureType type) : IExtractor(type) {}
     int extractMat(const cv::Mat &image, std::vector<float> *featureVector) const override;
 };
+
+struct GaborHistExtractor : public IExtractor
+{
+    // Constructor to initialize the feature type and precompute Gabor filters
+    GaborHistExtractor(FeatureType type) : IExtractor(type) {};
+    // Override the extract function to implement the feature extraction logic for the texture Sobel extractor
+    int extract(const char *imagePath, std::vector<float> *featureVector) const override;
+    int GaborBankGenerator(std::vector<cv::Mat> *filters) const;
+};
+
