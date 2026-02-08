@@ -96,6 +96,7 @@ int main(int argc, char *argv[])
         // If target not in DB, extract features from image
         if (!targetFromDb)
         {
+            printf("Extract by feature type: %s; Position: %s\n", dbEntry.featureName.c_str(), positionToString(dbEntry.position).c_str());
             auto extractor = ExtractorFactory::create(dbEntry.featureType);
             if (!extractor)
             {
@@ -116,40 +117,39 @@ int main(int argc, char *argv[])
         // Create the appropriate distance metric based on the specified metric type
         // Compute distances between the target features and each database feature vector,
         // and store the results in a vector of MatchResult objects
+        printf("Distance metric: %s\n", MetricFactory::metricTypeToString(dbEntry.metricType).c_str());
+        printf("Weight: %.3f\n", dbEntry.weight);
+        printf("--------------------\n");
         for (size_t i = 0; i < dbData.size(); ++i)
         {
             // Skip the target image if in the database to avoid matching it with itself
             if (ReadFiles::isTargetImageInDatabase(args.targetPath.c_str(), dbFilenames[i].c_str()))
                 continue;
-
             float d = distanceMetric->compute(targetFeatures, dbData[i]);
-            totalDistance[dbFilenames[i]] += d;
+            totalDistance[dbFilenames[i]] += dbEntry.weight * d;
             seenAny[dbFilenames[i]] = true;
         }
-
-        std::vector<MatchResult> results;
-        results.reserve(totalDistance.size());
-
-        for (const auto &kv : totalDistance)
-        {
-            if (!seenAny[kv.first])
-                continue;
-
-            MatchResult res;
-            res.filename = kv.first;
-            res.distance = kv.second;
-            results.push_back(res);
-        }
-
-        if (results.empty())
-        {
-            printf("No matches (check DBs / feature extraction).\n");
-            return 0;
-        }
-
-        std::sort(results.begin(), results.end(), MatchUtil::compareMatches);
-        std::vector<MatchResult> topMatches = MatchUtil::getTopNMatches(results, args.topN);
-
-        return (0); // Success
     }
+    std::vector<MatchResult> results;
+    results.reserve(totalDistance.size());
+
+    for (const auto &kv : totalDistance)
+    {
+        if (!seenAny[kv.first])
+            continue;
+        MatchResult res;
+        res.filename = kv.first;
+        res.distance = kv.second;
+        results.push_back(res);
+    }
+
+    if (results.empty())
+    {
+        printf("No matches (check DBs / feature extraction).\n");
+        return 0;
+    }
+    std::sort(results.begin(), results.end(), MatchUtil::compareMatches);
+    std::vector<MatchResult> topMatches = MatchUtil::getTopNMatches(results, args.topN);
+
+    return (0); // Success
 }

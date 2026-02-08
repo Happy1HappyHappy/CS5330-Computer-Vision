@@ -71,7 +71,7 @@ std::string FeatureMatcherCLI::inferFeatureKeyFromFilename(const std::string &db
 }
 
 // --db spec supports:
-//  feature&position&metric=path
+//  feature:position:metric[:weight]=csv
 bool FeatureMatcherCLI::parseDbSpec(const char *specCStr, DbEntry &out)
 {
     std::string spec = trim_copy(specCStr);
@@ -83,20 +83,42 @@ bool FeatureMatcherCLI::parseDbSpec(const char *specCStr, DbEntry &out)
     std::string rhs = trim_copy(spec.substr(eq + 1));
 
     auto parts = split_str(lhs, ':');
-    if (parts.size() == 3 && !rhs.empty())
+    if (parts.size() == 3 || parts.size() == 4)
     {
+        // feature
         FeatureType ft = ExtractorFactory::stringToFeatureType(parts[0].c_str());
         if (ft == UNKNOWN_FEATURE)
             return false;
 
+        // position
+        Position pos = stringToPosition(parts[1].c_str());
+        // metric
+        MetricType mt = MetricFactory::stringToMetricType(parts[2].c_str());
+        if (mt == UNKNOWN_METRIC)
+            return false;
+
+        // weight (optional)
+        float weight = 1.0f;
+        if (parts.size() == 4)
+        {
+            try
+            {
+                weight = std::stof(parts[3]);
+            }
+            catch (...)
+            {
+                return false;
+            }
+            if (weight <= 0.0f)
+                return false;
+        }
+
         out.featureType = ft;
         out.featureName = ExtractorFactory::featureTypeToString(ft);
-        Position pos = stringToPosition(parts[1].c_str());
         out.position = pos;
-
-        out.metricType = MetricFactory::stringToMetricType(parts[2].c_str());
-        out.hasMetric = (out.metricType != UNKNOWN_METRIC);
-
+        out.metricType = mt;
+        out.hasMetric = true;
+        out.weight = weight;
         out.dbPath = rhs;
         return true;
     }
@@ -167,7 +189,7 @@ void FeatureMatcherCLI::printUsage(const char *prog)
     printf("options:\n");
     printf("  -t, --target   <img>   target image path\n");
     printf("  -d, --db       <spec>  (repeatable, or comma-separated)\n");
-    printf("                    format: feature:position:metric=feature_vectors_baseline_whole.csv\n");
+    printf("                         format: feature:position:metric:weight=feature_vectors_baseline_whole.csv\n");
     printf("  -n, --top      <N>     number of matches to return\n");
     printf("  -h, --help             show help\n");
 }

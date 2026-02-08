@@ -25,6 +25,7 @@ public:
 
         MetricType metricType = UNKNOWN_METRIC;
         bool hasMetric = false;
+        float weight = 1.0f;
         std::string dbPath;
     };
 
