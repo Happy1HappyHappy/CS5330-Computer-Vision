@@ -19,10 +19,14 @@ class IExtractor;
 Enumeration for different feature types that can be extracted from images.
 - BASELINE: A simple baseline feature extractor that extracts a 7x7 patch from the
             center of the image and flattens it into a feature vector.
-- RG_COLOR_HIST: A color histogram feature extractor that computes a histogram of pixel
+- RG_HIST_2D: A color histogram feature extractor that computes a histogram of pixel
             intensities for each color channel.
+- RGB_HIST_3D: A color histogram feature extractor that computes a 3D histogram of pixel
+            intensities across all three color channels.
 - SOBEL_MAGNITUDE: A texture feature extractor that uses the Sobel operator to capture
             edge information in the image.
+- CIELAB_HIST: A color histogram feature extractor that computes a histogram in the CIELAB color space.
+- GABOR_HIST: A texture feature extractor that uses Gabor filters to capture texture information.
 - UNKNOWN_FEATURE: A default value for unrecognized feature types.
 */
 enum FeatureType

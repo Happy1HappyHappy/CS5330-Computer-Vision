@@ -3,6 +3,7 @@
   featureGenCLI.cpp
 
   Path: project2/src/utils/featureGenCLI.cpp
+  Description: Command line interface for the feature generator.
 */
 
 #include "featureGenCLI.hpp"
@@ -10,6 +11,12 @@
 #include <algorithm>
 #include <cstdio>
 
+/*
+Parses command line arguments for the feature generator.
+- @param argc The number of command line arguments.
+- @param argv An array of character pointers representing the command line arguments.
+- @return An Args struct containing the parsed arguments.
+*/
 FeatureGenCLI::Args FeatureGenCLI::parse(int argc, char *argv[])
 {
     Args args;
@@ -55,6 +62,10 @@ FeatureGenCLI::Args FeatureGenCLI::parse(int argc, char *argv[])
     return args;
 }
 
+/*
+Prints the usage information for the feature generator.
+- @param prog The name of the program.
+*/
 void FeatureGenCLI::printUsage(const char *prog)
 {
     printf("usage:\n");
@@ -70,6 +81,11 @@ void FeatureGenCLI::printUsage(const char *prog)
     printf("  -h, --help               show help\n");
 }
 
+/*
+Splits a comma-separated string into a vector of strings.
+- @param s The input string.
+- @return A vector of strings.
+*/
 std::vector<std::string> FeatureGenCLI::splitCSV(const std::string &s)
 {
     std::vector<std::string> out;
@@ -96,6 +112,11 @@ std::vector<std::string> FeatureGenCLI::splitCSV(const std::string &s)
     return out;
 }
 
+/*
+Trims leading and trailing whitespace from a token and adds it to the output vector if it's not empty.
+- @param out The vector to store the trimmed token.
+- @param token The token to be trimmed and added.
+*/
 void FeatureGenCLI::pushToken(std::vector<std::string> &out, std::string token)
 {
     while (!token.empty() && (token.front() == ' ' || token.front() == '\t'))

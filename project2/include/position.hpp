@@ -10,6 +10,13 @@ Description: Header file for position utilities.
 #include <opencv2/opencv.hpp>
 #include <string>
 
+/*
+Enumeration for different positions within an image.
+- WHOLE: The entire image.
+- UP: The upper half of the image.
+- BOTTOM: The lower half of the image.
+- CENTER: The central region of the image.
+*/
 enum class Position
 {
     WHOLE,
@@ -18,6 +25,13 @@ enum class Position
     CENTER
 };
 
+/*
+Converts a string representation of a position to the corresponding Position enum value.
+- "up": Upper half of the image.
+- "bottom": Lower half of the image.
+- "center": Central region of the image.
+- Any other value: Whole image.
+*/
 inline Position stringToPosition(const std::string &s)
 {
     if (s == "up")
@@ -29,6 +43,13 @@ inline Position stringToPosition(const std::string &s)
     return Position::WHOLE; // default
 }
 
+/*
+Converts a Position enum value to its string representation.
+- Position::WHOLE: "whole"
+- Position::UP: "up"
+- Position::BOTTOM: "bottom"
+- Position::CENTER: "center"
+*/
 inline std::string positionToString(Position p)
 {
     switch (p)
@@ -45,6 +66,13 @@ inline std::string positionToString(Position p)
     return "whole";
 }
 
+/*
+Returns the region of interest (ROI) for a given position within an image.
+- Position::WHOLE: The entire image.
+- Position::UP: The upper half of the image.
+- Position::BOTTOM: The lower half of the image.
+- Position::CENTER: The central region of the image.
+*/
 inline cv::Rect roiFor(Position p, int w, int h)
 {
     if (p == Position::WHOLE)

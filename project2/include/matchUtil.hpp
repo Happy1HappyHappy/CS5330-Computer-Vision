@@ -12,6 +12,13 @@ Description: Header file for matchUtil.cpp to
 #include <vector>
 #include "matchResult.hpp"
 
+/*
+DBFeature struct represents a feature extracted from a database image.
+- featureType: The type of the feature.
+- position: The position of the feature in the image.
+- metric: The metric used to compare features.
+- values: The feature values.
+*/
 struct DBFeature
 {
     std::string featureType;

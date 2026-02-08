@@ -22,10 +22,7 @@ Description: Matches features from a query image to a database of feature vector
 
 /*
 featureMatcher is the main program that matches features from a query image to
-a database of feature vectors. The program takes five command line arguments:
-the path to the target image, the path to the database CSV file, the feature type,
-the distance metric type, and the number of top matches to display.
-
+a database of feature vectors.
 - @param argc The number of command line arguments.
 - @param argv An array of character pointers representing the command line arguments.
 - @return 0 on success, non-zero value on error.
@@ -47,9 +44,11 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+    // Initialize data structures to accumulate distances and track seen images
     std::unordered_map<std::string, float> totalDistance;
     std::unordered_map<std::string, bool> seenAny;
 
+    // Iterate over each database entry
     for (const auto &dbEntry : args.dbs)
     {
         // Load database feature vectors and filenames from the CSV file
@@ -62,8 +61,9 @@ int main(int argc, char *argv[])
             printf("Warning: DB is empty: %s\n", dbEntry.dbPath.c_str());
             continue;
         }
-
+        // Determine the metric type to use for this database entry
         MetricType metricType = dbEntry.hasMetric ? dbEntry.metricType : args.metricType;
+        // Create the appropriate distance metric based on the specified metric type
         auto distanceMetric = MetricFactory::create(metricType);
         if (!distanceMetric)
         {
@@ -115,24 +115,27 @@ int main(int argc, char *argv[])
         }
 
         // Create the appropriate distance metric based on the specified metric type
-        // Compute distances between the target features and each database feature vector,
-        // and store the results in a vector of MatchResult objects
         printf("Distance metric: %s\n", MetricFactory::metricTypeToString(dbEntry.metricType).c_str());
         printf("Weight: %.3f\n", dbEntry.weight);
         printf("--------------------\n");
+        // Compute distances between the target features and each database feature vector
         for (size_t i = 0; i < dbData.size(); ++i)
         {
             // Skip the target image if in the database to avoid matching it with itself
             if (ReadFiles::isTargetImageInDatabase(args.targetPath.c_str(), dbFilenames[i].c_str()))
                 continue;
             float d = distanceMetric->compute(targetFeatures, dbData[i]);
+            // Accumulate the weighted distance for this database entry
             totalDistance[dbFilenames[i]] += dbEntry.weight * d;
+            // Mark this image as seen
             seenAny[dbFilenames[i]] = true;
         }
     }
+    // Convert the accumulated distances into a vector of MatchResult objects
     std::vector<MatchResult> results;
     results.reserve(totalDistance.size());
 
+    // Convert the accumulated distances into MatchResult objects
     for (const auto &kv : totalDistance)
     {
         if (!seenAny[kv.first])
@@ -148,6 +151,7 @@ int main(int argc, char *argv[])
         printf("No matches (check DBs / feature extraction).\n");
         return 0;
     }
+    // Sort the results by distance
     std::sort(results.begin(), results.end(), MatchUtil::compareMatches);
     std::vector<MatchResult> topMatches = MatchUtil::getTopNMatches(results, args.topN);
 

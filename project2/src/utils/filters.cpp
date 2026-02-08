@@ -2,7 +2,7 @@
 Claire Liu, Yu-Jing Wei
 Filters.cpp
 
-Path: project1/videoDisplay/src/utils/Filters.cpp
+Path: src/utils/Filters.cpp
 Description: Filters implementation file defining image filtering functions.
 */
 
@@ -10,6 +10,12 @@ Description: Filters implementation file defining image filtering functions.
 #include "faceDetect.hpp"
 #include <opencv2/opencv.hpp>
 
+/*
+Applies the Sobel X filter to the source image.
+- @param src The source image.
+- @param dst The destination image where the result will be stored.
+- @return 0 on success, -1 on failure (e.g., if the source image is empty).
+*/
 int Filters::sobelX3x3(cv::Mat &src, cv::Mat &dst)
 {
     // This function applies the Sobel X filter to the source image
@@ -34,6 +40,12 @@ int Filters::sobelX3x3(cv::Mat &src, cv::Mat &dst)
     return 0;
 }
 
+/*
+Applies the Sobel Y filter to the source image.
+- @param src The source image.
+- @param dst The destination image where the result will be stored.
+- @return 0 on success, -1 on failure (e.g., if the source image is empty).
+*/
 int Filters::sobelY3x3(cv::Mat &src, cv::Mat &dst)
 {
     // This function applies the Sobel Y filter to the source image
@@ -59,6 +71,13 @@ int Filters::sobelY3x3(cv::Mat &src, cv::Mat &dst)
     return 0;
 }
 
+/*
+Computes the magnitude of two images sx and sy.
+- @param sx The Sobel X image.
+- @param sy The Sobel Y image.
+- @param dst The output magnitude image.
+- @return 0 on success, -1 on failure (e.g., if the source images are empty).
+*/
 int Filters::magnitude(cv::Mat &sx, cv::Mat &sy, cv::Mat &dst)
 {
     // This function computes the magnitude of two images sx and sy
@@ -104,6 +123,13 @@ int Filters::magnitude(cv::Mat &sx, cv::Mat &sy, cv::Mat &dst)
     return 0;
 }
 
+/*
+Detects faces in the source image and draws rectangles around them in the destination image.
+- @param src The source image.
+- @param dst The destination image where the result will be stored.
+- @param last The last detected face rectangle for smoothing.
+- @return 0 on success, -1 on failure (e.g., if the source image is empty).
+*/
 int Filters::faceDetect(cv::Mat &src, cv::Mat &dst, cv::Rect &last)
 {
     // This function detects faces in the source image and draws rectangles around them in the destination image
@@ -150,6 +176,16 @@ int Filters::faceDetect(cv::Mat &src, cv::Mat &dst, cv::Rect &last)
     return 0;
 }
 
+/*
+Convolves the source image with separable kernels.
+- @param src The source image.
+- @param dst The destination image where the result will be stored.
+- @param kernel1 The horizontal 1D kernel.
+- @param kernel2 The vertical 1D kernel.
+- @param kSize The size of the kernels (assumed to be odd).
+- @param kSum The sum of the kernel weights for normalization (0 if no normalization).
+- @return 0 on success, -1 on failure (e.g., if the source image is empty).
+*/
 int Filters::convolve(cv::Mat &src, cv::Mat &dst, int *kernel1, int *kernel2, int kSize, int kSum)
 {
     // This is a function only for convolving an image with separable kernel

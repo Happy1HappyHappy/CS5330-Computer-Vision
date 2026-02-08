@@ -3,6 +3,7 @@
   featureMatcherCLI.cpp
 
   Path: project2/src/utils/featureMatcherCLI.cpp
+  Description: Command line interface for the feature matcher.
 */
 
 #include "featureMatcherCLI.hpp"
@@ -16,7 +17,12 @@
 // ---- local helpers (avoid name collision with cv::split) ----
 namespace
 {
-
+    /*
+    Check if a string ends with a given suffix.
+    @param s The string to check.
+    @param suffix The suffix to look for.
+    @return true if s ends with suffix, false otherwise.
+    */
     static bool ends_with_str(const std::string &s, const std::string &suffix)
     {
         if (s.size() < suffix.size())
@@ -24,6 +30,11 @@ namespace
         return s.compare(s.size() - suffix.size(), suffix.size(), suffix) == 0;
     }
 
+    /*
+    Get the basename of a path without directories.
+    @param path The path to process.
+    @return The basename without directories.
+    */
     static std::string basename_no_dirs(const std::string &path)
     {
         size_t pos = path.find_last_of("/\\");
@@ -32,6 +43,11 @@ namespace
         return path.substr(pos + 1);
     }
 
+    /*
+    Trim leading and trailing whitespace from a string.
+    @param s The string to trim.
+    @return A copy of the string with leading and trailing whitespace removed.
+    */
     static std::string trim_copy(const std::string &s)
     {
         size_t b = 0;
@@ -43,6 +59,12 @@ namespace
         return s.substr(b, e - b);
     }
 
+    /*
+    Split a string by a delimiter.
+    @param s The string to split.
+    @param delim The delimiter character.
+    @return A vector of trimmed substrings.
+    */
     static std::vector<std::string> split_str(const std::string &s, char delim)
     {
         std::vector<std::string> out;
@@ -55,7 +77,11 @@ namespace
 
 } // namespace
 
-// e.g. "feature_vectors_rgbhist.csv" -> "rgbhist"
+/*
+Infer the feature key from a database filename.
+@param dbPath The path to the database CSV file.
+@return The inferred feature key.
+*/
 std::string FeatureMatcherCLI::inferFeatureKeyFromFilename(const std::string &dbPath)
 {
     std::string base = basename_no_dirs(dbPath);
@@ -70,33 +96,37 @@ std::string FeatureMatcherCLI::inferFeatureKeyFromFilename(const std::string &db
     return base.substr(us + 1);
 }
 
-// --db spec supports:
-//  feature:position:metric[:weight]=csv
+/*
+Parse a database specification string.
+@param specCStr The specification string.
+@param out The output DbEntry structure.
+@return true if parsing was successful, false otherwise.
+*/
 bool FeatureMatcherCLI::parseDbSpec(const char *specCStr, DbEntry &out)
 {
+    // Trim the input specification string
     std::string spec = trim_copy(specCStr);
 
-    // feature:position:metric=path
+    // Find the '=' character separating the key and value
     size_t eq = spec.find('=');
-
+    // Split the specification into the left-hand side (key) and right-hand side (value)
     std::string lhs = trim_copy(spec.substr(0, eq));
     std::string rhs = trim_copy(spec.substr(eq + 1));
-
+    // Split the left-hand side into parts separated by ':'
     auto parts = split_str(lhs, ':');
+    // Check if the number of parts is valid
     if (parts.size() == 3 || parts.size() == 4)
     {
         // feature
         FeatureType ft = ExtractorFactory::stringToFeatureType(parts[0].c_str());
         if (ft == UNKNOWN_FEATURE)
             return false;
-
         // position
         Position pos = stringToPosition(parts[1].c_str());
         // metric
         MetricType mt = MetricFactory::stringToMetricType(parts[2].c_str());
         if (mt == UNKNOWN_METRIC)
             return false;
-
         // weight (optional)
         float weight = 1.0f;
         if (parts.size() == 4)
@@ -125,6 +155,12 @@ bool FeatureMatcherCLI::parseDbSpec(const char *specCStr, DbEntry &out)
     return false;
 }
 
+/*
+Parse command-line arguments.
+@param argc The argument count.
+@param argv The argument vector.
+@return The parsed arguments.
+*/
 FeatureMatcherCLI::Args FeatureMatcherCLI::parse(int argc, char *argv[])
 {
     Args args{};
@@ -180,6 +216,10 @@ FeatureMatcherCLI::Args FeatureMatcherCLI::parse(int argc, char *argv[])
     return args;
 }
 
+/*
+Print usage information for the FeatureMatcherCLI.
+@param prog The program name.
+*/
 void FeatureMatcherCLI::printUsage(const char *prog)
 {
     printf("usage:\n");

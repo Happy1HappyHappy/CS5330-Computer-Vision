@@ -1,6 +1,7 @@
-.DS_store
+.DS_Store
 .github/
-results/
+/.idea/
+/results/
 /bin/
 /obj/
-data/
+/data/
