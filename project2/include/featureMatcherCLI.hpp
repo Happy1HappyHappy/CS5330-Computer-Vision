@@ -3,17 +3,30 @@
   featureMatcherCLI.hpp
 
   Path: project2/include/featureMatcherCLI.hpp
-  Description:
+  Description: Header file for featureMatcherCLI.cpp to parse command-line
+                arguments for feature matching.
 */
 
 #pragma once
 #include <string>
 #include <vector>
 
-#include "extractorFactory.hpp" // FeatureType + stringToFeatureType/featureTypeToString
-#include "metricFactory.hpp"    // MetricType + stringToMetricType
+#include "extractorFactory.hpp"
+#include "metricFactory.hpp"
 #include "position.hpp"
 
+/*
+FeatureMatcherCLI class to parse command-line arguments for feature matching.
+Struct DbEntry: Represents a database entry for feature matching.
+Struct Args: Represents the command-line arguments for feature matching.
+public:
+    - parse(int argc, char *argv[]): Parses the command-line arguments and returns an Args struct.
+    - printUsage(const char *prog): Prints the usage information for the program.
+private:
+    - parseDbSpec(const char *spec, DbEntry &out): Parses a database specification string into a DbEntry struct.
+    - inferFeatureKeyFromFilename(const std::string &dbPath): Infers the feature key from a database filename.
+
+*/
 class FeatureMatcherCLI
 {
 public:

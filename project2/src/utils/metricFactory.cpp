@@ -18,6 +18,7 @@ on the specified MetricType. It uses a switch statement to determine which type 
 metric to create:
 - SSD, it creates and returns a shared pointer to a SumSquaredDistance instance.
 - HIST_INTERSECTION, it creates and returns a shared pointer to a HistogramIntersection instance.
+- COSINE, it creates and returns a shared pointer to a CosDistance instance.
 - UNKNOWN_METRIC or any unrecognized type, it returns nullptr to indicate that no valid
     metric could be created.
 */
@@ -42,7 +43,7 @@ This static method converts a string representation of a metric type to the corr
 MetricType enum value. It compares the input string to known metric type strings:
 - "ssd" returns SSD
 - "hist_intersection" returns HIST_INTERSECTION
-If the input string does not match any known metric type, it returns UNKNOWN_METRIC.
+- "cosine" returns COSINE
 */
 MetricType MetricFactory::stringToMetricType(const char *typeStr)
 {
@@ -62,6 +63,7 @@ display purposes. It uses a switch statement to return the corresponding string 
 metric type:
 - SSD returns "ssd"
 - HIST_INTERSECTION returns "hist_intersection"
+- COSINE returns "cosine"
 If the type is unrecognized, it returns "Unknown".
 */
 std::string MetricFactory::metricTypeToString(MetricType type)

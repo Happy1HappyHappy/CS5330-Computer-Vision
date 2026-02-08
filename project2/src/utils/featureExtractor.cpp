@@ -99,6 +99,15 @@ int RGColorHistExtractor::extractMat(
     return 0; // Success
 }
 
+/*
+RGBColorHistExtractor::extract(const char *imagePath, std::vector<float> *featureVector) const
+This method extracts a 3D color histogram feature from the image. It computes a 3D histogram
+for the red, green, and blue channels, normalizes it, and stores the histogram values in the provided
+feature vector. It uses OpenCV to load the image and perform the necessary operations.
+- @param imagePath The file path of the image to extract features from.
+- @param featureVector A pointer to a vector where the extracted features will be stored.
+- @return 0 on success, -1 on failure (e.g., if the image cannot be loaded).
+*/
 int RGBColorHistExtractor::extractMat(
     const cv::Mat &image,
     std::vector<float> *featureVector) const
@@ -156,6 +165,14 @@ int RGBColorHistExtractor::extractMat(
     return 0; // Success
 }
 
+/*
+SobelMagnitudeExtractor::extractMat(const cv::Mat &image, std::vector<float> *featureVector) const
+This method extracts a Sobel magnitude feature from the image. It applies Sobel X and Y filters,
+computes the magnitude, normalizes it, and stores the histogram values in the provided feature vector.
+- @param image The input image to extract features from.
+- @param featureVector A pointer to a vector where the extracted features will be stored.
+- @return 0 on success, -1 on failure (e.g., if the filters cannot be applied).
+*/
 int SobelMagnitudeExtractor::extractMat(
     const cv::Mat &image,
     std::vector<float> *featureVector) const
@@ -208,6 +225,15 @@ int SobelMagnitudeExtractor::extractMat(
     return 0; // Success
 }
 
+/*
+CIELabHistExtractor::extractMat(const cv::Mat &image, std::vector<float> *featureVector) const
+This method extracts a CIELab color histogram feature from the image. It converts the image to the CIELab color space,
+computes a 3D histogram for the L, a, and b channels, normalizes it, and stores the histogram values in the provided
+feature vector.
+- @param image The input image to extract features from.
+- @param featureVector A pointer to a vector where the extracted features will be stored.
+- @return 0 on success, -1 on failure (e.g., if the image cannot be processed).
+*/
 int CIELabHistExtractor::extractMat(
     const cv::Mat &image,
     std::vector<float> *featureVector) const
@@ -303,6 +329,12 @@ int CIELabHistExtractor::extractMat(
     return 0; // Success
 }
 
+/*
+GaborHistExtractor::GaborBankGenerator
+This method generates a bank of Gabor filters with different orientations.
+- @param filters A pointer to a vector where the generated Gabor filters will be stored.
+- @return 0 on success, -1 on failure.
+*/
 int GaborHistExtractor::GaborBankGenerator(std::vector<cv::Mat> *filters) const
 {
     int ksize = 31;      // kernel size
@@ -321,6 +353,15 @@ int GaborHistExtractor::GaborBankGenerator(std::vector<cv::Mat> *filters) const
     return 0;
 }
 
+/*
+GaborHistExtractor::extractMat
+This method extracts a Gabor histogram feature from the image. It applies a bank of Gabor filters,
+computes the histogram for each filtered image, normalizes it, and stores the histogram values in the
+provided feature vector.
+- @param image The input image to extract features from.
+- @param featureVector A pointer to a vector where the extracted features will be stored.
+- @return 0 on success, -1 on failure (e.g., if the filters cannot be applied).
+*/
 int GaborHistExtractor::extractMat(
     const cv::Mat &image,
     std::vector<float> *featureVector) const

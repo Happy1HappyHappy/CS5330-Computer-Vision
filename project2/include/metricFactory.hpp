@@ -24,6 +24,9 @@ Enumeration for different distance metric types that can be used to compare feat
     intersection between two feature vectors (already normalized).
     Higher values indicate more similar features, so we convert it to a distance
     by subtracting from 1.
+- COSINE: Cosine similarity, which computes the cosine of the angle between two feature vectors.
+    Higher values indicate more similar features, so we convert it to a distance
+    by subtracting from 1.
 - UNKNOWN_METRIC: A default value for unrecognized metric types.
 */
 enum MetricType

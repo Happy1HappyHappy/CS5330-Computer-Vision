@@ -16,38 +16,42 @@ Description: Header file for featureExtractor.cpp to extract features from image
 struct BaselineExtractor : public IExtractor
 {
     BaselineExtractor(FeatureType type) : IExtractor(type) {}
+    // Override the extractMat function to implement the feature extraction logic for the baseline extractor
     int extractMat(const cv::Mat &image, std::vector<float> *featureVector) const override;
 };
 
 struct RGColorHistExtractor : public IExtractor
 {
     RGColorHistExtractor(FeatureType type) : IExtractor(type) {}
+    // Override the extractMat function to implement the feature extraction logic for the RG color histogram extractor
     int extractMat(const cv::Mat &image, std::vector<float> *featureVector) const override;
 };
 
 struct RGBColorHistExtractor : public IExtractor
 {
     RGBColorHistExtractor(FeatureType type) : IExtractor(type) {}
+    // Override the extractMat function to implement the feature extraction logic for the RGB color histogram extractor
     int extractMat(const cv::Mat &image, std::vector<float> *featureVector) const override;
 };
 
 struct SobelMagnitudeExtractor : public IExtractor
 {
     SobelMagnitudeExtractor(FeatureType type) : IExtractor(type) {}
+    // Override the extractMat function to implement the feature extraction logic for the Sobel magnitude extractor
     int extractMat(const cv::Mat &image, std::vector<float> *featureVector) const override;
 };
 
 struct CIELabHistExtractor : public IExtractor
 {
     CIELabHistExtractor(FeatureType type) : IExtractor(type) {}
+    // Override the extractMat function to implement the feature extraction logic for the CIELAB histogram extractor
     int extractMat(const cv::Mat &image, std::vector<float> *featureVector) const override;
 };
 
 struct GaborHistExtractor : public IExtractor
 {
-    // Constructor to initialize the feature type and precompute Gabor filters
     GaborHistExtractor(FeatureType type) : IExtractor(type) {};
-    // Override the extract function to implement the feature extraction logic for the texture Sobel extractor
+    // Override the extract function to implement the feature extraction logic for the Gabor histogram extractor
     int extractMat(const cv::Mat &image, std::vector<float> *featureVector) const override;
     int GaborBankGenerator(std::vector<cv::Mat> *filters) const;
 };

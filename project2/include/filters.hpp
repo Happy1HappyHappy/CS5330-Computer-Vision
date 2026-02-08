@@ -10,6 +10,15 @@ Description: Declares image filtering functions (e.g., greyscale, blur, etc.).
 
 #include <opencv2/opencv.hpp>
 
+/*
+Filters class to apply various image filtering operations.
+public:
+- Sobel X 3x3: Applies a 3x3 Sobel filter in the X direction.
+- Sobel Y 3x3: Applies a 3x3 Sobel filter in the Y direction.
+- Magnitude: Computes the gradient magnitude from Sobel X and Y.
+- Face Detection: Detects faces in an image.
+- Convolution: Applies a custom convolution kernel to an image.
+*/
 class Filters
 {
 public:

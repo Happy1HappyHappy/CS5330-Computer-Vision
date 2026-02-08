@@ -22,10 +22,11 @@ Struct Args:
     - positionStr: The position string specifying the region of interest.
     - showHelp: A flag indicating whether to display the help message.
 public:
-    parse(int argc, char *argv[]): Parses the command-line arguments and returns an Args struct.
-    printUsage(const char *prog): Prints the usage information for the program.
-    splitCSV(const std::string &s): Splits a comma-separated string into a vector of strings.
-    pushToken(std::vector<std::string> &out, std::string token): Adds a token to the output vector.
+    - parse(int argc, char *argv[]): Parses the command-line arguments and returns an Args struct.
+    - printUsage(const char *prog): Prints the usage information for the program.
+private:
+    - splitCSV(const std::string &s): Splits a comma-separated string into a vector of strings.
+    - pushToken(std::vector<std::string> &out, std::string token): Adds a token to the output vector.
 */
 class FeatureGenCLI
 {
