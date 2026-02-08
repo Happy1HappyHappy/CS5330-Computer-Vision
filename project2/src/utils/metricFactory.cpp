@@ -48,8 +48,8 @@ MetricType MetricFactory::stringToMetricType(const char *typeStr)
 {
     static const std::unordered_map<std::string, MetricType> typeMap = {
         {"ssd", SSD},
-        {"hist_intersection", HIST_INTERSECTION},
-        {"Cosine", COSINE}};
+        {"hist_ix", HIST_INTERSECTION},
+        {"cosine", COSINE}};
 
     auto it = typeMap.find(typeStr);
     return (it != typeMap.end()) ? it->second : UNKNOWN_METRIC;
@@ -68,8 +68,8 @@ std::string MetricFactory::metricTypeToString(MetricType type)
 {
     static const std::unordered_map<MetricType, std::string> typeMap = {
         {SSD, "ssd"},
-        {HIST_INTERSECTION, "hist_intersection"},
-        {COSINE, "Cosine"}};
+        {HIST_INTERSECTION, "hist_ix"},
+        {COSINE, "cosine"}};
 
     auto it = typeMap.find(type);
     return (it != typeMap.end()) ? it->second : "Unknown";
