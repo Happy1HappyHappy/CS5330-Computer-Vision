@@ -63,7 +63,7 @@ void FeatureGenCLI::printUsage(const char *prog)
     printf("\n");
     printf("options:\n");
     printf("  -i, --input    <dir>     input image directory\n");
-    printf("  -f, --feature  <type>    baseline | cielab | gabor | magnitude | rghist | rgbhist\n");
+    printf("  -f, --feature  <type>    baseline | cielab | gabor | magnitude | rghist2d | rgbhist3d\n");
     printf("                           can be repeated, or comma-separated\n");
     printf("  -o, --output   <csv>     output csv path\n");
     printf("  -p, --pos      <pos>     whole | up | bottom | center\n");
