@@ -87,8 +87,8 @@ int main(int argc, char *argv[])
                 targetFeatures = dbData[i];
                 targetFromDb = true;
 
-                printf("Info: target image found in DB '%s', reuse feature vector.\n",
-                       dbEntry.dbPath.c_str());
+                printf("Info: target image '%s' found in DB '%s', reuse feature vector.\n",
+                       args.targetPath.c_str(), dbEntry.dbPath.c_str());
                 break;
             }
         }
