@@ -220,6 +220,7 @@ int csvUtil::read_image_data_csv(const std::string &filename,
   }
   fclose(fp);
   printf("Finished reading CSV file\n");
+  printf("--------------------\n");
 
   if (echo_file)
   {

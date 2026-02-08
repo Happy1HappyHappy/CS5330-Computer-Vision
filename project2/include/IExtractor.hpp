@@ -26,7 +26,7 @@ public:
 
         cv::Mat roi = img(r).clone();
         // debug
-        fprintf(stderr, "[IExtractor::extract] %s {%d, %d, %d, %d}\n", imagePath, r.x, r.y, r.width, r.height);
+        fprintf(stderr, "[IExtractor::extract] %s at {%d, %d, %d, %d}\n", imagePath, r.x, r.y, r.width, r.height);
         fflush(stderr);
         return extractMat(roi, out);
     }
