@@ -20,6 +20,7 @@ public:
         std::string inputDir;
         std::vector<std::string> featureStrs;
         std::string outputPath;
+        std::string positionStr = "whole";
         bool showHelp = false;
     };
 

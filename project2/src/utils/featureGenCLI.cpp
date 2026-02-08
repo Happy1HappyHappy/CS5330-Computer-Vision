@@ -18,13 +18,14 @@ FeatureGenCLI::Args FeatureGenCLI::parse(int argc, char *argv[])
         {"input", required_argument, 0, 'i'},
         {"feature", required_argument, 0, 'f'},
         {"output", required_argument, 0, 'o'},
+        {"pos", required_argument, 0, 'p'},
         {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0}};
 
     optind = 1; // reset getopt state
 
     int opt;
-    while ((opt = getopt_long(argc, argv, "i:f:o:h", long_options, nullptr)) != -1)
+    while ((opt = getopt_long(argc, argv, "i:f:o:p:h", long_options, nullptr)) != -1)
     {
         switch (opt)
         {
@@ -39,6 +40,9 @@ FeatureGenCLI::Args FeatureGenCLI::parse(int argc, char *argv[])
         }
         case 'o':
             args.outputPath = optarg;
+            break;
+        case 'p':
+            args.positionStr = optarg;
             break;
         case 'h':
             args.showHelp = true;
@@ -59,9 +63,10 @@ void FeatureGenCLI::printUsage(const char *prog)
     printf("\n");
     printf("options:\n");
     printf("  -i, --input    <dir>     input image directory\n");
-    printf("  -f, --feature  <type>    baseline | rghist | rgbhist | magnitude\n");
+    printf("  -f, --feature  <type>    baseline | cielab | magnitude | rghist | rgbhist\n");
     printf("                           can be repeated, or comma-separated\n");
     printf("  -o, --output   <csv>     output csv path\n");
+    printf("  -p, --pos      <pos>     whole | up | bottom | center\n");
     printf("  -h, --help               show help\n");
 }
 

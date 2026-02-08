@@ -24,20 +24,14 @@ stored in the provided pointer.
 - @param featureVector A pointer to a vector where the extracted features will be stored.
 - @return 0 on success, -1 on failure (e.g., if the image cannot be loaded or is too small).
 */
-int BaselineExtractor::extract(const char *imagePath, std::vector<float> *featureVector) const
+int BaselineExtractor::extractMat(
+    const cv::Mat &image,
+    std::vector<float> *featureVector) const
 {
-    // Load the image
-    cv::Mat image = cv::imread(imagePath);
-    if (image.empty())
-    {
-        printf("Error: Unable to load image %s\n", imagePath);
-        return -1.0f;
-    }
-
     // Ensure the image is large enough
     if (image.rows < 7 || image.cols < 7)
     {
-        printf("Error: Image %s is too small for 7x7 feature extraction\n", imagePath);
+        printf("Error: Image too small for 7x7 feature extraction\n");
         return -1;
     }
 
@@ -68,21 +62,16 @@ feature vector. It uses OpenCV to load the image and perform the necessary opera
 - @param featureVector A pointer to a vector where the extracted features will be stored.
 - @return 0 on success, -1 on failure (e.g., if the image cannot be loaded).
 */
-int RGColorHistExtractor::extract(const char *imagePath, std::vector<float> *featureVector) const
+int RGColorHistExtractor::extractMat(
+    const cv::Mat &image,
+    std::vector<float> *featureVector) const
 {
-    // Load the image
-    cv::Mat image = cv::imread(imagePath);
-    if (image.empty())
-    {
-        printf("Error: Unable to load image %s\n", imagePath);
-        return -1.0f;
-    }
     // Create a 2D histogram for the red and green channels
     int histSize = 16;
     cv::Mat hist = cv::Mat::zeros(cv::Size(histSize, histSize), CV_32FC1);
     for (int i = 0; i < image.rows; i++)
     {
-        cv::Vec3b *ptr = image.ptr<cv::Vec3b>(i);
+        const cv::Vec3b *ptr = image.ptr<cv::Vec3b>(i);
         for (int j = 0; j < image.cols; j++)
         {
             float B = ptr[j][0];
@@ -109,15 +98,10 @@ int RGColorHistExtractor::extract(const char *imagePath, std::vector<float> *fea
     return 0; // Success
 }
 
-int RGBColorHistExtractor::extract(const char *imagePath, std::vector<float> *featureVector) const
+int RGBColorHistExtractor::extractMat(
+    const cv::Mat &image,
+    std::vector<float> *featureVector) const
 {
-    // Load the image
-    cv::Mat image = cv::imread(imagePath);
-    if (image.empty())
-    {
-        printf("Error: Unable to load image %s\n", imagePath);
-        return -1.0f;
-    }
     // Create a 3D histogram for the red and green channels
     int histSize = 8;
     int dims = 3;
@@ -127,7 +111,7 @@ int RGBColorHistExtractor::extract(const char *imagePath, std::vector<float> *fe
     float scale = (float)histSize / 256.0f;
     for (int i = 0; i < image.rows; i++)
     {
-        cv::Vec3b *ptr = image.ptr<cv::Vec3b>(i);
+        const cv::Vec3b *ptr = image.ptr<cv::Vec3b>(i);
         for (int j = 0; j < image.cols; j++)
         {
             float B = ptr[j][0];
@@ -171,18 +155,14 @@ int RGBColorHistExtractor::extract(const char *imagePath, std::vector<float> *fe
     return 0; // Success
 }
 
-int SobelMagnitudeExtractor::extract(const char *imagePath, std::vector<float> *featureVector) const
+int SobelMagnitudeExtractor::extractMat(
+    const cv::Mat &image,
+    std::vector<float> *featureVector) const
 {
-    // Load the image in greyscale
-    cv::Mat image = cv::imread(imagePath);
-    if (image.empty())
-    {
-        printf("Error: Unable to load image %s\n", imagePath);
-        return -1;
-    }
+    cv::Mat src = image.clone();
     // Apply Sobel X and Y filters to get sX and sY, then apply magnitude filter
     cv::Mat sX, sY, dst;
-    if (Filters::sobelX3x3(image, sX) != 0 || Filters::sobelY3x3(image, sY) != 0)
+    if (Filters::sobelX3x3(src, sX) != 0 || Filters::sobelY3x3(src, sY) != 0)
     {
         printf("Error: failed to extract target features by sobel X/Y filter\n");
         return -1;
@@ -227,15 +207,10 @@ int SobelMagnitudeExtractor::extract(const char *imagePath, std::vector<float> *
     return 0; // Success
 }
 
-int CIELabHistExtractor::extract(const char *imagePath, std::vector<float> *featureVector) const
+int CIELabHistExtractor::extractMat(
+    const cv::Mat &image,
+    std::vector<float> *featureVector) const
 {
-    // Load the image
-    cv::Mat image = cv::imread(imagePath);
-    if (image.empty())
-    {
-        printf("Error: Unable to load image %s\n", imagePath);
-        return -1;
-    }
     // Create a 3D histogram for the red and green channels
     int L_histSize = 4;
     int a_histSize = 8;
@@ -246,7 +221,7 @@ int CIELabHistExtractor::extract(const char *imagePath, std::vector<float> *feat
 
     for (int i = 0; i < image.rows; i++)
     {
-        cv::Vec3b *ptr = image.ptr<cv::Vec3b>(i);
+        const cv::Vec3b *ptr = image.ptr<cv::Vec3b>(i);
         for (int j = 0; j < image.cols; j++)
         {
             float b_norm = ptr[j][0] / 255.0f;
