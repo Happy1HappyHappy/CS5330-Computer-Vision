@@ -31,6 +31,7 @@ enum FeatureType
     RGB_HIST_3D,
     SOBEL_MAGNITUDE,
     CIELAB_HIST,
+    GABOR_HIST,
     UNKNOWN_FEATURE
 };
 
