@@ -62,7 +62,13 @@ $(OBJDIR)/%.o: $(UTILSDIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Targets
-all: fg matcher
+# Targets
+all: fg matcher gui
+
+gui:
+	qmake project2_gui.pro -o Makefile.gui
+	$(MAKE) -f Makefile.gui
+
 
 COMMON_OBJS = $(OBJDIR)/csvUtil.o \
               $(OBJDIR)/extractorFactory.o \
@@ -122,6 +128,8 @@ rgbhist:
 			-n $(N)
 
 multihist: T ?= data/olympus/pic.0274.jpg
+multihist: W1 ?= 1
+multihist: W2 ?= 1
 multihist:
 	./bin/fg -i $(I) \
 			-f rgbhist3d \
@@ -133,11 +141,14 @@ multihist:
 			-p bottom
 	./bin/matcher \
 			-t $(T) \
-			-d rgbhist3d:up:hist_ix=data/fv_rgbhist3d_up.csv \
-			-d rgbhist3d:bottom:hist_ix=data/fv_rgbhist3d_bottom.csv \
+			-d rgbhist3d:up:hist_ix:$(W1)=data/fv_rgbhist3d_up.csv \
+			-d rgbhist3d:bottom:hist_ix:$(W2)=data/fv_rgbhist3d_bottom.csv \
 			-n $(N)
 
 mulit_center_focus: T ?= data/olympus/pic.1051.jpg
+mulit_center_focus: W1 ?= 1
+mulit_center_focus: W2 ?= 1
+mulit_center_focus: W3 ?= 1
 mulit_center_focus:
 	./bin/fg -i $(I) \
 			-f rghist2d \
@@ -153,9 +164,9 @@ mulit_center_focus:
 			-p center
 	./bin/matcher \
 			-t $(T) \
-			-d rghist2d:center:hist_ix=data/fv_rghist2d_center.csv \
-			-d rgbhist3d:whole:hist_ix=data/fv_rgbhist3d_whole.csv \
-			-d cielab:center:hist_ix=data/fv_cielab_center.csv \
+			-d rghist2d:center:hist_ix:$(W1)=data/fv_rghist2d_center.csv \
+			-d rgbhist3d:whole:hist_ix:$(W2)=data/fv_rgbhist3d_whole.csv \
+			-d cielab:center:hist_ix:$(W3)=data/fv_cielab_center.csv \
 			-n $(N)
 
 # pic.0893.jpg and pic.0164.jpg
@@ -168,15 +179,19 @@ dnn:
 			-n $(N)
 
 cie_gabor: T ?= data/olympus/pic.0535.jpg
+cie_gabor: W1 ?= 1
+cie_gabor: W2 ?= 1
 cie_gabor:
 	./bin/fg -i $(I) \
 			-f cielab,gabor \
 			-o $(O)
 	./bin/matcher \
 			-t $(T) \
-			-d cielab:$(P):hist_ix=data/fv_cielab_whole.csv \
-			-d gabor:$(P):cosine=data/fv_gabor_whole.csv \
+			-d cielab:$(P):hist_ix:$(W1)=data/fv_cielab_whole.csv \
+			-d gabor:$(P):cosine:$(W2)=data/fv_gabor_whole.csv \
 			-n $(N)
 
 clean:
 	rm -rf obj/*.o bin/* *~ 
+	rm -f Makefile.gui .qmake.stash
+	rm -f *.o moc_*.cpp moc_*.h moc_predefs.h

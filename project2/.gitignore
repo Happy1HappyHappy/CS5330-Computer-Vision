@@ -5,3 +5,10 @@
 /bin/
 /obj/
 /data/
+
+# Qt build files
+Makefile.gui
+.qmake.stash
+moc_*.cpp
+moc_*.h
+*.o

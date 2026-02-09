@@ -12,6 +12,7 @@ The project is organized as follows:
 ```text
 project2/
 ├── Makefile                   # Build system
+├── project2_gui.pro           # Qt GUI project configuration
 ├── data/                      # Data directory
 │   └── olympus/               # Image database (example)
 ├── include/                   # Header files
@@ -34,7 +35,8 @@ project2/
 │   │   └── featureGenerator.cpp # Main entry point for feature extraction CLI
 │   ├── online/
 │   │   ├── featureMatcher.cpp   # Main entry point for feature matching CLI
-│   │   ├── mainWindow.cpp       # GUI implementation (if applicable)
+│   │   ├── main.cpp             # GUI application entry point
+│   │   ├── mainWindow.cpp       # GUI implementation
 │   │   └── mainWindow.h         # GUI definition
 │   └── utils/
 │       ├── featureExtractor.cpp # Implementation of feature extractors
@@ -45,10 +47,18 @@ project2/
 │       ├── faceDetect.cpp       # Implementation of face detection
 │       ├── csvUtil.cpp          # Implementation of CSV utilities
 │       ├── readFiles.cpp        # Implementation of file reading
-│       └── matchUtil.cpp        # Implementation of matching utilities
-├── resources/                 # Application resources
+│       ├── matchUtil.cpp        # Implementation of matching utilities
+│       ├── featureGenCLI.cpp    # CLI parser implementation
+│       └── featureMatcherCLI.cpp # CLI parser implementation
 ├── bin/                       # Executables output
+│   ├── fg                     # Feature generator executable
+│   ├── matcher                # Feature matcher executable
+│   └── gui.app/               # GUI application bundle (macOS)
 └── obj/                       # Compiled objects
+    ├── *.o                    # CLI build artifacts
+    └── gui/                   # Qt GUI build artifacts
+        ├── *.o                # GUI object files
+        └── moc/               # Qt meta-object compiler files
 ```
 
 ## Architecture
@@ -108,19 +118,18 @@ The project follows a modular architecture with clear separation of concerns, ut
 
 Use the provided `Makefile` to compile the project:
 
-1.  **Build Feature Generator** (Offline):
-    ```bash
-    make fg
-    ```
-2.  **Build Feature Matcher** (Online CLI):
-    ```bash
-    make matcher
-    ```
-3.  **Build All**:
+1.  **Build All (Recommended)**:
+    Builds the feature generator (`fg`), matcher (`matcher`), and GUI application (`gui`).
     ```bash
     make all
     ```
-4.  **Clean Build**:
+
+2.  **Build Individual Components**:
+    - **Feature Generator**: `make fg`
+    - **Feature Matcher**: `make matcher`
+    - **GUI**: `make gui`
+
+3.  **Clean Build**:
     ```bash
     make clean
     ```
@@ -172,3 +181,46 @@ Find similar images to a query image using a database of features.
 ```bash
 ./bin/matcher -t data/olympus/pic.1016.jpg -d rgbhist3d:whole:hist_ix=data/features.csv -n 5
 ```
+
+### 3. GUI Application (`gui`)
+
+A graphical interface for the feature matching system.
+
+**Run:**
+- **macOS**:
+  ```bash
+  ./bin/gui.app/Contents/MacOS/gui
+  ```
+- **Linux**:
+  ```bash
+  ./bin/gui
+  ```
+
+**Steps:**
+1.  **Build Prerequisites**: Ensure you have run `make all` (or at least `make matcher`) so that `./bin/matcher` exists.
+2.  **Load Image**: Click the "Load Target Image" button to select a query image.
+3.  **Select Method**: Choose a feature matching method from the dropdown menu (e.g., "Baseline", "RGB Histogram", "Multi Center Focus").
+4.  **Set Parameters**:
+    - **N**: Adjust the number of top matches to display.
+    - **Weights**: Adjust the weights for different feature components (e.g., `rgbhist3d weight`, `cielab weight`). *Note: Weight fields dynamically appear based on the selected method.*
+5.  **Search**: Click "Search" to view the top matching images and their distance scores.
+
+## Reproducing Experiments
+
+The `Makefile` includes several shortcut targets to reproduce specific experimental results. These targets automatically run feature extraction and matching with predefined parameters.
+
+| Target | Description | Feature Type | Metric |
+| :--- | :--- | :--- | :--- |
+| `make baseline` | Baseline matching using 9x9 center crop. | `baseline` | SSD |
+| `make rghist` | Matching using 2D RG Chromaticity Histogram. | `rghist2d` | Histogram Intersection |
+| `make rgbhist` | Matching using 3D RGB Color Histogram. | `rgbhist3d` | Histogram Intersection |
+| `make multihist` | Multi-region matching (top & bottom) using RGB Histogram. | `rgbhist3d` | Histogram Intersection |
+| `make mulit_center_focus` | Complex matching using center crop (RG, CIELab) + whole image (RGB). | Mixed | Mixed |
+| `make dnn` | Matching using deep neural network embeddings (ResNet18). | `baseline` (DNN) | SSD |
+| `make cie_gabor` | Matching using CIELab color + Gabor texture features. | `cielab`, `gabor` | Hist Int, Cosine |
+
+**Example Usage:**
+```bash
+make rgbhist
+```
+This will extract RGB histogram features for the entire dataset and run a query with a specific target image (defined in the `Makefile`).
