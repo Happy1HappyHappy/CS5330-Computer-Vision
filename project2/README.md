@@ -3,6 +3,7 @@
 This project implements a Content-Based Image Retrieval system to search for similar images based on visual features. It supports multiple feature extraction methods and distance metrics, allowing for flexible image matching strategies.
 
 ## Authors
+
 Claire Liu, Yu-Jing Wei
 
 ## Project Structure
@@ -76,6 +77,7 @@ The project follows a modular architecture with clear separation of concerns, ut
 ### Classes & Methods
 
 #### Feature Extractors (`src/utils/featureExtractor.cpp`)
+
 - **`BaselineExtractor`**: Extracts a 9x9 feature vector from the center of the image.
 - **`RGColorHistExtractor`**: Computes a 2D RG chromaticity histogram.
 - **`RGBColorHistExtractor`**: Computes a 3D RGB color histogram.
@@ -84,15 +86,18 @@ The project follows a modular architecture with clear separation of concerns, ut
 - **`GaborHistExtractor`**: extract features using Gabor filters for texture analysis.
 
 #### Distance Metrics (`src/utils/distanceMetrics.cpp`)
+
 - **`SumSquaredDistance` (SSD)**: Computes the sum of squared differences.
 - **`HistogramIntersection`**: Computes 1 minus the intersection of two normalized histograms.
 - **`CosDistance`**: Computes the cosine distance between feature vectors.
 
 #### Factories
+
 - **`ExtractorFactory`**: Creates instances of `IExtractor` based on `FeatureType`.
 - **`MetricFactory`**: Creates instances of `IDistanceMetric` based on `MetricType`.
 
 #### Utilities
+
 - **`Filters`** (`src/utils/filters.cpp`):
   - `sobelX3x3`, `sobelY3x3`: Computes Sobel gradients.
   - `magnitude`: Computes gradient magnitude.
@@ -120,6 +125,7 @@ Use the provided `Makefile` to compile the project:
 
 1.  **Build All (Recommended)**:
     Builds the feature generator (`fg`), matcher (`matcher`), and GUI application (`gui`).
+
     ```bash
     make all
     ```
@@ -145,15 +151,17 @@ Extract features from a directory of images and save them to a CSV file.
 ```
 
 **Options:**
+
 - `-i, --input <dir>`: Input image directory.
 - `-o, --output <csv>`: Output CSV file path.
 - `-f, --feature <type>`: Feature type(s) to extract. Can be repeated or comma-separated.
-  - Types: `baseline`, `cielab`, `gabor`, `magnitude`, `rghist2d`, `rgbhist3d`.
+  - Types: `baseline`, `cielab`, `gabor`, `magnitude`,`people`, `rghist2d`, `rgbhist3d`.
 - `-p, --pos <pos>`: Region of Interest (ROI) (default: `whole`).
   - Values: `whole`, `center`, `up`, `bottom`.
 - `-h, --help`: Show help message.
 
 **Example:**
+
 ```bash
 ./bin/fg -i data/olympus -o data/features.csv -f rgbhist3d -p whole
 ```
@@ -167,6 +175,7 @@ Find similar images to a query image using a database of features.
 ```
 
 **Options:**
+
 - `-t, --target <img>`: Path to the target (query) image.
 - `-d, --db <spec>`: Database specification. Can be repeated or comma-separated for multi-feature matching.
   - **Format**: `feature:position:metric:[weight]=db_filename.csv`
@@ -178,6 +187,7 @@ Find similar images to a query image using a database of features.
 - `-h, --help`: Show help message.
 
 **Example:**
+
 ```bash
 ./bin/matcher -t data/olympus/pic.1016.jpg -d rgbhist3d:whole:hist_ix=data/features.csv -n 5
 ```
@@ -187,6 +197,7 @@ Find similar images to a query image using a database of features.
 A graphical interface for the feature matching system.
 
 **Run:**
+
 - **macOS**:
   ```bash
   ./bin/gui.app/Contents/MacOS/gui
@@ -197,30 +208,33 @@ A graphical interface for the feature matching system.
   ```
 
 **Steps:**
+
 1.  **Build Prerequisites**: Ensure you have run `make all` (or at least `make matcher`) so that `./bin/matcher` exists.
 2.  **Load Image**: Click the "Load Target Image" button to select a query image.
-3.  **Select Method**: Choose a feature matching method from the dropdown menu (e.g., "Baseline", "RGB Histogram", "Multi Center Focus").
+3.  **Select Method**: Choose a feature matching method from the dropdown menu (e.g., "Baseline", "RGB Histogram", "Magnitude", "Multi Center Focus").
 4.  **Set Parameters**:
     - **N**: Adjust the number of top matches to display.
-    - **Weights**: Adjust the weights for different feature components (e.g., `rgbhist3d weight`, `cielab weight`). *Note: Weight fields dynamically appear based on the selected method.*
+    - **Weights**: Adjust the weights for different feature components (e.g., `rgbhist3d weight`, `cielab weight`). _Note: Weight fields dynamically appear based on the selected method._
 5.  **Search**: Click "Search" to view the top matching images and their distance scores.
 
 ## Reproducing Experiments
 
 The `Makefile` includes several shortcut targets to reproduce specific experimental results. These targets automatically run feature extraction and matching with predefined parameters.
 
-| Target | Description | Feature Type | Metric |
-| :--- | :--- | :--- | :--- |
-| `make baseline` | Baseline matching using 9x9 center crop. | `baseline` | SSD |
-| `make rghist` | Matching using 2D RG Chromaticity Histogram. | `rghist2d` | Histogram Intersection |
-| `make rgbhist` | Matching using 3D RGB Color Histogram. | `rgbhist3d` | Histogram Intersection |
-| `make multihist` | Multi-region matching (top & bottom) using RGB Histogram. | `rgbhist3d` | Histogram Intersection |
-| `make mulit_center_focus` | Complex matching using center crop (RG, CIELab) + whole image (RGB). | Mixed | Mixed |
-| `make dnn` | Matching using deep neural network embeddings (ResNet18). | `baseline` (DNN) | SSD |
-| `make cie_gabor` | Matching using CIELab color + Gabor texture features. | `cielab`, `gabor` | Hist Int, Cosine |
+| Target                    | Description                                                          | Feature Type      | Metric                 |
+| :------------------------ | :------------------------------------------------------------------- | :---------------- | :--------------------- |
+| `make baseline`           | Baseline matching using 9x9 center crop.                             | `baseline`        | SSD                    |
+| `make rghist`             | Matching using 2D RG Chromaticity Histogram.                         | `rghist2d`        | Histogram Intersection |
+| `make rgbhist`            | Matching using 3D RGB Color Histogram.                               | `rgbhist3d`       | Histogram Intersection |
+| `make multihist`          | Multi-region matching (top & bottom) using RGB Histogram.            | `rgbhist3d`       | Histogram Intersection |
+| `make mulit_center_focus` | Complex matching using center crop (RG, CIELab) + whole image (RGB). | Mixed             | Mixed                  |
+| `make dnn`                | Matching using deep neural network embeddings (ResNet18).            | `baseline` (DNN)  | SSD                    |
+| `make cie_gabor`          | Matching using CIELab color + Gabor texture features.                | `cielab`, `gabor` | Hist Int, Cosine       |
 
 **Example Usage:**
+
 ```bash
 make rgbhist
 ```
+
 This will extract RGB histogram features for the entire dataset and run a query with a specific target image (defined in the `Makefile`).
