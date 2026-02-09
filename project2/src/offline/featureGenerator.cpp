@@ -85,6 +85,12 @@ int main(int argc, char *argv[])
     printf("Using feature type %s\n", featureName.c_str());
     printf("Output feature file path: %s\n", outPath.c_str());
 
+    // if the output feature CSV file exists, return
+    if (csvUtil::fileExists(outPath.c_str()))
+    {
+      printf("Output feature file %s already exists. Skipping.\n", outPath.c_str());
+      return 0;
+    }
     // Check the output feature CSV file not exist or empty
     csvUtil::clearExistingFile(outPath.c_str());
 

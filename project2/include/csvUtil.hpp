@@ -54,5 +54,12 @@ public:
   @return 0 on success, non-zero value on error.
   */
   static int clearExistingFile(const char *filename);
+
+  /*
+  Checks if the specified file exists.
+  @param filename The path to the file to be checked.
+  @return 1 if the file exists, 0 otherwise.
+  */
+  static int fileExists(const char *filename);
 };
 #endif

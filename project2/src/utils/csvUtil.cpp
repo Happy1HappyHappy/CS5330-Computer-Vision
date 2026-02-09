@@ -250,3 +250,19 @@ int csvUtil::clearExistingFile(const char *filename)
     fclose(f);
   return 0;
 }
+
+/*
+checks if the specified file exists.
+@param filename The path to the file to be checked.
+@return 1 if the file exists, 0 otherwise.
+*/
+int csvUtil::fileExists(const char *filename)
+{
+  FILE *f = fopen(filename, "r");
+  if (f)
+  {
+    fclose(f);
+    return 1;
+  }
+  return 0;
+}
