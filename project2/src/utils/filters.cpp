@@ -176,6 +176,108 @@ int Filters::faceDetect(cv::Mat &src, cv::Mat &dst, cv::Rect &last)
     return 0;
 }
 
+int Filters::CIELab(cv::Mat &src, cv::Mat &dst)
+{
+    // This function converts an image from BGR to CIELab color space
+    dst.create(src.size(), CV_32FC3);
+
+    for (int i = 0; i < src.rows; i++)
+    {
+        const cv::Vec3b *ptr = src.ptr<cv::Vec3b>(i);
+        cv::Vec3f *dstRow = dst.ptr<cv::Vec3f>(i);
+        for (int j = 0; j < src.cols; j++)
+        {
+            float b_norm = ptr[j][0] / 255.0f;
+            float g_norm = ptr[j][1] / 255.0f;
+            float r_norm = ptr[j][2] / 255.0f;
+
+            // Inverse Gamma Correction
+            float r_lin = (r_norm > 0.04045f) ? pow((r_norm + 0.055f) / 1.055f, 2.4f) : r_norm / 12.92f;
+            float g_lin = (g_norm > 0.04045f) ? pow((g_norm + 0.055f) / 1.055f, 2.4f) : g_norm / 12.92f;
+            float b_lin = (b_norm > 0.04045f) ? pow((b_norm + 0.055f) / 1.055f, 2.4f) : b_norm / 12.92f;
+
+            // Convert to XYZ color space
+            // X: response corresponding roughly to red-green perception
+            // Y: luminance (perceived brightness)
+            // Z: response corresponding roughly to blue perception
+            float X = r_lin * 0.4124f + g_lin * 0.3576f + b_lin * 0.1805f;
+            float Y = r_lin * 0.2126f + g_lin * 0.7152f + b_lin * 0.0722f;
+            float Z = r_lin * 0.0193f + g_lin * 0.1192f + b_lin * 0.9505f;
+
+            // Normalize XYZ by the reference white (D65)
+            // Using D65 reference
+            float x = X / 0.95047f;
+            float y = Y / 1.00000f;
+            float z = Z / 1.08883f;
+
+            // Lab non-linear transform
+            float fx = (x > 0.008856f) ? cbrt(x) : (7.787f * x + 16.0f / 116.0f);
+            float fy = (y > 0.008856f) ? cbrt(y) : (7.787f * y + 16.0f / 116.0f);
+            float fz = (z > 0.008856f) ? cbrt(z) : (7.787f * z + 16.0f / 116.0f);
+
+            // Convert to Lab
+            float L = 116.0f * fy - 16.0f;
+            float a = 500.0f * (fx - fy);
+            float b = 200.0f * (fy - fz);
+
+            // set the new Lab values to dst
+            dstRow[j] = cv::Vec3f(L, a, b);
+        }
+    }
+    return 0; // success
+}
+
+int Filters::GaborBankGenerator(std::vector<cv::Mat> *filters)
+{
+    int ksize = 31;      // kernel size
+    double sigma = 4.0;  // Gaussian sigma
+    double lambd = 10.0; // wavelength
+    double gamma = 0.5;  // Aspect ratio
+    double psi = 0;      // Phase offset
+
+    double thetas[] = {0, CV_PI / 4, CV_PI / 2, CV_PI * 3 / 4};
+
+    for (double theta : thetas)
+    {
+        cv::Mat kernel = getGaborKernel(cv::Size(ksize, ksize), sigma, theta, lambd, gamma, psi, CV_32F);
+        filters->push_back(kernel);
+    }
+    return 0;
+}
+
+int Filters::gabor(cv::Mat &src, cv::Mat &dst)
+{
+    cv::Mat gray;
+
+    // Check if image is in gray
+    if (src.channels() > 1)
+    {
+        cv::cvtColor(src, gray, cv::COLOR_BGR2GRAY);
+    }
+    else
+    {
+        gray = src;
+    }
+
+    // Get Gabor filters
+    std::vector<cv::Mat> gaborFilters;
+    GaborBankGenerator(&gaborFilters);
+
+    // Process each Gabor filter
+    for (const cv::Mat &kernel : gaborFilters)
+    {
+        cv::Mat fimg;
+
+        // CV32F to prevent overflow during convolution
+        cv::filter2D(gray, fimg, CV_32F, kernel);
+
+        // Transfer to 8-bit unsigned for histogram calculation
+        cv::Mat fimg_8u;
+        cv::convertScaleAbs(fimg, fimg_8u);
+    }
+    return 0; // success
+}
+
 /*
 Convolves the source image with separable kernels.
 - @param src The source image.
