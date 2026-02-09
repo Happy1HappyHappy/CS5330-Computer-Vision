@@ -117,7 +117,7 @@ rghist:
 			-t $(T) \
 			-d rghist2d:$(P):hist_ix=data/fv_rghist2d_whole.csv \
 			-n $(N)
-rgbhist: T ?= data/olympus/pic.0274.jpg
+rgbhist: T ?= data/olympus/pic.0164.jpg
 rgbhist:
 	./bin/fg -i $(I) \
 			-f rgbhist3d \
@@ -126,7 +126,7 @@ rgbhist:
 			-t $(T) \
 			-d rgbhist3d:$(P):hist_ix=data/fv_rgbhist3d_whole.csv \
 			-n $(N)
-
+			
 multihist: T ?= data/olympus/pic.0274.jpg
 multihist: W1 ?= 1
 multihist: W2 ?= 1
@@ -169,8 +169,17 @@ mulit_center_focus:
 			-d cielab:center:hist_ix:$(W3)=data/fv_cielab_center.csv \
 			-n $(N)
 
-# pic.0893.jpg and pic.0164.jpg
-dnn: T ?= data/olympus/pic.0893.jpg
+magnitude: T ?= data/olympus/pic.0164.jpg
+magnitude:
+	./bin/fg -i $(I) \
+			-f magnitude \
+			-o $(O)
+	./bin/matcher \
+			-t $(T) \
+			-d magnitude:$(P):ssd=data/fv_magnitude_whole.csv \
+			-n $(N)
+
+dnn: T ?= data/olympus/pic.0164.jpg
 dnn: M ?= ssd
 dnn:
 	./bin/matcher \
@@ -189,6 +198,37 @@ cie_gabor:
 			-t $(T) \
 			-d cielab:$(P):hist_ix:$(W1)=data/fv_cielab_whole.csv \
 			-d gabor:$(P):cosine:$(W2)=data/fv_gabor_whole.csv \
+			-n $(N)
+
+people: T ?= data/olympus/pic.0842.jpg
+people:
+	./bin/fg -i $(I) \
+			-f rghist2d \
+			-o $(O) \
+			-p center
+	./bin/fg -i $(I) \
+			-f rgbhist3d \
+			-o $(O) \
+			-p center
+	./bin/fg -i $(I) \
+			-f cielab \
+			-o $(O) \
+			-p center
+	./bin/fg -i $(I) \
+			-f magnitude \
+			-o $(O) \
+			-p center
+	./bin/fg -i $(I) \
+			-f gabor \
+			-o $(O) \
+			-p center
+	./bin/matcher \
+			-t $(T) \
+			-d rghist2d:center:hist_ix=data/fv_rghist2d_center.csv \
+			-d rgbhist3d:center:hist_ix=data/fv_rgbhist3d_center.csv \
+			-d cielab:center:hist_ix:3=data/fv_cielab_center.csv \
+			-d magnitude:center:cosine:10=data/fv_magnitude_center.csv \
+			-d gabor:center:cosine:5=data/fv_gabor_center.csv \
 			-n $(N)
 
 clean:
