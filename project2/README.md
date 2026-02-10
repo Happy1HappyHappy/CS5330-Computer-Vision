@@ -261,3 +261,6 @@ make rgbhist
 ```
 
 This will extract RGB histogram features for the entire dataset and run a query with a specific target image (defined in the `Makefile`).
+
+## Demo Video
+https://drive.google.com/file/d/1MbYPpo0_msqXzyfN6SqkK1YeolB1qIS1/view?usp=sharing 
