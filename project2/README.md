@@ -85,7 +85,7 @@ The project follows a modular architecture with clear separation of concerns, ut
 
 #### Feature Extractors (`src/utils/featureExtractor.cpp`)
 
-- **`BaselineExtractor`**: Extracts a 9x9 feature vector from the center of the image.
+- **`BaselineExtractor`**: Extracts a 7x7 feature vector from the center of the image.
 - **`RGColorHistExtractor`**: Computes a 2D RG chromaticity histogram.
 - **`RGBColorHistExtractor`**: Computes a 3D RGB color histogram.
 - **`SobelMagnitudeExtractor`**: Computes a histogram of gradient magnitudes using Sobel filters.
