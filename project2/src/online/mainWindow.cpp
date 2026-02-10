@@ -49,9 +49,10 @@ void MainWindow::setupUI()
   methodComboBox->addItem("Multi Histogram (multihist)");
   methodComboBox->addItem("Multi Center Focus");
   methodComboBox->addItem("Magnitude");
-  methodComboBox->addItem("People");
   methodComboBox->addItem("DNN (SSD)");
   methodComboBox->addItem("CIE + Gabor");
+  methodComboBox->addItem("People");
+  methodComboBox->addItem("Plate");
   controlsLayout->addWidget(methodComboBox, 1, 1);
   connect(methodComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
           this, &MainWindow::updateWeightFields);
@@ -242,6 +243,21 @@ void MainWindow::runSearch()
          << "gabor:center:cosine:5=data/fv_gabor_center.csv";
     args << "-n" << N;
   }
+  else if (method == "Plate")
+  {
+    args << "-t" << currentTargetImagePath;
+    args << "-d"
+         << "baseline:center:ssd:2=data/ResNet18_olym.csv";
+    args << "-d"
+         << "magnitude:center:cosine:5=data/fv_magnitude_center.csv";
+    args << "-d"
+         << "rghist2d:center:hist_ix:0.5=data/fv_rghist2d_center.csv";
+    args << "-d"
+         << "rgbhist3d:center:hist_ix:0.5=data/fv_rgbhist3d_center.csv";
+    args << "-d"
+         << "cielab:center:hist_ix:2=data/fv_cielab_center.csv";
+    args << "-n" << N;
+  }
   else if (method == "DNN (SSD)")
   {
     args << "-t" << currentTargetImagePath;
@@ -411,6 +427,10 @@ void MainWindow::updateWeightFields()
     // Single feature, no weight
   }
   else if (method == "People")
+  {
+    // Single feature, no weight
+  }
+  else if (method == "Plate")
   {
     // Single feature, no weight
   }
