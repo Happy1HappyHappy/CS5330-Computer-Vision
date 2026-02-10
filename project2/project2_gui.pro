@@ -7,6 +7,7 @@ TEMPLATE = app
 DESTDIR = bin
 
 CONFIG += c++17
+QMAKE_MACOSX_DEPLOYMENT_TARGET = 26.2
 
 # Build artifact directories
 OBJECTS_DIR = obj/gui

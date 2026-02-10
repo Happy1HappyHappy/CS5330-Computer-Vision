@@ -20,6 +20,7 @@ vectors.
 #include <cstdio>
 #include <cstdlib>
 #include <unordered_map>
+#include <vector>
 
 /*
 featureMatcher is the main program that matches features from a query image to
@@ -29,18 +30,15 @@ a database of feature vectors.
 arguments.
 - @return 0 on success, non-zero value on error.
 */
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 
   // Parse command line arguments
   auto args = FeatureMatcherCLI::parse(argc, argv);
-  if (args.showHelp)
-  {
+  if (args.showHelp) {
     FeatureMatcherCLI::printUsage(argv[0]);
     return 0;
   }
-  if (args.targetPath.empty() || args.dbs.empty() || args.topN <= 0)
-  {
+  if (args.targetPath.empty() || args.dbs.empty() || args.topN <= 0) {
     printf("Error: missing required arguments.\n\n");
     FeatureMatcherCLI::printUsage(argv[0]);
     return -1;
@@ -51,15 +49,13 @@ int main(int argc, char *argv[])
   std::unordered_map<std::string, bool> seenAny;
 
   // Iterate over each database entry
-  for (const auto &dbEntry : args.dbs)
-  {
+  for (const auto &dbEntry : args.dbs) {
     // Load database feature vectors and filenames from the CSV file
     std::vector<std::string> dbFilenames;   // database to save image filenames
     std::vector<std::vector<float>> dbData; // database to save feature vectors
     ReadFiles::readFeaturesFromCSV(dbEntry.dbPath.c_str(), dbFilenames, dbData);
 
-    if (dbData.empty())
-    {
+    if (dbData.empty()) {
       printf("Warning: DB is empty: %s\n", dbEntry.dbPath.c_str());
       continue;
     }
@@ -68,8 +64,7 @@ int main(int argc, char *argv[])
         dbEntry.hasMetric ? dbEntry.metricType : args.metricType;
     // Create the appropriate distance metric based on the specified metric type
     auto distanceMetric = MetricFactory::create(metricType);
-    if (!distanceMetric)
-    {
+    if (!distanceMetric) {
       printf("Error: invalid metric for db entry. db='%s'\n\n",
              dbEntry.dbPath.c_str());
       FeatureMatcherCLI::printUsage(argv[0]);
@@ -82,11 +77,9 @@ int main(int argc, char *argv[])
     bool targetFromDb = false;
 
     // Check if target image exists in DB CSV
-    for (size_t i = 0; i < dbFilenames.size(); ++i)
-    {
+    for (size_t i = 0; i < dbFilenames.size(); ++i) {
       if (ReadFiles::isTargetImageInDatabase(args.targetPath.c_str(),
-                                             dbFilenames[i].c_str()))
-      {
+                                             dbFilenames[i].c_str())) {
         // Target image found in DB: reuse its feature vector
         targetFeatures = dbData[i];
         targetFromDb = true;
@@ -96,31 +89,25 @@ int main(int argc, char *argv[])
             args.targetPath.c_str(), dbEntry.dbPath.c_str());
         break;
       }
-      else
-      {
-        printf("Info: target image '%s' not found in DB '%s', extract feature "
-               "vector.\n",
-               args.targetPath.c_str(), dbEntry.dbPath.c_str());
-      }
     }
 
     // If target not in DB, extract features from image
-    if (!targetFromDb)
-    {
+    if (!targetFromDb) {
+      printf("Info: target image '%s' not found in DB '%s', extract feature "
+             "vector.\n",
+             args.targetPath.c_str(), dbEntry.dbPath.c_str());
       printf("Extract by feature type: %s; Position: %s\n",
              dbEntry.featureName.c_str(),
              positionToString(dbEntry.position).c_str());
       auto extractor = ExtractorFactory::create(dbEntry.featureType);
-      if (!extractor)
-      {
+      if (!extractor) {
         printf("Error: extractor nullptr for feature=%s\n",
                dbEntry.featureName.c_str());
         return -1;
       }
       int rc = extractor->extract(args.targetPath.c_str(), &targetFeatures,
                                   dbEntry.position);
-      if (rc != 0)
-      {
+      if (rc != 0) {
         printf("Error: failed to extract target features for feature=%s\n",
                dbEntry.featureName.c_str());
         return -1;
@@ -134,8 +121,7 @@ int main(int argc, char *argv[])
     printf("--------------------\n");
     // Compute distances between the target features and each database feature
     // vector
-    for (size_t i = 0; i < dbData.size(); ++i)
-    {
+    for (size_t i = 0; i < dbData.size(); ++i) {
       // Skip the target image if in the database to avoid matching it with
       // itself
       if (ReadFiles::isTargetImageInDatabase(args.targetPath.c_str(),
@@ -153,8 +139,7 @@ int main(int argc, char *argv[])
   results.reserve(totalDistance.size());
 
   // Convert the accumulated distances into MatchResult objects
-  for (const auto &kv : totalDistance)
-  {
+  for (const auto &kv : totalDistance) {
     if (!seenAny[kv.first])
       continue;
     MatchResult res;
@@ -163,8 +148,7 @@ int main(int argc, char *argv[])
     results.push_back(res);
   }
 
-  if (results.empty())
-  {
+  if (results.empty()) {
     printf("No matches (check DBs / feature extraction).\n");
     return 0;
   }

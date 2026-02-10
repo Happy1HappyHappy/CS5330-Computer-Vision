@@ -9,9 +9,12 @@ CXX = $(CC)
 # OSX include paths (for MacPorts)
 #CFLAGS = -I/opt/local/include -I../include
 
+MACOS_VERSION = 26.2
+
 # OSX include paths (for homebrew, probably)
 CFLAGS = -Wc++17-extensions \
 	-std=c++17 \
+	-mmacosx-version-min=$(MACOS_VERSION) \
 	-I/opt/homebrew/include/opencv4 \
 	-I./include \
 	-DENABLE_PRECOMPILED_HEADERS=OFF
@@ -28,7 +31,7 @@ CXXFLAGS = $(CFLAGS)
 
 # Dwarf Library paths
 
-LDFLAGS = -L/opt/homebrew/opt/opencv/lib
+LDFLAGS = -L/opt/homebrew/opt/opencv/lib -mmacosx-version-min=$(MACOS_VERSION)
 # LDFLAGS = -L/opt/local/lib/opencv4/3rdparty -L/opt/local/lib # opencv libraries are here
 
 # opencv libraries

@@ -12,6 +12,7 @@ This project implements a Content-Based Image Retrieval system to search for sim
 - **Operating System**: macOS (Tested on Apple Silicon)
 - **IDE**: Qt Creator, CLion
 - **Compiler**: g++ (Apple Clang/LLVM) supporting C++17 criteria.
+- **Dependency Constraint**: macOS version mismatch warnings are resolved by synchronizing the deployment target (`26.2`) across the `Makefile` and `project2_gui.pro`.
 
 ## Project Structure
 
@@ -242,7 +243,7 @@ The `Makefile` includes several shortcut targets to reproduce specific experimen
 
 | Target                    | Description                                                          | Feature Type      | Metric                 |
 | :------------------------ | :------------------------------------------------------------------- | :---------------- | :--------------------- |
-| `make baseline`           | Baseline matching using 9x9 center crop.                             | `baseline`        | SSD                    |
+| `make baseline`           | Baseline matching using 7x7 center crop.                             | `baseline`        | SSD                    |
 | `make rghist`             | Matching using 2D RG Chromaticity Histogram.                         | `rghist2d`        | Histogram Intersection |
 | `make rgbhist`            | Matching using 3D RGB Color Histogram.                               | `rgbhist3d`       | Histogram Intersection |
 | `make multihist`          | Multi-region matching (top & bottom) using RGB Histogram.            | `rgbhist3d`       | Histogram Intersection |
