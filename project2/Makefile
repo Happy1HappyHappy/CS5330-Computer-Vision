@@ -231,6 +231,37 @@ people:
 			-d gabor:center:cosine:5=data/fv_gabor_center.csv \
 			-n $(N)
 
+plate: T ?= data/olympus/pic.0482.jpg
+plate:
+	./bin/fg -i $(I) \
+			-f rghist2d \
+			-o $(O) \
+			-p center
+	./bin/fg -i $(I) \
+			-f rgbhist3d \
+			-o $(O) \
+			-p center
+	./bin/fg -i $(I) \
+			-f cielab \
+			-o $(O) \
+			-p center
+	./bin/fg -i $(I) \
+			-f magnitude \
+			-o $(O) \
+			-p center
+	./bin/fg -i $(I) \
+			-f gabor \
+			-o $(O) \
+			-p center
+	./bin/matcher \
+			-t $(T) \
+			-d baseline:center:ssd:2=data/ResNet18_olym.csv \
+            -d magnitude:center:cosine:5=data/fv_magnitude_center.csv \
+			-d rghist2d:center:hist_ix:0.5=data/fv_rghist2d_center.csv \
+            -d rgbhist3d:center:hist_ix:0.5=data/fv_rgbhist3d_center.csv \
+            -d cielab:center:hist_ix:2=data/fv_cielab_center.csv \
+			-n $(N)
+
 clean:
 	rm -rf obj/*.o bin/* *~ 
 	rm -f Makefile.gui .qmake.stash
