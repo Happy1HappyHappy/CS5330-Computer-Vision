@@ -211,7 +211,17 @@ A graphical interface for the feature matching system.
 
 1.  **Build Prerequisites**: Ensure you have run `make all` (or at least `make matcher`) so that `./bin/matcher` exists.
 2.  **Load Image**: Click the "Load Target Image" button to select a query image.
-3.  **Select Method**: Choose a feature matching method from the dropdown menu (e.g., "Baseline", "RGB Histogram", "Magnitude", "Multi Center Focus").
+3.  **Select Method**: Choose a feature matching method from the dropdown menu. Available methods include:
+    - **Baseline**: 9x9 center crop matching.
+    - **RG Histogram (rghist)**: 2D RG chromaticity histogram.
+    - **RGB Histogram (rgbhist)**: 3D RGB color histogram.
+    - **Multi Histogram (multihist)**: RGB histograms for top and bottom regions.
+    - **Multi Center Focus**: Combined RG (center), RGB (whole), and CIELab (center).
+    - **Magnitude**: Gradient magnitude histogram.
+    - **DNN (SSD)**: Deep neural network embeddings (ResNet18).
+    - **CIE + Gabor**: CIELab color and Gabor texture features.
+    - **People**: Specialized matching for images with people (combined color, texture, and magnitude).
+    - **Plate**: Specialized matching for license plates/text-heavy regions.
 4.  **Set Parameters**:
     - **N**: Adjust the number of top matches to display.
     - **Weights**: Adjust the weights for different feature components (e.g., `rgbhist3d weight`, `cielab weight`). _Note: Weight fields dynamically appear based on the selected method._
@@ -228,8 +238,11 @@ The `Makefile` includes several shortcut targets to reproduce specific experimen
 | `make rgbhist`            | Matching using 3D RGB Color Histogram.                               | `rgbhist3d`       | Histogram Intersection |
 | `make multihist`          | Multi-region matching (top & bottom) using RGB Histogram.            | `rgbhist3d`       | Histogram Intersection |
 | `make mulit_center_focus` | Complex matching using center crop (RG, CIELab) + whole image (RGB). | Mixed             | Mixed                  |
+| `make magnitude`          | Matching using gradient magnitude histogram.                         | `magnitude`       | SSD                    |
 | `make dnn`                | Matching using deep neural network embeddings (ResNet18).            | `baseline` (DNN)  | SSD                    |
 | `make cie_gabor`          | Matching using CIELab color + Gabor texture features.                | `cielab`, `gabor` | Hist Int, Cosine       |
+| `make people`             | Specialized matching for images with people.                         | Mixed (5-way)     | Mixed                  |
+| `make plate`              | Specialized matching for license plates/text.                        | Mixed (5-way)     | Mixed                  |
 
 **Example Usage:**
 
