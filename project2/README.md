@@ -4,7 +4,14 @@ This project implements a Content-Based Image Retrieval system to search for sim
 
 ## Authors
 
-Claire Liu, Yu-Jing Wei
+- Claire Liu
+- Yu-Jing Wei
+
+## Development Environment
+
+- **Operating System**: macOS (Tested on Apple Silicon)
+- **IDE**: Qt Creator, CLion
+- **Compiler**: g++ (Apple Clang/LLVM) supporting C++17 criteria.
 
 ## Project Structure
 
@@ -227,7 +234,9 @@ A graphical interface for the feature matching system.
     - **Weights**: Adjust the weights for different feature components (e.g., `rgbhist3d weight`, `cielab weight`). _Note: Weight fields dynamically appear based on the selected method._
 5.  **Search**: Click "Search" to view the top matching images and their distance scores.
 
-## Reproducing Experiments
+## Extension Testing & Reproducing Experiments
+
+The system includes several extensions such as Gabor texture features, Deep Neural Network (DNN) embeddings, and specialized matching for people or license plates. The `Makefile` includes several shortcut targets to test these extensions and reproduce experimental results.
 
 The `Makefile` includes several shortcut targets to reproduce specific experimental results. These targets automatically run feature extraction and matching with predefined parameters.
 
