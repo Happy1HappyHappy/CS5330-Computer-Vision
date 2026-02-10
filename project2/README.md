@@ -220,7 +220,7 @@ A graphical interface for the feature matching system.
 1.  **Build Prerequisites**: Ensure you have run `make all` (or at least `make matcher`) so that `./bin/matcher` exists.
 2.  **Load Image**: Click the "Load Target Image" button to select a query image.
 3.  **Select Method**: Choose a feature matching method from the dropdown menu. Available methods include:
-    - **Baseline**: 9x9 center crop matching.
+    - **Baseline**: 7x7 center crop matching.
     - **RG Histogram (rghist)**: 2D RG chromaticity histogram.
     - **RGB Histogram (rgbhist)**: 3D RGB color histogram.
     - **Multi Histogram (multihist)**: RGB histograms for top and bottom regions.
