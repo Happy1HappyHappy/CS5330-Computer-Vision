@@ -1,3 +1,11 @@
+/*
+Claire Liu, Yu-Jing Wei
+mainWindow.cpp
+
+Path: project2/src/online/mainWindow.cpp
+Description: Implementation of the main window for the CBIR Project 2 GUI application.
+*/
+
 #include "mainWindow.h"
 #include <QDebug>
 #include <QDir>
