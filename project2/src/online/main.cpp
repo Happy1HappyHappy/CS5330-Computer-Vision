@@ -1,3 +1,11 @@
+/*
+Claire Liu, Yu-Jing Wei
+main.cpp
+
+Path: project2/src/online/main.cpp
+Description: Main entry point for the CBIR Project 2 GUI application.
+*/
+
 #include "mainWindow.h"
 #include <QApplication>
 

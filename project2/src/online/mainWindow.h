@@ -1,3 +1,11 @@
+/*
+Claire Liu, Yu-Jing Wei
+mainWindow.h
+
+Path: project2/src/online/mainWindow.h
+Description: Header file for the main window of the CBIR Project 2 GUI application.
+*/
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
